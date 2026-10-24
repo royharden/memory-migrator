@@ -667,7 +667,7 @@ begin
 end;
 $$;
 
--- Review operations: approve | reject | edit | confirm_sensitive | mark_not_sensitive | mark_sensitive
+-- Review operations: approve | reject | unreject | edit | confirm_sensitive | mark_not_sensitive | mark_sensitive
 -- payload: {op, factId, value?, expectedFactRevision?, category?}
 create function public.mm_review(envelope jsonb) returns jsonb
 language plpgsql security definer set search_path = '' as $$
@@ -686,6 +686,7 @@ begin
 
   if v_op = 'approve' then
     if v_fact.superseded_reason is not null then return jsonb_build_object('ok', false, 'code', 'superseded', 'message', 'This fact was displaced in a resolved conflict.'); end if;
+    if v_fact.review = 'rejected' then return jsonb_build_object('ok', false, 'code', 'rejected', 'message', 'Move this rejected fact back to pending first.'); end if;
     if v_in_open then return jsonb_build_object('ok', false, 'code', 'open_group', 'message', 'Resolve the conflict group first.'); end if;
     if not exists (select 1 from public.mm_fact_evidence e where e.fact_id = v_fact.id and e.quote is not null) then return jsonb_build_object('ok', false, 'code', 'no_evidence', 'message', 'No valid quote.'); end if;
     if v_fact.review = 'approved' and v_fact.approved_revision = v_fact.current_revision then
@@ -696,6 +697,9 @@ begin
     if v_in_open then return jsonb_build_object('ok', false, 'code', 'open_group', 'message', 'Use the conflict group decision.'); end if;
     if v_fact.review = 'rejected' then return mm_private.finish_request(b.o_user, b.o_profile, 'review', envelope, jsonb_build_object('ok', true, 'noop', true)); end if;
     update public.mm_facts set review = 'rejected', approved_revision = null, row_version = row_version + 1 where id = v_fact.id;
+  elsif v_op = 'unreject' then
+    if v_fact.review <> 'rejected' then return mm_private.finish_request(b.o_user, b.o_profile, 'review', envelope, jsonb_build_object('ok', true, 'noop', true)); end if;
+    update public.mm_facts set review = 'pending', approved_revision = null, row_version = row_version + 1 where id = v_fact.id;
   elsif v_op = 'edit' then
     if (p ->> 'expectedFactRevision')::integer is distinct from v_fact.current_revision then return jsonb_build_object('ok', false, 'code', 'stale_revision', 'message', 'This fact changed; reload.'); end if;
     v_value := pg_catalog.regexp_replace(p ->> 'value', '^\s+|\s+$', '', 'g');

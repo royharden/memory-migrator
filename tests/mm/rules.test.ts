@@ -71,6 +71,23 @@ describe("rule catalogue", () => {
     expect(result.diagnostics.ineligible).toMatchObject({ hypothetical: 1, question: 1, reported: 2, code: 1, instruction: 1, temporary: 1 });
   });
 
+  // what_bug_this_catches: temporary cues swallowed into the place value and stored as a durable home.
+  it("rejects temporary locations phrased with until / temporarily / right now / this week", () => {
+    for (const text of ["I live in Lisbon until June.", "I moved to Berlin temporarily.", "I live in Rome right now.", "I live in Oslo this week."]) {
+      const result = extractCandidates([conv("c", [["user", text]])]);
+      expect(result.candidates).toEqual([]);
+      expect(result.diagnostics.ineligible.temporary).toBe(1);
+    }
+    expect(facts("I moved to Cardiff last spring.")).toEqual([["location.home", "Cardiff", "assert", "move"]]);
+  });
+
+  // what_bug_this_catches: invented facts from compounds ("not far from", "at night").
+  it("does not invent facts from compound phrases", () => {
+    expect(facts("I live in Denver, not far from Boulder.")).toEqual([["location.home", "Denver", "assert", "none"]]);
+    expect(facts("I work as a nurse at night.")).toEqual([["work.role", "nurse", "assert", "none"]]);
+    expect(facts("I work at home.")).toEqual([]);
+  });
+
   it("never reads assistant text, never stores quoted forget commands as facts and never executes them", () => {
     const result = extractCandidates([conv("c", [["assistant", "I live in Paris."], ["user", "Please forget that I like jazz."]])]);
     expect(result.candidates).toEqual([]);

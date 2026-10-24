@@ -73,6 +73,7 @@ export interface ImportCounts {
   suppressed: number;
   rejectedKept: number;
   reattachedSuperseded: number;
+  invalidEvidence: number;
   openGroups: number;
 }
 
@@ -104,14 +105,17 @@ export function previewCandidateImport(state: ProfileState, candidates: Candidat
   if (candidates.length > LIMITS.maxCandidatesPerImport) {
     return { error: `This import has ${candidates.length} candidates; one import can apply at most ${LIMITS.maxCandidatesPerImport}. Narrow the selection or split it into separate imports.` };
   }
-  const counts: ImportCounts = { candidates: candidates.length, created: 0, attached: 0, unchanged: 0, suppressed: 0, rejectedKept: 0, reattachedSuperseded: 0, openGroups: 0 };
+  const counts: ImportCounts = { candidates: candidates.length, created: 0, attached: 0, unchanged: 0, suppressed: 0, rejectedKept: 0, reattachedSuperseded: 0, invalidEvidence: 0, openGroups: 0 };
   const fingerprint = candidateFingerprint(candidates);
   const importId = ctx.newId();
   let draft = cloneState(state);
   const record: ImportRecord = { id: importId, kind: "source", fingerprint, parserVersion, counts: {}, appliedAt: ctx.now, undone: false, createdGenerations: [], addedLinks: [] };
 
   for (const c of candidates) {
-    if (evidenceShapeErrors(c.evidence).length > 0) continue; // bad citations never fall back
+    if (evidenceShapeErrors(c.evidence).length > 0) {
+      counts.invalidEvidence += 1; // bad citations never fall back; they are counted
+      continue;
+    }
     const key = identityKey(c.slot, c.value, c.polarity);
     const ek = evidenceKey(c.evidence);
     const restoration = openRestoration(draft, key);
@@ -236,6 +240,8 @@ export function approve(state: ProfileState, id: string, ctx: Ctx): Result {
   const g = liveGeneration(state, id);
   if (isResult(g)) return g;
   if (g.superseded) return fail("superseded", "This fact was displaced in a resolved conflict.");
+  // A rejected fact is outside the claim set; approving it directly would skip group recomputation.
+  if (g.review === "rejected") return fail("rejected", "Move this rejected fact back to pending first; conflicts are re-checked then.");
   if (openGroupMembers(state).has(id)) return fail("open_group", "Resolve the conflict group before approving this fact.");
   if (!hasValidEvidence(state, id)) return fail("no_evidence", "A fact needs at least one valid supporting quote before approval.");
   if (g.review === "approved" && g.approvedRevision === g.currentRevision) return done(state, state);
@@ -272,6 +278,16 @@ export function reject(state: ProfileState, id: string, ctx: Ctx): Result {
   let next: ProfileState = { ...state, generations: { ...state.generations, [id]: { ...g, review: "rejected", approvedRevision: null } } };
   next = recomputeGroups(next, ctx);
   return done(state, appendEvent(bump(next), "reject", [id], ctx.now));
+}
+
+/** Un-reject: back to pending, then full-state groups are recomputed (it may join or open a conflict). */
+export function unreject(state: ProfileState, id: string, ctx: Ctx): Result {
+  const g = liveGeneration(state, id);
+  if (isResult(g)) return g;
+  if (g.review !== "rejected") return done(state, state);
+  let next: ProfileState = { ...state, generations: { ...state.generations, [id]: { ...g, review: "pending", approvedRevision: null } } };
+  next = recomputeGroups(next, ctx);
+  return done(state, appendEvent(bump(next), "unreject", [id], ctx.now));
 }
 
 /**
@@ -367,14 +383,14 @@ export function resolveGroup(state: ProfileState, groupId: string, input: GroupD
   if (input.decision === "reject_all") {
     for (const id of memberIds) generations[id] = { ...generations[id], review: "rejected", approvedRevision: null };
   } else {
-    kept = input.decision === "keep_one" ? [input.keep] : input.keep;
+    kept = [...new Set(input.decision === "keep_one" ? [input.keep] : input.keep)];
     if (input.decision === "keep_several") {
       if (kept.length < 2) return fail("bad_decision", "Keep several needs at least two facts.");
       scopeNote = input.scopeNote.trim();
       if (!scopeNote) return fail("bad_decision", "Keep several needs a scope note (for example 'weekdays vs weekends').");
     }
     if (kept.some((id) => !memberIds.includes(id))) return fail("bad_decision", "Kept facts must belong to the group.");
-    displaced = input.displaced;
+    displaced = Object.fromEntries(Object.entries(input.displaced).filter(([id]) => memberIds.includes(id) && !kept.includes(id)));
     for (const id of memberIds) {
       if (kept.includes(id)) continue;
       const reason = displaced[id];

@@ -9,6 +9,7 @@ import {
   previewCandidateImport,
   reject,
   resolveGroup,
+  unreject,
 } from "../../supabase/functions/_shared/mm/reducer.ts";
 import { extractCandidates } from "../../supabase/functions/_shared/mm/rules.ts";
 import type { ParsedConversation } from "../../supabase/functions/_shared/mm/source.ts";
@@ -113,6 +114,20 @@ describe("full-state groups", () => {
     const reopened = openGroups(state);
     expect(reopened).toHaveLength(1);
     expect(reopened[0].id).toBe(group.id);
+  });
+
+  // what_bug_this_catches: approving a rejected fact re-entering the claim set without a conflict group.
+  it("approving a rejected fact requires un-reject, which re-checks conflicts", () => {
+    let state = importConvs(emptyProfile("p"), [conv("c1", [["user", "I live in Austin."]])]);
+    const austin = byValue(state, "Austin").id;
+    const r = reject(state, austin, ctx);
+    if (!r.ok) throw new Error(r.message);
+    state = importConvs(r.state, [conv("c2", [["user", "I live in Boston."]])]);
+    expect(approve(state, austin, ctx)).toMatchObject({ ok: false, code: "rejected" });
+    const u = unreject(state, austin, ctx);
+    if (!u.ok) throw new Error(u.message);
+    expect(openGroups(u.state)).toHaveLength(1);
+    expect(approve(u.state, austin, ctx)).toMatchObject({ ok: false, code: "open_group" });
   });
 
   it("keep_several requires a scope note and stays resolved", () => {

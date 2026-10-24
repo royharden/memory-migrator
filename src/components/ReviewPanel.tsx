@@ -147,7 +147,9 @@ function FactCard({ g, profile, sourceMap, extraction, inOpenGroup, run, busy }:
 
       {live ? (
         <div className="row-actions">
-          {g.review !== "approved" || g.approvedRevision !== g.currentRevision ? (
+          {g.review === "rejected" ? (
+            <button type="button" disabled={busy} onClick={() => void run({ kind: "unreject", id: g.id })}>Move back to pending</button>
+          ) : g.review !== "approved" || g.approvedRevision !== g.currentRevision ? (
             <button type="button" className="primary" disabled={busy || inOpenGroup || g.superseded !== null} onClick={() => void run({ kind: "approve", id: g.id })}>Approve</button>
           ) : null}
           {g.review !== "rejected" ? <button type="button" disabled={busy || inOpenGroup} onClick={() => void run({ kind: "reject", id: g.id })}>Reject</button> : null}

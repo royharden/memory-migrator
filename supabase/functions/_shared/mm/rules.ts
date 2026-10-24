@@ -34,6 +34,8 @@ export type Extractor = (conversations: ParsedConversation[]) => ExtractResult;
 
 const END = String.raw`(?=\s+(?:and|but|so|because|since|though|although|while|which|who|where|when|with|for|from|anymore|any more|now|too|as well|these days|instead)\b|\s*[,.;:!?\n"“”()]|\s*$)`;
 const ROLE_END = String.raw`(?=\s+(?:at|and|but|so|because|since|though|although|while|which|who|where|when|with|for|from|anymore|any more|now|too|these days)\b|\s*[,.;:!?\n"“”()]|\s*$)`;
+// Home values additionally stop before temporary/time cues so TEMPORARY can see them.
+const HOME_END = String.raw`(?=\s+(?:and|but|so|because|since|though|although|while|which|who|where|when|with|for|from|anymore|any more|now|too|as well|these days|instead|until|till|temporarily|this|right now|at the moment|on vacation|on holiday|on a trip|on business|last|next|ago)\b|\s*[,.;:!?\n"“”()]|\s*$)`;
 const NAME = String.raw`\p{L}[\p{L}\p{M}'’\-]*(?:\s+\p{L}[\p{L}\p{M}'’\-]*){0,3}?`;
 const PLACE = String.raw`\p{L}[\p{L}\p{M}\p{N}'’.\- ]{0,60}?`;
 const ROLE = String.raw`\p{L}[\p{L}\p{M}\p{N}'’\- ]{0,40}?`;
@@ -74,10 +76,10 @@ const RULES: Rule[] = [
   { id: "name.deny", re: rx(String.raw`\bmy name (?:is not|isn['’]t) (?<v>${NAME})${END}`), emit: () => [{ slot: "identity.name", polarity: "deny", cue: "correction", group: "v" }] },
   { id: "name.assert", re: rx(String.raw`\bmy name is (?<v>${NAME})${END}`), emit: () => [{ slot: "identity.name", polarity: "assert", cue: "none", group: "v" }] },
   // location.home
-  { id: "home.used_to", re: rx(String.raw`\bi used to (?:live|reside) in (?<v>${PLACE})${END}`), emit: () => [{ slot: "location.home", polarity: "deny", cue: "retraction", group: "v" }] },
-  { id: "home.deny", re: rx(String.raw`\bi ${NEG} (?:live|reside) in (?<v>${PLACE})${END}${ANY}`), emit: (m) => [{ slot: "location.home", polarity: "deny", cue: m[0].toLowerCase().includes("no longer") || hasAnymore(m) ? "retraction" : "none", group: "v", spanGroup: hasAnymore(m) ? "any" : "v" }] },
-  { id: "home.move", re: rx(String.raw`\bi(?:['’]ve| have)?(?: just| recently)? (?:moved|relocated) to (?<v>${PLACE})${END}`), emit: () => [{ slot: "location.home", polarity: "assert", cue: "move", group: "v" }] },
-  { id: "home.assert", re: rx(String.raw`\bi (?:currently |now |still )?(?:live|reside) in (?<v>${PLACE})${END}`), emit: () => [{ slot: "location.home", polarity: "assert", cue: "none", group: "v" }] },
+  { id: "home.used_to", re: rx(String.raw`\bi used to (?:live|reside) in (?<v>${PLACE})${HOME_END}`), emit: () => [{ slot: "location.home", polarity: "deny", cue: "retraction", group: "v" }] },
+  { id: "home.deny", re: rx(String.raw`\bi ${NEG} (?:live|reside) in (?<v>${PLACE})${HOME_END}${ANY}`), emit: (m) => [{ slot: "location.home", polarity: "deny", cue: m[0].toLowerCase().includes("no longer") || hasAnymore(m) ? "retraction" : "none", group: "v", spanGroup: hasAnymore(m) ? "any" : "v" }] },
+  { id: "home.move", re: rx(String.raw`\bi(?:['’]ve| have)?(?: just| recently)? (?:moved|relocated) to (?<v>${PLACE})${HOME_END}`), emit: () => [{ slot: "location.home", polarity: "assert", cue: "move", group: "v" }] },
+  { id: "home.assert", re: rx(String.raw`\bi (?:currently |now |still )?(?:live|reside) in (?<v>${PLACE})${HOME_END}`), emit: () => [{ slot: "location.home", polarity: "assert", cue: "none", group: "v" }] },
   // work.role / work.employer
   { id: "role.used_to", re: rx(String.raw`\bi used to work as (?:an? |the )?(?<v>${ROLE})${ROLE_END}`), emit: () => [{ slot: "work.role", polarity: "deny", cue: "retraction", group: "v" }] },
   { id: "role.deny", re: rx(String.raw`\bi ${NEG} work as (?:an? |the )?(?<v>${ROLE})${ROLE_END}${ANY}`), emit: (m) => [{ slot: "work.role", polarity: "deny", cue: m[0].toLowerCase().includes("no longer") || hasAnymore(m) ? "retraction" : "none", group: "v", spanGroup: hasAnymore(m) ? "any" : "v" }] },
@@ -107,14 +109,18 @@ const RULES: Rule[] = [
 ];
 
 const VALUE_STOPWORDS = new Set(["it", "that", "this", "them", "him", "her", "you", "your", "when", "how", "what", "to", "being", "there", "here", "i", "me", "my", "so", "very", "a", "an", "the"]);
-const CORRECTION_TAIL = new RegExp(String.raw`^,?\s+not\s+(?<y>${PLACE})${END}`, "iud");
+// "X, not Y" only when Y ends the clause; "not far from Y" and similar compounds abstain.
+const CORRECTION_TAIL = new RegExp(String.raw`^,?\s+not\s+(?<y>${PLACE})(?=\s*[.!?;\n]|\s*$)`, "iud");
+const NOT_A_TARGET = /^(?:far|too|very|so|quite|exactly|really|just|only|even|yet|that|sure)\b/iu;
+// Objects of "at" that are not employers ("I work as a nurse at night").
+const NON_ORG = /^(?:night|nights|home|work|the moment|the weekend|weekends|the same time|times|first|least|most|my desk|a desk)$/iu;
 const CORRECTION_SLOTS: Slot[] = ["identity.name", "location.home", "work.employer", "work.role"];
 
 const HYPOTHETICAL = /\b(?:if|suppose|supposing|imagine|hypothetically|what if|let['’]s say|would|could|might|wish|unless|in case|maybe|someday|one day)\b/iu;
 const REPORTED = /\b(?:said|says|told|tells|think|thinks|thought|believe|believes|claim|claims|claimed|asked|wrote|writes|according to|quote|quoting|heard)\b/iu;
 const THIRD_PARTY = /\b(?:he|she|they|his|her|their|my (?:friend|brother|sister|mom|mother|dad|father|boss|colleague|cousin|neighbou?r|roommate|son|daughter|wife|husband|partner))\b/iu;
 const INSTRUCTION = /\b(?:pretend|act as|role-?play|you are|you['’]re|for this (?:conversation|chat|session)|assume|in this story|my character|persona|today is)\b/iu;
-const TEMPORARY = /^\s*(?:for (?:the|a|this|next|two|a few|a couple of) \p{L}+|this (?:week|weekend|month|summer|winter|semester|year)|temporarily|until\b|on (?:vacation|holiday|a trip|business)|for now|right now|at the moment)/iu;
+const TEMPORARY = /^\s*(?:for (?:the|a|this|next|two|a few|a couple of) \p{L}+|this (?:week|weekend|month|summer|winter|semester|year)|temporarily|(?:until|till)\b|on (?:vacation|holiday|a trip|business)|for now|right now|at the moment)/iu;
 const FORGET_PREFIX = /\b(?:forget|remove|delete|erase|don['’]t remember)\b/iu;
 const FORGET = /\b(?:forget|remove|delete|erase)\b[^.!?\n]{0,40}\b(?:that|my|about|me)\b/iu;
 const QUOTE_CHARS = /["“”]/gu;
@@ -251,6 +257,10 @@ function extractMessage(message: CanonicalMessage, digest: string, out: Candidat
             diagnostics.abstained.bad_value += 1;
             continue;
           }
+          if (emission.slot === "work.employer" && NON_ORG.test(value)) {
+            diagnostics.abstained.ambiguous += 1;
+            continue;
+          }
           let cue = emission.cue;
           if (actually && emission.polarity === "assert" && cue === "none") cue = "correction";
           // "X, not Y" -> assert X (correction) + deny Y (correction), one supporting span.
@@ -260,9 +270,10 @@ function extractMessage(message: CanonicalMessage, digest: string, out: Candidat
             const y = tail?.indices?.groups?.y;
             if (tail && y) {
               const denied = sentence.text.slice(spanEnd + y[0], spanEnd + y[1]).trim();
-              tailEnd = spanEnd + y[1];
-              cue = "correction";
-              if (validValue(emission.slot, denied)) {
+              if (validValue(emission.slot, denied) && !NOT_A_TARGET.test(denied)) {
+                // Only an accepted Y turns this into a correction pair.
+                tailEnd = spanEnd + y[1];
+                cue = "correction";
                 pushCandidate(out, seen, diagnostics, message, digest, rule.id + ".not", emission.slot, "deny", "correction", denied, sentence.offset + start, sentence.offset + tailEnd);
               } else {
                 diagnostics.abstained.ambiguous += 1;

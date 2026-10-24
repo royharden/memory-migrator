@@ -268,6 +268,8 @@ function payloadFor(state: ProfileState, action: ProfileAction): { rpc: string; 
       return { error: "Bulk approval runs as individual approvals in account mode." };
     case "reject":
       return { rpc: "mm_review", payload: { op: "reject", factId: action.id } };
+    case "unreject":
+      return { rpc: "mm_review", payload: { op: "unreject", factId: action.id } };
     case "edit": {
       const g = state.generations[action.id];
       const slot = g?.revisions[0]?.slot;

@@ -12,6 +12,7 @@ import {
   markSensitive,
   reject,
   resolveGroup,
+  unreject,
   type GroupDecision,
   type ImportPreview,
 } from "../../supabase/functions/_shared/mm/reducer.ts";
@@ -27,6 +28,7 @@ export type ProfileAction =
   | { kind: "approve"; id: string }
   | { kind: "approveSelected"; ids: string[] }
   | { kind: "reject"; id: string }
+  | { kind: "unreject"; id: string }
   | { kind: "edit"; id: string; value: string; expectedRevision: number }
   | { kind: "confirmSensitive"; id: string }
   | { kind: "markNotSensitive"; id: string }
@@ -60,6 +62,8 @@ export function applyLocal(state: ProfileState, action: ProfileAction, ctx: Ctx 
     }
     case "reject":
       return wrap(reject(state, action.id, ctx));
+    case "unreject":
+      return wrap(unreject(state, action.id, ctx));
     case "edit":
       return wrap(edit(state, action.id, action.value, action.expectedRevision, ctx));
     case "confirmSensitive":
