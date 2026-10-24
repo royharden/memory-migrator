@@ -168,13 +168,12 @@ export function deleteGeneration(
   if (mode === "erase") {
     // Group scope notes are user text that usually names the values: redact them with the erased member.
     for (const group of Object.values(draft.groups)) {
-      if (group.resolution?.scopeNote && group.members.some((m) => ids.includes(m.generationId))) {
-        draft.groups[group.id] = { ...group, resolution: { ...group.resolution, scopeNote: null } };
-        // The note was copied onto every kept fact; surviving kept facts lose it too.
-        for (const keptId of group.resolution.kept) {
-          const kept = draft.generations[keptId];
-          if (kept?.scopeNote) draft.generations[keptId] = { ...kept, scopeNote: null };
-        }
+      if (!group.members.some((m) => ids.includes(m.generationId))) continue;
+      // Independent of the resolution (it may be null after a reopen): the note was copied onto members.
+      if (group.resolution?.scopeNote) draft.groups[group.id] = { ...group, resolution: { ...group.resolution, scopeNote: null } };
+      for (const memberId of [...group.members.map((m) => m.generationId), ...(group.resolution?.kept ?? [])]) {
+        const member = draft.generations[memberId];
+        if (member?.scopeNote) draft.generations[memberId] = { ...member, scopeNote: null };
       }
     }
   }

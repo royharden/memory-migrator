@@ -402,6 +402,10 @@ export function resolveGroup(state: ProfileState, groupId: string, input: GroupD
     }
     if (scopeNote) for (const id of kept) generations[id] = { ...generations[id], scopeNote };
   }
+  // Stale notes from an earlier keep_several never survive a different decision.
+  for (const id of memberIds) {
+    if (!(scopeNote && kept.includes(id)) && generations[id].scopeNote) generations[id] = { ...generations[id], scopeNote: null };
+  }
   const resolvedGroup = {
     ...group,
     state: "resolved" as const,

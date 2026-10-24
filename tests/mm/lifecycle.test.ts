@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { deleteGeneration, deletionDependencies, restoreGeneration, undoImport } from "../../supabase/functions/_shared/mm/lifecycle.ts";
 import { emptyProfile, type ProfileState } from "../../supabase/functions/_shared/mm/model.ts";
+import { exportProjection } from "../../supabase/functions/_shared/mm/exporting.ts";
+import { buildPortable } from "../../supabase/functions/_shared/mm/portable.ts";
 import { approve, commitPreview, edit, previewCandidateImport, resolveGroup } from "../../supabase/functions/_shared/mm/reducer.ts";
 import { extractCandidates } from "../../supabase/functions/_shared/mm/rules.ts";
 import type { ParsedConversation } from "../../supabase/functions/_shared/mm/source.ts";
@@ -24,6 +26,11 @@ function idOf(state: ProfileState, value: string): string {
 }
 
 const allergy = [conv("c1", [["user", "I have a peanut allergy."]])];
+
+function ok(r: { ok: true; state: ProfileState } | { ok: false; message: string }): ProfileState {
+  if (!r.ok) throw new Error(r.message);
+  return r.state;
+}
 
 describe("erase", () => {
   // what_bug_this_catches: erase that leaves quote/value text in revisions, links, events or tombstones.
@@ -123,6 +130,41 @@ describe("erase and groups", () => {
     state = erased.state;
     expect(JSON.stringify(state)).not.toContain("Quahog");
     expect(state.generations[idOf(state, "Boston")].scopeNote).toBeNull();
+  });
+});
+
+// what_bug_this_catches: the copied note surviving after a reopen (resolution null) and a later erase.
+describe("scope notes after reopen and hide", () => {
+  function keepBoth(): { state: ProfileState; ids: string[] } {
+    const { state } = importConvs(emptyProfile("p"), [conv("c1", [["user", "I live in Quahog."], ["user", "I live in Boston."]])]);
+    const group = Object.values(state.groups).find((g) => g.state === "open");
+    if (!group) throw new Error("expected a group");
+    const ids = group.members.map((m) => m.generationId);
+    const r = resolveGroup(state, group.id, { decision: "keep_several", keep: ids, scopeNote: "Quahog weekdays, Boston weekends", displaced: {} }, ctx);
+    if (!r.ok) throw new Error(r.message);
+    return { state: r.state, ids };
+  }
+
+  it("a reopen clears the note; erasing afterwards leaves no erased text", () => {
+    const { state } = keepBoth();
+    const reopened = importConvs(state, [conv("c2", [["user", "I live in Berlin."]])]).state;
+    expect(Object.values(reopened.generations).every((g) => g.scopeNote === null)).toBe(true);
+    const erased = deleteGeneration(reopened, idOf(reopened, "Quahog"), "erase", "retain", ctx);
+    if (!erased.ok) throw new Error(erased.message);
+    expect(JSON.stringify(erased.state)).not.toContain("Quahog");
+  });
+
+  it("hiding one kept fact keeps the shared note out of exports of the other", () => {
+    const { state } = keepBoth();
+    const boston = idOf(state, "Boston");
+    let next = ok(approve(state, boston, ctx));
+    const hidden = deleteGeneration(next, idOf(next, "Quahog"), "hide", "retain", ctx);
+    if (!hidden.ok) throw new Error(hidden.message);
+    next = hidden.state;
+    const items = exportProjection(next, { includeSensitive: false });
+    expect(items.map((i) => i.generation.id)).toEqual([boston]);
+    expect(items[0].scopeNote).toBeNull();
+    expect(buildPortable(next, { includeSensitive: false }).bytes).not.toContain("Quahog");
   });
 });
 

@@ -92,7 +92,15 @@ export function recomputeGroups(state: ProfileState, ctx: Ctx): ProfileState {
   const latestByKey = new Map<string, ConflictGroup>();
   for (const group of Object.values(groups)) latestByKey.set(group.groupKey, group); // insertion order: last wins
   let next = state;
+  let generations = state.generations;
   const touchedKeys = new Set<string>();
+  // A reopened group's keep_several decision is void: drop the scope note copied onto its members.
+  const clearNotes = (ids: Iterable<string>) => {
+    for (const id of ids) {
+      const g = generations[id];
+      if (g?.scopeNote) generations = { ...generations, [id]: { ...g, scopeNote: null } };
+    }
+  };
 
   for (const [key, list] of byKey) {
     const participants = new Map<string, Generation>();
@@ -113,6 +121,7 @@ export function recomputeGroups(state: ProfileState, ctx: Ctx): ProfileState {
       const kept = new Map(existing.members.map((m) => [m.generationId, m.identityKey]));
       const stillAccepted = memberRows.every((m) => existing.resolution?.kept.includes(m.generationId) && kept.get(m.generationId) === m.identityKey);
       if (stillAccepted) continue; // keep_several coexistence remains resolved
+      clearNotes([...existing.members.map((m) => m.generationId), ...memberRows.map((m) => m.generationId)]);
       groups[existing.id] = { ...existing, state: "open", members: memberRows, kind: kindOf(members), resolution: null };
       next = appendEvent(next, "group_reopened", [existing.id], ctx.now);
       continue;
@@ -137,5 +146,5 @@ export function recomputeGroups(state: ProfileState, ctx: Ctx): ProfileState {
       next = appendEvent(next, "group_dissolved", [group.id], ctx.now);
     }
   }
-  return { ...next, groups };
+  return { ...next, groups, generations };
 }

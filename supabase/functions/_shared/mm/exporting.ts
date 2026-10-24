@@ -40,6 +40,18 @@ export interface ProjectionItem {
   generation: Generation;
   revision: Revision;
   evidence: Evidence[];
+  /** Scope note safe to export (null when another kept fact of its group is hidden or erased). */
+  scopeNote: string | null;
+}
+
+/** A keep_several note names the kept values; it is withheld if any co-kept fact is not live. */
+export function exportableScopeNote(state: ProfileState, g: Generation): string | null {
+  if (!g.scopeNote) return null;
+  for (const group of Object.values(state.groups)) {
+    if (group.state !== "resolved" || group.resolution?.decision !== "keep_several" || !group.resolution.kept.includes(g.id)) continue;
+    if (group.resolution.kept.some((id) => state.generations[id]?.lifecycle !== "live")) return null;
+  }
+  return g.scopeNote;
 }
 
 function validEvidence(state: ProfileState, id: string): Evidence[] {
@@ -87,7 +99,7 @@ export function exportProjection(state: ProfileState, options: ExportOptions): P
   return Object.values(state.generations)
     .filter((g) => exclusionReason(state, g, options, openMembers) === null)
     .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
-    .map((generation) => ({ generation, revision: currentRevision(generation), evidence: validEvidence(state, generation.id) }));
+    .map((generation) => ({ generation, revision: currentRevision(generation), evidence: validEvidence(state, generation.id), scopeNote: exportableScopeNote(state, generation) }));
 }
 
 export function exclusionSummary(state: ProfileState, options: ExportOptions): Record<ExclusionReason, number> {
@@ -142,7 +154,7 @@ export function renderMarkdown(items: ProjectionItem[], options: ExportOptions):
     lines.push(`## ${section.title}`, "");
     for (const item of inSection) {
       const wording = item.revision.userAuthored ? " _(my edited wording)_" : " _(wording from my messages)_";
-      const scope = item.generation.scopeNote ? ` — scope: ${mdEscape(item.generation.scopeNote)}` : "";
+      const scope = item.scopeNote ? ` — scope: ${mdEscape(item.scopeNote)}` : "";
       lines.push(`- ${mdEscape(item.revision.assertion as string)}${wording}${scope}`);
       for (const e of item.evidence) {
         lines.push(`  - conversation \`${mdEscape(e.conversationId)}\`, message \`${mdEscape(e.messageId)}\`${e.sourceTime ? `, ${e.sourceTime}` : ""}:`);
@@ -177,7 +189,7 @@ export function renderPrompt(items: ProjectionItem[], budget: number = LIMITS.de
   const omitted: string[] = [];
   if (codePointLength(text) > budget) return { text: "", length: 0, budget, included, omitted: ordered.map((i) => i.generation.id) };
   for (const item of ordered) {
-    const scope = item.generation.scopeNote ? ` (${item.generation.scopeNote})` : "";
+    const scope = item.scopeNote ? ` (${item.scopeNote})` : "";
     const candidate = `${text}\n- ${item.revision.assertion}${scope}`;
     if (codePointLength(candidate) <= budget) {
       text = candidate;

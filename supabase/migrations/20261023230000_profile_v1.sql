@@ -464,6 +464,8 @@ begin
           and (v_group.resolution -> 'kept') ? c.fact_id::text))
       into v_still from mm_tmp_claims c where c.fact_id = any (k.members);
       if v_still then continue; end if;
+      update public.mm_facts set scope_note = null, row_version = row_version + 1
+      where scope_note is not null and (id = any (k.members) or id in (select fact_id from public.mm_conflict_members where group_id = v_group.id));
       update public.mm_conflict_groups set state = 'open', resolution = null, kind = v_kind where id = v_group.id;
       v_id := v_group.id;
       perform mm_private.event(p_profile, p_user, 'group_reopened', array[v_id::text], null);
@@ -808,6 +810,10 @@ begin
   else
     return jsonb_build_object('ok', false, 'code', 'bad_decision', 'message', 'Unknown decision.');
   end if;
+  -- Stale notes from an earlier keep_several never survive a different decision.
+  update public.mm_facts set scope_note = null, row_version = row_version + 1
+  where scope_note is not null and id in (select fact_id from public.mm_conflict_members where group_id = v_group.id)
+    and not (v_decision = 'keep_several' and id = any (v_keep));
   update public.mm_conflict_members cm set revision = f.current_revision from public.mm_facts f where cm.group_id = v_group.id and f.id = cm.fact_id;
   update public.mm_conflict_groups set state = 'resolved', resolution = jsonb_build_object('decision', v_decision, 'kept', to_jsonb(v_keep::text[]),
     'displaced', (select coalesce(jsonb_object_agg(m.fact_id::text, p -> 'displaced' ->> m.fact_id::text), '{}'::jsonb)
@@ -873,11 +879,12 @@ begin
   select coalesce(array_agg(distinct m.group_id), '{}') into v_groups from public.mm_conflict_members m where m.fact_id = any (v_ids);
   if p ->> 'mode' = 'erase' then
     -- The keep_several note was copied onto every kept fact: clear it on surviving kept facts first.
+    -- Independent of the resolution (null after a reopen): clear notes on every member and kept fact.
     update public.mm_facts f set scope_note = null, row_version = row_version + 1
-    where f.profile_id = b.o_profile and f.scope_note is not null and f.id in (
-      select (k.value)::uuid from public.mm_conflict_groups g cross join lateral jsonb_array_elements_text(coalesce(g.resolution -> 'kept', '[]'::jsonb)) as k(value)
-      where g.profile_id = b.o_profile and coalesce(g.resolution ->> 'scopeNote', '') <> ''
-        and exists (select 1 from public.mm_conflict_members m where m.group_id = g.id and m.fact_id = any (v_ids)));
+    where f.profile_id = b.o_profile and f.scope_note is not null and (
+      f.id in (select m2.fact_id from public.mm_conflict_members m2 where m2.group_id in (select m.group_id from public.mm_conflict_members m where m.fact_id = any (v_ids)))
+      or f.id in (select (k.value)::uuid from public.mm_conflict_groups g cross join lateral jsonb_array_elements_text(coalesce(g.resolution -> 'kept', '[]'::jsonb)) as k(value)
+                  where g.profile_id = b.o_profile and exists (select 1 from public.mm_conflict_members m where m.group_id = g.id and m.fact_id = any (v_ids))));
     update public.mm_conflict_groups g set resolution = jsonb_set(g.resolution, '{scopeNote}', 'null'::jsonb)
     where g.profile_id = b.o_profile and g.resolution ? 'scopeNote' and exists (select 1 from public.mm_conflict_members m where m.group_id = g.id and m.fact_id = any (v_ids));
   end if;

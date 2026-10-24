@@ -109,7 +109,7 @@ export function buildPortable(state: ProfileState, options: BuildOptions): Built
     return { ...item, evidence: item.evidence.slice(0, MAX_EVIDENCE_PER_FACT) };
   });
   if (items.length > LIMITS.maxCandidatesPerImport) problems.push(`${items.length} facts exceed the ${LIMITS.maxCandidatesPerImport}-fact limit of one profile file.`);
-  const facts: PortableFact[] = items.map(({ generation, revision, evidence }) => ({
+  const facts: PortableFact[] = items.map(({ generation, revision, evidence, scopeNote }) => ({
     id: generation.id,
     revision: revision.revision,
     slot: revision.slot,
@@ -118,7 +118,7 @@ export function buildPortable(state: ProfileState, options: BuildOptions): Built
     assertion: revision.assertion as string,
     userAuthored: revision.userAuthored,
     sensitivity: [...generation.sensitivity].sort(),
-    ...(generation.scopeNote ? { scopeNote: generation.scopeNote } : {}),
+    ...(scopeNote ? { scopeNote } : {}),
     firstSeen: generation.firstSeen,
     lastSeen: generation.lastSeen,
     aliasKeys: [...generation.aliasKeys].sort(),
