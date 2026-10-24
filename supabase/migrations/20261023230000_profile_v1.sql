@@ -572,7 +572,8 @@ begin
 
   -- 1. Imported tombstones: union; hide local live matches (restoration-relation rule applies).
   for t in select * from jsonb_array_elements(coalesce(b.o_payload -> 'tombstones', '[]')) loop
-    if t ->> 'mode' not in ('erase', 'hide') or coalesce(t ->> 'generationId', '') !~ '^[A-Za-z0-9_.:-]{1,128}$' then
+    if t ->> 'mode' not in ('erase', 'hide') or coalesce(t ->> 'generationId', '') !~ '^[A-Za-z0-9_.:-]{1,128}$'
+       or jsonb_typeof(t -> 'keys') <> 'array' or jsonb_array_length(t -> 'keys') not between 1 and 50 then
       raise exception 'invalid tombstone' using errcode = '22023';
     end if;
     select pm.id into v_mapped from public.mm_facts pm where pm.profile_id = b.o_profile and pm.origin_profile_id = v_origin_profile and pm.origin_generation_id = t ->> 'generationId';
@@ -1034,6 +1035,9 @@ begin
     and (cardinality(f.sensitivity) = 0 or (f.sensitivity_confirmed_revision = f.current_revision and v_inc));
   select count(*) into v_count from mm_tmp_projection;
   if v_count = 0 then return jsonb_build_object('ok', false, 'code', 'empty', 'message', 'No approved facts are eligible to publish.'); end if;
+  if (select count(*) from public.mm_profile_versions where profile_id = b.o_profile) >= 1000 then
+    return jsonb_build_object('ok', false, 'code', 'too_many_versions', 'message', 'A profile keeps at most 1000 versions.');
+  end if;
   -- Canonical v1 bytes: keys sorted, no whitespace, items ordered by id (byte order).
   select string_agg('{"assertion":' || to_json(t.assertion)::text || ',"id":' || to_json(t.fact_id::text)::text || ',"polarity":' || to_json(t.polarity)::text
       || ',"revision":' || t.revision::text || ',"slot":' || to_json(t.slot)::text || ',"userAuthored":' || case when t.user_authored then 'true' else 'false' end

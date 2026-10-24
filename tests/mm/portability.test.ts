@@ -6,6 +6,7 @@ import { buildPortable, commitProfilePreview, previewProfileImport, validatePort
 import { approve, commitPreview, confirmSensitive, edit, previewCandidateImport } from "../../supabase/functions/_shared/mm/reducer.ts";
 import { extractCandidates } from "../../supabase/functions/_shared/mm/rules.ts";
 import type { ParsedConversation } from "../../supabase/functions/_shared/mm/source.ts";
+import { sha256Hex } from "../../supabase/functions/_shared/mm/sha256.ts";
 import { diffVersions, publishVersion, renderVersion } from "../../supabase/functions/_shared/mm/versions.ts";
 import { conv, testCtx } from "./helpers.ts";
 
@@ -179,6 +180,22 @@ describe("portable profile v1", () => {
     expect(buildPortable(corrupt, { includeSensitive: false }).problems.length).toBeGreaterThan(0);
   });
 
+  // what_bug_this_catches: an import of many (permanent) tombstones making the local JSON export impossible forever.
+  it("refuses an import whose tombstones would push the local file over its bounds", () => {
+    const tomb = (prefix: string, i: number) => ({ id: `${prefix}-t${i}`, generationId: `${prefix}-g${i}`, keys: [sha256Hex(`${prefix}${i}`)], mode: "erase" as const, at: "2026-10-23T00:00:00Z" });
+    const withTombs = (id: string, n: number): ProfileState => {
+      const tombstones = Array.from({ length: n }, (_, i) => tomb(id, i));
+      return { ...emptyProfile(id), tombstones, suppression: Object.fromEntries(tombstones.map((t) => [t.keys[0], [t.id]])) };
+    };
+    const local = withTombs("loc", 4000); // ~140 bytes each: ~560 KB
+    expect(buildPortable(local, { includeSensitive: true }).problems).toEqual([]);
+    const file = validatePortable(buildPortable(withTombs("far", 4000), { includeSensitive: false }).bytes);
+    if (!file.ok) throw new Error(file.errors.join("; "));
+    const preview = previewProfileImport(local, file.profile, ctx);
+    expect(preview.integrityErrors.join(" ")).toMatch(/exceed its size or count limits/);
+    expect(commitProfilePreview(local, preview)).toMatchObject({ ok: false, code: "integrity" });
+  });
+
   it("refuses a stale preview", () => {
     const state = demoState();
     const { bytes } = buildPortable(state, { includeSensitive: false });
@@ -209,6 +226,13 @@ describe("versions", () => {
     expect(redacted?.rows[0].text).toBe("[erased]");
     expect(redacted?.renderingDigest).not.toBe(redacted?.version.digest);
     expect(JSON.stringify(state)).not.toContain("Likes tea");
+  });
+
+  // what_bug_this_catches: unbounded versions permanently blocking JSON export.
+  it("caps versions at the portable bound", () => {
+    let state = demoState();
+    state = { ...state, versions: Array.from({ length: 1000 }, (_, i) => ({ seq: i + 1, label: `v${i + 1}`, createdAt: "2026-10-23T00:00:00Z", digest: "0".repeat(64), includeSensitive: false, profileRevision: 0, items: [] })), nextVersionSeq: 1001 };
+    expect(publishVersion(state, { includeSensitive: false }, ctx)).toMatchObject({ ok: false, code: "too_many_versions" });
   });
 
   it("refuses to publish an empty projection", () => {

@@ -11,6 +11,9 @@ import type { Result } from "./reducer.ts";
  * Local publication uses the same projection/codec the account RPC must reproduce.
  */
 
+/** Matches the portable file bound so publishing can never block JSON export. */
+export const MAX_VERSIONS = 1000;
+
 export interface VersionRow {
   id: string;
   revision: number;
@@ -28,6 +31,7 @@ export function versionDigest(includeSensitive: boolean, rows: VersionRow[]): st
 export function publishVersion(state: ProfileState, input: { label?: string; includeSensitive: boolean }, ctx: Ctx): Result {
   const items = exportProjection(state, { includeSensitive: input.includeSensitive });
   if (items.length === 0) return { ok: false, code: "empty", message: "No approved facts are eligible to publish." };
+  if (state.versions.length >= MAX_VERSIONS) return { ok: false, code: "too_many_versions", message: `A profile keeps at most ${MAX_VERSIONS} versions (the profile file limit).` };
   const rows: VersionRow[] = items.map(({ generation, revision }) => ({
     id: generation.id,
     revision: revision.revision,

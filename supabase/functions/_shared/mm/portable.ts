@@ -146,7 +146,13 @@ export function buildPortable(state: ProfileState, options: BuildOptions): Built
   };
   const profile = { ...body, canonicalPayloadSha256: canonicalSha256(body) } as PortableProfile;
   const bytes = canonicalize(profile);
-  if (utf8Length(bytes) > LIMITS.maxPortableBytes) problems.push("The profile file would exceed 1 MiB; it is not split silently. Erase or hide facts, or export without sensitive facts.");
+  if (utf8Length(bytes) > LIMITS.maxPortableBytes) {
+    problems.push(
+      tombstones.length > 0
+        ? `The profile file would exceed 1 MiB; it is not split silently. ${tombstones.length} deletion records are permanent and count toward this (erasing or hiding adds more). Export without sensitive facts, or use the Markdown export.`
+        : "The profile file would exceed 1 MiB; it is not split silently. Export without sensitive facts, reject facts you do not need, or use the Markdown export.",
+    );
+  }
   else {
     // Never offer a file our own validator would reject (alias/tombstone key caps, list bounds, future drift).
     const check = validatePortable(bytes);
@@ -588,6 +594,14 @@ export function previewProfileImport(state: ProfileState, profile: PortableProfi
   }
 
   const changed = counts.created + counts.sameAttached + counts.proposals + counts.tombstonesAdded > 0;
+  // Tombstones are permanent: never let an import make this profile's own file exceed its bounds for good.
+  // (The UI only applies TS-previewed imports; the account RPC relies on this same preview gate.)
+  if (changed && integrityErrors.length === 0) {
+    const after = buildPortable(draft, { includeSensitive: true });
+    if (after.problems.length > 0 && buildPortable(state, { includeSensitive: true }).problems.length === 0) {
+      integrityErrors.push("Applying this file would make your own profile file exceed its size or count limits permanently (deletion records cannot be removed). It was not applied.");
+    }
+  }
   if (integrityErrors.length > 0 || !changed || state.appliedFingerprints.includes(fingerprint)) {
     return { baseRevision: state.revision, fingerprint, importId: null, counts, next: state, noop: integrityErrors.length === 0, tombstoneEffects, integrityErrors };
   }
