@@ -1,0 +1,126 @@
+{
+  "id": "synthetic-labelled-v1",
+  "notes": "Hand-labelled synthetic chat for extraction precision and recall. Not a real person's export and not LoCoMo.",
+  "export": [
+    {
+      "id": "c1",
+      "title": "Synthetic labelled chat",
+      "create_time": 1700000000,
+      "current_node": "m3",
+      "mapping": {
+        "root": {
+          "id": "root",
+          "parent": null,
+          "message": {
+            "id": "sys1",
+            "author": { "role": "system" },
+            "create_time": 1700000000,
+            "content": { "content_type": "text", "parts": ["You are ChatGPT."] },
+            "metadata": { "is_visually_hidden_from_conversation": true }
+          }
+        },
+        "n0": {
+          "id": "n0",
+          "parent": "root",
+          "message": null
+        },
+        "m1": {
+          "id": "m1",
+          "parent": "n0",
+          "message": {
+            "id": "m1",
+            "author": { "role": "user" },
+            "create_time": 1700000100,
+            "content": {
+              "content_type": "text",
+              "parts": ["My name is Ada Quinn. I live in Austin and I work as a librarian at the city library."]
+            }
+          }
+        },
+        "a1": {
+          "id": "a1",
+          "parent": "m1",
+          "message": {
+            "id": "a1",
+            "author": { "role": "assistant" },
+            "create_time": 1700000200,
+            "content": { "content_type": "text", "parts": ["You live in Paris, Ada."] }
+          }
+        },
+        "h1": {
+          "id": "h1",
+          "parent": "a1",
+          "message": {
+            "id": "h1",
+            "author": { "role": "user" },
+            "create_time": 1700000300,
+            "content": { "content_type": "text", "parts": ["I live in Secretville."] },
+            "metadata": { "is_visually_hidden_from_conversation": true }
+          }
+        },
+        "m2": {
+          "id": "m2",
+          "parent": "h1",
+          "message": {
+            "id": "m2",
+            "author": { "role": "user" },
+            "create_time": 1700000400,
+            "content": { "content_type": "text", "parts": ["I moved to Denver last month."] }
+          }
+        },
+        "a2": {
+          "id": "a2",
+          "parent": "m2",
+          "message": {
+            "id": "a2",
+            "author": { "role": "assistant" },
+            "create_time": 1700000500,
+            "content": { "content_type": "text", "parts": ["Noted."] }
+          }
+        },
+        "m3": {
+          "id": "m3",
+          "parent": "a2",
+          "message": {
+            "id": "m3",
+            "author": { "role": "user" },
+            "create_time": 1700000600,
+            "content": {
+              "content_type": "text",
+              "parts": ["Please remember I have a peanut allergy and my salary is 64000."]
+            }
+          }
+        },
+        "decoy": {
+          "id": "decoy",
+          "parent": "m1",
+          "message": {
+            "id": "decoy",
+            "author": { "role": "user" },
+            "create_time": 1700000700,
+            "content": { "content_type": "text", "parts": ["I live in Atlantis."] }
+          }
+        },
+        "tool1": {
+          "id": "tool1",
+          "parent": "m1",
+          "message": {
+            "id": "tool1",
+            "author": { "role": "tool" },
+            "create_time": 1700000150,
+            "content": { "content_type": "text", "parts": ["I live in Tooltown."] }
+          }
+        }
+      }
+    }
+  ],
+  "labels": [
+    { "slot": "name", "value": "Ada Quinn", "messageId": "m1", "conversationId": "c1" },
+    { "slot": "residence", "value": "Austin", "messageId": "m1", "conversationId": "c1" },
+    { "slot": "job_title", "value": "librarian", "messageId": "m1", "conversationId": "c1" },
+    { "slot": "employer", "value": "the city library", "messageId": "m1", "conversationId": "c1" },
+    { "slot": "residence", "value": "Denver", "messageId": "m2", "conversationId": "c1" },
+    { "slot": "health_note", "value": "peanut allergy", "messageId": "m3", "conversationId": "c1" },
+    { "slot": "financial_note", "value": "64000", "messageId": "m3", "conversationId": "c1" }
+  ]
+}

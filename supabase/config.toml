@@ -1,0 +1,4 @@
+project_id = "memory-migrator"
+
+[functions.propose-facts]
+verify_jwt = true
