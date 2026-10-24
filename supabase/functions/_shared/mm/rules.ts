@@ -32,16 +32,18 @@ export interface ExtractResult {
 /** Future extractor seam (e.g. a provider-backed adapter in F3). MVP ships only the rules extractor. */
 export type Extractor = (conversations: ParsedConversation[]) => ExtractResult;
 
-const END = String.raw`(?=\s+(?:and|but|so|because|since|though|although|while|which|who|where|when|with|for|from|anymore|any more|now|too|as well|these days|instead)\b|\s*[,;:!?\n"“”()]|\s*\.(?=\s|$)|\s*$)`;
-const ROLE_END = String.raw`(?=\s+(?:at|and|but|so|because|since|though|although|while|which|who|where|when|with|for|from|anymore|any more|now|too|these days)\b|\s*[,;:!?\n"“”()]|\s*\.(?=\s|$)|\s*$)`;
+const END = String.raw`(?=\s+(?:and|but|so|because|since|though|although|while|which|who|where|when|with|for|from|anymore|any more|now|too|as well|these days|instead)\b|\s*[,;:!?\n"“”()]|\s*[.…]+(?=[\s)\]"”’']|$)|\s*$)`;
+const ROLE_END = String.raw`(?=\s+(?:at|in|on|near|and|but|so|because|since|though|although|while|which|who|where|when|with|for|from|anymore|any more|now|too|these days)\b|\s*[,;:!?\n"“”()]|\s*[.…]+(?=[\s)\]"”’']|$)|\s*$)`;
+// Employer values stop before "as a ...", "in London", "on weekends", "near ...", "based in ...".
+const ORG_END = String.raw`(?=\s+(?:as|in|on|near|based|and|but|so|because|since|though|although|while|which|who|where|when|with|for|from|anymore|any more|now|too|as well|these days|instead)\b|\s*[,;:!?\n"“”()]|\s*[.…]+(?=[\s)\]"”’']|$)|\s*$)`;
 // Home values additionally stop before temporary/time cues so TEMPORARY can see them.
-const HOME_END = String.raw`(?=\s+(?:and|but|so|because|since|though|although|while|which|who|where|when|with|for|from|anymore|any more|now|too|as well|these days|instead|until|till|temporarily|this|right now|at the moment|on vacation|on holiday|on a trip|on business|last|next|ago)\b|\s*[,;:!?\n"“”()]|\s*\.(?=\s|$)|\s*$)`;
+const HOME_END = String.raw`(?=\s+(?:and|but|so|because|since|though|although|while|which|who|where|when|with|for|from|anymore|any more|now|too|as well|these days|instead|until|till|temporarily|this|right now|at the moment|on vacation|on holiday|on a trip|on business|last|next|ago)\b|\s*[,;:!?\n"“”()]|\s*[.…]+(?=[\s)\]"”’']|$)|\s*$)`;
 const NAME = String.raw`\p{L}[\p{L}\p{M}'’\-]*(?:\s+\p{L}[\p{L}\p{M}'’\-]*){0,3}?`;
 const PLACE = String.raw`(?:(?:St|Mt|Ft)\.\s)?\p{L}[\p{L}\p{M}\p{N}'’.\- ]{0,60}?`;
 const ROLE = String.raw`\p{L}[\p{L}\p{M}\p{N}'’\- ]{0,40}?`;
 const ORG = String.raw`[\p{L}\p{N}][\p{L}\p{M}\p{N}'’&.\- ]{0,60}?`;
 const THING = String.raw`[\p{L}\p{N}][\p{L}\p{M}\p{N}'’&\- ]{0,60}?`;
-const MONEY = String.raw`(?:[$€£]\s?)?\d[\d,]*(?:\.\d+)?(?:\s?(?:k|thousand|million))?(?:\s(?:dollars|usd|euros|pounds))?`;
+const MONEY = String.raw`(?:[$€£]\s?)?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?(?:\s?(?:k|thousand|million))?(?:\s(?:dollars|usd|euros|pounds))?`;
 const NEG = String.raw`(?:no longer|don['’]?t|do not)`;
 
 interface Emission {
@@ -83,18 +85,18 @@ const RULES: Rule[] = [
   // work.role / work.employer
   { id: "role.used_to", re: rx(String.raw`\bi used to work as (?:an? |the )?(?<v>${ROLE})${ROLE_END}`), emit: () => [{ slot: "work.role", polarity: "deny", cue: "retraction", group: "v" }] },
   { id: "role.deny", re: rx(String.raw`\bi ${NEG} work as (?:an? |the )?(?<v>${ROLE})${ROLE_END}${ANY}`), emit: (m) => [{ slot: "work.role", polarity: "deny", cue: m[0].toLowerCase().includes("no longer") || hasAnymore(m) ? "retraction" : "none", group: "v", spanGroup: hasAnymore(m) ? "any" : "v" }] },
-  { id: "employer.used_to", re: rx(String.raw`\bi used to work (?:at|for) (?<e>${ORG})${END}`), emit: () => [{ slot: "work.employer", polarity: "deny", cue: "retraction", group: "e" }] },
-  { id: "employer.deny", re: rx(String.raw`\bi ${NEG} work (?:at|for) (?<e>${ORG})${END}${ANY}`), emit: (m) => [{ slot: "work.employer", polarity: "deny", cue: m[0].toLowerCase().includes("no longer") || hasAnymore(m) ? "retraction" : "none", group: "e", spanGroup: hasAnymore(m) ? "any" : "e" }] },
+  { id: "employer.used_to", re: rx(String.raw`\bi used to work (?:at|for) (?<e>${ORG})${ORG_END}`), emit: () => [{ slot: "work.employer", polarity: "deny", cue: "retraction", group: "e" }] },
+  { id: "employer.deny", re: rx(String.raw`\bi ${NEG} work (?:at|for) (?<e>${ORG})${ORG_END}${ANY}`), emit: (m) => [{ slot: "work.employer", polarity: "deny", cue: m[0].toLowerCase().includes("no longer") || hasAnymore(m) ? "retraction" : "none", group: "e", spanGroup: hasAnymore(m) ? "any" : "e" }] },
   {
     id: "role.assert",
-    re: rx(String.raw`\bi work as (?:an? |the )?(?<v>${ROLE})${ROLE_END}(?:\s+at\s+(?<e>${ORG})${END})?`),
+    re: rx(String.raw`\bi work as (?:an? |the )?(?<v>${ROLE})${ROLE_END}(?:\s+at\s+(?<e>${ORG})${ORG_END})?`),
     emit: (m) => {
       const out: Emission[] = [{ slot: "work.role", polarity: "assert", cue: "none", group: "v" }];
       if (m.groups?.e) out.push({ slot: "work.employer", polarity: "assert", cue: "none", group: "e" });
       return out;
     },
   },
-  { id: "employer.assert", re: rx(String.raw`\bi work (?:at|for) (?<e>${ORG})${END}`), emit: () => [{ slot: "work.employer", polarity: "assert", cue: "none", group: "e" }] },
+  { id: "employer.assert", re: rx(String.raw`\bi work (?:at|for) (?<e>${ORG})${ORG_END}`), emit: () => [{ slot: "work.employer", polarity: "assert", cue: "none", group: "e" }] },
   // preferences
   { id: "likes.deny", re: rx(String.raw`\bi (?:no longer (?:like|love|enjoy)|don['’]?t (?:like|love|enjoy) (?=.*\bany ?more\b)) ?(?<v>${THING})${END}${ANY}`), emit: (m) => [{ slot: "preference.likes", polarity: "deny", cue: "retraction", group: "v", spanGroup: hasAnymore(m) ? "any" : "v" }] },
   { id: "dislikes.assert", re: rx(String.raw`\bi (?:really )?(?:dislike|hate|can['’]?t stand|don['’]?t like|do not like) (?<v>${THING})${END}`), emit: () => [{ slot: "preference.dislikes", polarity: "assert", cue: "none", group: "v" }] },
@@ -108,7 +110,12 @@ const RULES: Rule[] = [
   { id: "finance.earn", re: rx(String.raw`\bi (?:earn|make) (?<v>${MONEY} (?:a|per) (?:year|month))${END}`), emit: () => [{ slot: "financial.note", polarity: "assert", cue: "none", group: "v" }] },
 ];
 
-const VALUE_STOPWORDS = new Set(["it", "that", "this", "them", "him", "her", "you", "your", "when", "how", "what", "to", "being", "there", "here", "i", "me", "my", "so", "very", "a", "an", "the"]);
+const VALUE_STOPWORDS = new Set([
+  "it", "that", "this", "them", "him", "her", "you", "your", "when", "how", "what", "to", "being", "there", "here", "i", "me", "my", "so", "very", "a", "an", "the",
+  "these", "those", "both", "all", "everything", "anything", "something", "nothing", "where", "which", "who", "why", "some", "any", "either", "neither", "each", "every",
+]);
+// Name values never start with an adverb/predicate ("My name is actually Ada", "... hard to pronounce").
+const NAME_STOPWORDS = new Set(["actually", "really", "also", "still", "just", "not", "spelled", "spelt", "pronounced", "hard", "too", "pretty", "kind", "important", "unusual", "common", "weird", "easy", "dr", "mr", "mrs", "ms"]);
 // "X, not Y" only when Y ends the clause; "not far from Y" and similar compounds abstain.
 const CORRECTION_TAIL = new RegExp(String.raw`^,?\s+not\s+(?<y>${PLACE})(?=\s*[.!?;\n]|\s*$)`, "iud");
 const NOT_A_TARGET = /^(?:far|too|very|so|quite|exactly|really|just|only|even|yet|that|sure|in|at|for|from|near|with|by|to|on|anymore|any more|any longer|now|long|always|anywhere|ever|again|here|there|yet|today|tomorrow|soon)\b/iu;
@@ -117,7 +124,7 @@ const RETRACTING_TAIL = /^(?:anymore|any more|any longer|now|so much)$/iu;
 // A slot-appropriate preposition before Y is dropped ("in Austin, not in Dallas" -> deny "Dallas").
 const SLOT_PREPOSITION: Partial<Record<Slot, RegExp>> = { "location.home": /^in\s+/iu, "work.employer": /^(?:at|for)\s+/iu, "work.role": /^(?:an?|the)\s+/iu };
 // Objects of "at" that are not employers ("I work as a nurse at night").
-const NON_ORG = /^(?:night|nights|home|work|the moment|the weekend|weekends|the same time|times|first|least|most|my desk|a desk)$/iu;
+const NON_ORG = /^(?:night|nights|home|work|the moment|the weekend|weekends|the same time|times|first|least|most|my desk|a desk|the office|an office|the store|a company|a startup|the hospital)$/iu;
 const CORRECTION_SLOTS: Slot[] = ["identity.name", "location.home", "work.employer", "work.role"];
 
 const HYPOTHETICAL = /\b(?:if|suppose|supposing|imagine|hypothetically|what if|let['’]s say|would|could|might|wish|unless|in case|maybe|someday|one day)\b/iu;
@@ -165,7 +172,7 @@ interface Sentence {
 function sentences(text: string): Sentence[] {
   const out: Sentence[] = [];
   // A boundary is [.!?] followed by whitespace/end, or a newline; "85.5", "Amazon.com" and "St. Louis" stay whole.
-  const re = /(?:[^.!?\n]|[.!?](?![\s]|$)|(?<=\b(?:St|Mt|Ft|Dr|Mr|Mrs|Ms|Jr|Sr|vs))\.)+(?:[.!?]+|\n|$)/g;
+  const re = /(?:[^.!?\n]|[.!?](?![\s]|$)|(?<=\b(?:st|mt|ft|dr|mr|mrs|ms|jr|sr|vs))\.)+(?:[.!?]+|\n|$)/gi;
   for (const m of text.matchAll(re)) out.push({ text: m[0], offset: m.index ?? 0 });
   return out;
 }
@@ -190,7 +197,7 @@ function validValue(slot: Slot, value: string): boolean {
   if (trimmed.length < 2) return false;
   const words = trimmed.split(/\s+/u);
   if (VALUE_STOPWORDS.has(words[0].toLowerCase()) && slot !== "work.employer") return false;
-  if (slot === "identity.name" && (words.length > 4 || /\p{N}/u.test(trimmed))) return false;
+  if (slot === "identity.name" && (words.length > 4 || /\p{N}/u.test(trimmed) || NAME_STOPWORDS.has(words[0].toLowerCase().replace(/\.$/u, "")))) return false;
   if (slot === "work.employer" && words.length === 1 && VALUE_STOPWORDS.has(words[0].toLowerCase())) return false;
   return true;
 }
@@ -200,6 +207,7 @@ function validValue(slot: Slot, value: string): boolean {
  * looks like a time/adverb/clause, a non-employer object, or (outside roles) a lowercase word abstains.
  */
 function acceptDenied(slot: Slot, raw: string): string | null {
+  if (slot === "work.role" && !/^(?:an?|the)\s/iu.test(raw)) return null;
   const prep = SLOT_PREPOSITION[slot];
   const y = prep ? raw.replace(prep, "") : raw;
   if (OTHER_PREPOSITION.test(y) || NOT_A_TARGET.test(y) || NON_ORG.test(y) || TAIL_CLAUSE_WORDS.test(y)) return null;

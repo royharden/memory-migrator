@@ -113,6 +113,29 @@ describe("rule catalogue", () => {
     expect(facts("I work at Amazon.com.")).toEqual([["work.employer", "Amazon.com", "assert", "none"]]);
   });
 
+  // what_bug_this_catches: ellipses/closing punctuation inside values and swallowed trailing phrases (review #4).
+  it("ends values at ellipses and closing punctuation, and before as/in/on phrases", () => {
+    expect(facts("I live in Oslo...")).toEqual([["location.home", "Oslo", "assert", "none"]]);
+    expect(facts("I work at Acme…")).toEqual([["work.employer", "Acme", "assert", "none"]]);
+    expect(facts("(I live in Oslo.)")).toEqual([["location.home", "Oslo", "assert", "none"]]);
+    expect(facts("i live in st. louis.")).toEqual([["location.home", "st. louis", "assert", "none"]]);
+    expect(facts("I work at Google as a software engineer.")).toEqual([["work.employer", "Google", "assert", "none"]]);
+    expect(facts("I work at Google in London.")).toEqual([["work.employer", "Google", "assert", "none"]]);
+    expect(facts("I work as a nurse in Boston.")).toEqual([["work.role", "nurse", "assert", "none"]]);
+    expect(facts("I moved to Denver... finally")).toEqual([["location.home", "Denver", "assert", "move"]]);
+  });
+
+  // what_bug_this_catches: invented names/preferences and a salary with a trailing comma (review #4).
+  it("rejects predicate names, demonstrative preferences and keeps salaries clean", () => {
+    expect(facts("My name is actually Ada.")).toEqual([]);
+    expect(facts("My name is hard to pronounce.")).toEqual([]);
+    expect(facts("I like these suggestions.")).toEqual([]);
+    expect(facts("I love where this is going.")).toEqual([]);
+    expect(facts("My salary is $64,000, but I want more.")).toEqual([["financial.note", "$64,000", "assert", "none"]]);
+    expect(facts("I work as a nurse, not full-time.")).toEqual([]);
+    expect(facts("I work at the office.")).toEqual([]);
+  });
+
   // what_bug_this_catches: reported speech with the attribution after the clause.
   it("rejects trailing attributions", () => {
     expect(facts("I live in Oslo, she said.")).toEqual([]);
