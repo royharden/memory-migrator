@@ -125,9 +125,9 @@ const NOT_A_TARGET = /^(?:far|too|very|so|quite|exactly|really|just|only|even|ye
 const RETRACTING_TAIL = /^(?:anymore|any more|any longer|now|so much)$/iu;
 // A slot-appropriate preposition before Y is dropped ("in Austin, not in Dallas" -> deny "Dallas").
 const SLOT_PREPOSITION: Partial<Record<Slot, RegExp>> = { "location.home": /^in\s+/iu, "work.employer": /^(?:at|for)\s+/iu, "work.role": /^(?:an?|the)\s+/iu };
-// Objects of "at" that are not employers ("I work as a nurse at night").
-// Objects of "at/for" that are not employers; matched as a prefix ("at least 40 hours", "for free").
-const NON_ORG = /^(?:night|nights|home|work|the moment|the weekend|weekends|the same time|times|first|least|most|my desk|a desk|the office|an office|the store|a company|a startup|the hospital|myself|yourself|himself|herself|ourselves|themselves|self|self-employed|least|free|a living|minimum wage|tips|hours|a few hours|long hours|overtime|nights and weekends|weekends)(?=\s|$)/iu;
+// Objects of "at/for" that are not employers ("I work as a nurse at night"): a few exact words
+// ("at home", but not "Home Depot"), the rest matched as a prefix ("at least 40 hours", "for free").
+const NON_ORG = /^(?:(?:home|work|first|most|times|nights?)$|(?:the moment|the weekend|weekends|nights and weekends|the same time|least|my desk|a desk|the office|an office|the store|a company|a startup|the hospital|myself|yourself|himself|herself|ourselves|themselves|self|self-employed|free|a living|minimum wage|tips|hours|a few hours|long hours|overtime)(?=\s|$))/iu;
 const CORRECTION_SLOTS: Slot[] = ["identity.name", "location.home", "work.employer", "work.role"];
 
 const HYPOTHETICAL = /\b(?:if|suppose|supposing|imagine|hypothetically|what if|let['’]s say|would|could|might|wish|unless|in case|maybe|someday|one day)\b/iu;

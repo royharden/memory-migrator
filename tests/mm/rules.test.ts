@@ -156,6 +156,7 @@ describe("rule catalogue", () => {
     expect(facts("I work as a nurse at least three days a week.")).toEqual([["work.role", "nurse", "assert", "none"]]);
     expect(facts("I work for free.")).toEqual([]);
     expect(facts("I work for a living.")).toEqual([]);
+    expect(facts("I work at Home Depot.")).toEqual([["work.employer", "Home Depot", "assert", "none"]]);
     expect(facts("I work as hard as I can.")).toEqual([]);
     expect(facts("I don't work as hard anymore.")).toEqual([]);
     expect(facts("I work at Google - it's great.")).toEqual([["work.employer", "Google", "assert", "none"]]);
