@@ -86,6 +86,13 @@ describe("rule catalogue", () => {
     expect(facts("I live in Denver, not far from Boulder.")).toEqual([["location.home", "Denver", "assert", "none"]]);
     expect(facts("I work as a nurse at night.")).toEqual([["work.role", "nurse", "assert", "none"]]);
     expect(facts("I work at home.")).toEqual([]);
+    // "X, not in Y" drops the slot preposition; time/adverb tails abstain; "not anymore" abstains entirely.
+    expect(facts("I live in Austin, not in Dallas.")).toEqual([
+      ["location.home", "Dallas", "deny", "correction"],
+      ["location.home", "Austin", "assert", "correction"],
+    ]);
+    expect(facts("I work at Acme, not for long.")).toEqual([["work.employer", "Acme", "assert", "none"]]);
+    expect(facts("I live in Denver, not anymore.")).toEqual([]);
   });
 
   it("never reads assistant text, never stores quoted forget commands as facts and never executes them", () => {

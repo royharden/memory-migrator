@@ -111,7 +111,11 @@ const RULES: Rule[] = [
 const VALUE_STOPWORDS = new Set(["it", "that", "this", "them", "him", "her", "you", "your", "when", "how", "what", "to", "being", "there", "here", "i", "me", "my", "so", "very", "a", "an", "the"]);
 // "X, not Y" only when Y ends the clause; "not far from Y" and similar compounds abstain.
 const CORRECTION_TAIL = new RegExp(String.raw`^,?\s+not\s+(?<y>${PLACE})(?=\s*[.!?;\n]|\s*$)`, "iud");
-const NOT_A_TARGET = /^(?:far|too|very|so|quite|exactly|really|just|only|even|yet|that|sure)\b/iu;
+const NOT_A_TARGET = /^(?:far|too|very|so|quite|exactly|really|just|only|even|yet|that|sure|in|at|for|from|near|with|by|to|on|anymore|any more|any longer|now|long|always|anywhere|ever|again|here|there|yet|today|tomorrow|soon)\b/iu;
+// "X, not anymore" retracts X itself: the whole statement is ambiguous and abstains.
+const RETRACTING_TAIL = /^(?:anymore|any more|any longer|now|so much)$/iu;
+// A slot-appropriate preposition before Y is dropped ("in Austin, not in Dallas" -> deny "Dallas").
+const SLOT_PREPOSITION: Partial<Record<Slot, RegExp>> = { "location.home": /^in\s+/iu, "work.employer": /^(?:at|for)\s+/iu, "work.role": /^(?:an?|the)\s+/iu };
 // Objects of "at" that are not employers ("I work as a nurse at night").
 const NON_ORG = /^(?:night|nights|home|work|the moment|the weekend|weekends|the same time|times|first|least|most|my desk|a desk)$/iu;
 const CORRECTION_SLOTS: Slot[] = ["identity.name", "location.home", "work.employer", "work.role"];
@@ -269,7 +273,13 @@ function extractMessage(message: CanonicalMessage, digest: string, out: Candidat
             const tail = CORRECTION_TAIL.exec(sentence.text.slice(spanEnd));
             const y = tail?.indices?.groups?.y;
             if (tail && y) {
-              const denied = sentence.text.slice(spanEnd + y[0], spanEnd + y[1]).trim();
+              const rawDenied = sentence.text.slice(spanEnd + y[0], spanEnd + y[1]).trim();
+              if (RETRACTING_TAIL.test(rawDenied)) {
+                diagnostics.abstained.ambiguous += 1;
+                continue;
+              }
+              const prep = SLOT_PREPOSITION[emission.slot];
+              const denied = prep ? rawDenied.replace(prep, "") : rawDenied;
               if (validValue(emission.slot, denied) && !NOT_A_TARGET.test(denied)) {
                 // Only an accepted Y turns this into a correction pair.
                 tailEnd = spanEnd + y[1];
