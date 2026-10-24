@@ -1,7 +1,7 @@
 import { canonicalTime } from "../../supabase/functions/_shared/mm/canonical.ts";
 import { deleteGeneration, restoreGeneration, undoImport, type DeletionReceipt, type UndoReceipt } from "../../supabase/functions/_shared/mm/lifecycle.ts";
 import type { Candidate, Ctx, ProfileState, SensitivityCategory, TombstoneMode } from "../../supabase/functions/_shared/mm/model.ts";
-import { commitProfilePreview, type ProfileImportPreview } from "../../supabase/functions/_shared/mm/portable.ts";
+import { commitProfilePreview, type PortableProfile, type ProfileImportPreview } from "../../supabase/functions/_shared/mm/portable.ts";
 import {
   approve,
   approveSelected,
@@ -22,8 +22,8 @@ import { publishVersion } from "../../supabase/functions/_shared/mm/versions.ts"
  * account mode sends the same action to the matching RPC (src/lib/account.ts).
  */
 export type ProfileAction =
-  | { kind: "commitCandidateImport"; preview: ImportPreview }
-  | { kind: "commitProfileImport"; preview: ProfileImportPreview }
+  | { kind: "commitCandidateImport"; preview: ImportPreview; candidates: Candidate[]; parserVersion: string }
+  | { kind: "commitProfileImport"; preview: ProfileImportPreview; profile: PortableProfile }
   | { kind: "approve"; id: string }
   | { kind: "approveSelected"; ids: string[] }
   | { kind: "reject"; id: string }

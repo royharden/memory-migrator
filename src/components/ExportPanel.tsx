@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { exclusionSummary, exportProjection, renderMarkdown, renderPrompt, type PromptResult } from "../../supabase/functions/_shared/mm/exporting.ts";
 import { LIMITS } from "../../supabase/functions/_shared/mm/limits.ts";
 import { currentRevision, type ProfileState } from "../../supabase/functions/_shared/mm/model.ts";
-import { buildPortable, previewProfileImport, validatePortable, type ProfileImportPreview } from "../../supabase/functions/_shared/mm/portable.ts";
+import { buildPortable, previewProfileImport, validatePortable, type PortableProfile, type ProfileImportPreview } from "../../supabase/functions/_shared/mm/portable.ts";
 import { makeCtx, type ProfileAction } from "../state/actions.ts";
 
 interface Prepared {
@@ -129,6 +129,7 @@ export function ExportPanel({ profile, run, busy, onDownloaded }: Props) {
 
 function ProfileFileImport({ profile, run, busy }: { profile: ProfileState; run: (action: ProfileAction) => Promise<boolean>; busy: boolean }) {
   const [preview, setPreview] = useState<ProfileImportPreview | null>(null);
+  const [file, setFile] = useState<PortableProfile | null>(null);
   const [errors, setErrors] = useState<string[]>([]);
 
   async function choose(list: FileList | null) {
@@ -145,6 +146,7 @@ function ProfileFileImport({ profile, run, busy }: { profile: ProfileState; run:
       setErrors(result.errors.slice(0, 20));
       return;
     }
+    setFile(result.profile);
     setPreview(previewProfileImport(profile, result.profile, makeCtx()));
   }
 
@@ -169,7 +171,7 @@ function ProfileFileImport({ profile, run, busy }: { profile: ProfileState; run:
           </p>
           {preview.noop ? <p className="muted">Nothing new — applying would change nothing.</p> : null}
           {stale ? <p className="error">The profile changed after this preview; choose the file again.</p> : null}
-          <button type="button" className="primary" disabled={busy || stale || preview.noop || preview.integrityErrors.length > 0} onClick={() => void run({ kind: "commitProfileImport", preview }).then((ok) => ok && setPreview(null))}>
+          <button type="button" className="primary" disabled={busy || stale || preview.noop || preview.integrityErrors.length > 0} onClick={() => file && void run({ kind: "commitProfileImport", preview, profile: file }).then((ok) => ok && setPreview(null))}>
             Apply
           </button>
         </>

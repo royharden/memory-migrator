@@ -112,8 +112,8 @@ export function ImportPanel({ profile, extraction, onExtraction, run, busy }: Pr
   }
 
   async function apply() {
-    if (!preview) return;
-    const ok = await run({ kind: "commitCandidateImport", preview });
+    if (!preview || !extraction) return;
+    const ok = await run({ kind: "commitCandidateImport", preview, candidates: extraction.candidates, parserVersion: PARSER_VERSION });
     if (ok) setPreview(null);
   }
 
