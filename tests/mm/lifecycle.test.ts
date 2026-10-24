@@ -1,0 +1,156 @@
+import { describe, expect, it } from "vitest";
+import { deleteGeneration, deletionDependencies, restoreGeneration, undoImport } from "../../supabase/functions/_shared/mm/lifecycle.ts";
+import { emptyProfile, type ProfileState } from "../../supabase/functions/_shared/mm/model.ts";
+import { approve, commitPreview, edit, previewCandidateImport } from "../../supabase/functions/_shared/mm/reducer.ts";
+import { extractCandidates } from "../../supabase/functions/_shared/mm/rules.ts";
+import type { ParsedConversation } from "../../supabase/functions/_shared/mm/source.ts";
+import { conv, testCtx } from "./helpers.ts";
+
+const ctx = testCtx();
+
+function importConvs(state: ProfileState, convs: ParsedConversation[]): { state: ProfileState; importId: string | null } {
+  const { candidates } = extractCandidates(convs);
+  const preview = previewCandidateImport(state, candidates, ctx, "chatgpt-json/1");
+  if ("error" in preview) throw new Error(preview.error);
+  const result = commitPreview(state, preview);
+  if (!result.ok) throw new Error(result.message);
+  return { state: result.state, importId: preview.importId };
+}
+
+function idOf(state: ProfileState, value: string): string {
+  const g = Object.values(state.generations).find((x) => x.revisions.some((r) => r.value === value));
+  if (!g) throw new Error(`no generation ${value}`);
+  return g.id;
+}
+
+const allergy = [conv("c1", [["user", "I have a peanut allergy."]])];
+
+describe("erase", () => {
+  // what_bug_this_catches: erase that leaves quote/value text in revisions, links, events or tombstones.
+  it("purges every revision value and quote and keeps only opaque metadata", () => {
+    const { state } = importConvs(emptyProfile("p"), allergy);
+    const id = idOf(state, "peanut allergy");
+    const result = deleteGeneration(state, id, "erase", "retain", ctx);
+    if (!result.ok) throw new Error(result.message);
+    const serialized = JSON.stringify(result.state);
+    expect(serialized).not.toContain("peanut");
+    expect(result.receipt).toMatchObject({ purgedRevisions: 1, purgedQuotes: 1, invalidatedOutputs: true });
+    expect(result.state.tombstones[0].keys).toHaveLength(1);
+    expect(result.state.events.at(-1)).toMatchObject({ type: "erase", ids: [id] });
+  });
+
+  // what_bug_this_catches: re-extraction resurrecting an erased fact.
+  it("suppresses the same fact on re-import and after reload of the same source", () => {
+    const first = importConvs(emptyProfile("p"), allergy);
+    const erased = deleteGeneration(first.state, idOf(first.state, "peanut allergy"), "erase", "retain", ctx);
+    if (!erased.ok) throw new Error(erased.message);
+    const again = importConvs(erased.state, [conv("c2", [["user", "I have a peanut allergy."]])]);
+    expect(Object.values(again.state.generations).filter((g) => g.lifecycle === "live")).toHaveLength(0);
+  });
+
+  it("suppresses edit aliases too", () => {
+    const { state } = importConvs(emptyProfile("p"), [conv("c1", [["user", "I like green tea."]])]);
+    const id = idOf(state, "green tea");
+    const edited = edit(state, id, "matcha", 1, ctx);
+    if (!edited.ok) throw new Error(edited.message);
+    const erased = deleteGeneration(edited.state, id, "erase", "retain", ctx);
+    if (!erased.ok) throw new Error(erased.message);
+    const back = importConvs(erased.state, [conv("c3", [["user", "I like matcha."], ["user", "I like green tea."]])]);
+    expect(Object.values(back.state.generations).filter((g) => g.lifecycle === "live")).toHaveLength(0);
+  });
+
+  it("assert(A) and deny(A) have different suppression keys", () => {
+    const { state } = importConvs(emptyProfile("p"), [conv("c1", [["user", "I live in Austin."]])]);
+    const erased = deleteGeneration(state, idOf(state, "Austin"), "erase", "retain", ctx);
+    if (!erased.ok) throw new Error(erased.message);
+    const deny = importConvs(erased.state, [conv("c2", [["user", "I no longer live in Austin."]])]);
+    expect(Object.values(deny.state.generations).filter((g) => g.lifecycle === "live")).toHaveLength(1);
+  });
+
+  it("reports overlapping-quote dependencies and cascades on request", () => {
+    const { state } = importConvs(emptyProfile("p"), [conv("c1", [["user", "I work as a librarian at the city library."]])]);
+    const role = idOf(state, "librarian");
+    const employer = idOf(state, "the city library");
+    expect(deletionDependencies(state, role).map((d) => d.generationId)).toEqual([employer]);
+    const retained = deleteGeneration(state, role, "erase", "retain", ctx);
+    if (!retained.ok) throw new Error(retained.message);
+    expect(retained.receipt.retainedDependencies).toEqual([employer]);
+    expect(retained.state.generations[employer].lifecycle).toBe("live");
+    const cascaded = deleteGeneration(state, role, "erase", "cascade", ctx);
+    if (!cascaded.ok) throw new Error(cascaded.message);
+    expect(cascaded.receipt.generationIds.sort()).toEqual([employer, role].sort());
+    expect(JSON.stringify(cascaded.state)).not.toContain("librarian");
+  });
+
+  it("hide keeps the payload in-app but suppresses re-import", () => {
+    const { state } = importConvs(emptyProfile("p"), [conv("c1", [["user", "I like jazz."]])]);
+    const hidden = deleteGeneration(state, idOf(state, "jazz"), "hide", "retain", ctx);
+    if (!hidden.ok) throw new Error(hidden.message);
+    expect(JSON.stringify(hidden.state)).toContain("jazz");
+    const again = importConvs(hidden.state, [conv("c2", [["user", "I like jazz."]])]);
+    expect(Object.values(again.state.generations).filter((g) => g.lifecycle === "live")).toHaveLength(0);
+  });
+});
+
+describe("restore", () => {
+  // what_bug_this_catches: restore that revives the old UUID or lets stale flags reauthorize it.
+  it("creates a new pending generation, attaches later evidence to it, and re-delete resumes suppression", () => {
+    const first = importConvs(emptyProfile("p"), allergy);
+    const oldId = idOf(first.state, "peanut allergy");
+    const erased = deleteGeneration(first.state, oldId, "erase", "retain", ctx);
+    if (!erased.ok) throw new Error(erased.message);
+    expect(restoreGeneration(erased.state, oldId, null, ctx)).toMatchObject({ ok: false, code: "evidence_required" });
+    const [reselected] = extractCandidates([conv("c5", [["user", "I have a peanut allergy."]])]).candidates;
+    const restored = restoreGeneration(erased.state, oldId, reselected, ctx);
+    if (!restored.ok) throw new Error(restored.message);
+    const newId = Object.values(restored.state.generations).find((g) => g.lifecycle === "live")?.id as string;
+    expect(newId).not.toBe(oldId);
+    expect(restored.state.generations[oldId].lifecycle).toBe("erased");
+    expect(restored.state.generations[newId]).toMatchObject({ review: "pending", restoredFrom: oldId });
+    const later = importConvs(restored.state, [conv("c6", [["user", "I have a peanut allergy."]])]);
+    expect(Object.values(later.state.links).filter((l) => l.generationId === newId)).toHaveLength(2);
+    const again = deleteGeneration(later.state, newId, "erase", "retain", ctx);
+    if (!again.ok) throw new Error(again.message);
+    expect(again.receipt.closedRestorations).toBe(1);
+    const after = importConvs(again.state, [conv("c7", [["user", "I have a peanut allergy."]])]);
+    expect(Object.values(after.state.generations).filter((g) => g.lifecycle === "live")).toHaveLength(0);
+  });
+
+  it("hidden facts can be restored from retained evidence", () => {
+    const { state } = importConvs(emptyProfile("p"), [conv("c1", [["user", "I like jazz."]])]);
+    const id = idOf(state, "jazz");
+    const hidden = deleteGeneration(state, id, "hide", "retain", ctx);
+    if (!hidden.ok) throw new Error(hidden.message);
+    const restored = restoreGeneration(hidden.state, id, null, ctx);
+    expect(restored.ok).toBe(true);
+  });
+});
+
+describe("undo import", () => {
+  // what_bug_this_catches: undo that removes approved facts or rewinds later decisions.
+  it("removes only pending facts unique to the import and keeps approved facts' last evidence", () => {
+    const a = importConvs(emptyProfile("p"), [conv("c1", [["user", "I like tea."]])]);
+    const tea = idOf(a.state, "tea");
+    const ap = approve(a.state, tea, ctx);
+    if (!ap.ok) throw new Error(ap.message);
+    const b = importConvs(ap.state, [conv("c2", [["user", "I like tea."], ["user", "I like jam."]])]);
+    const undo = undoImport(b.state, b.importId as string, ctx);
+    if (!undo.ok) throw new Error(undo.message);
+    expect(undo.receipt.removedGenerations).toEqual([idOf(b.state, "jam")]);
+    expect(undo.state.generations[tea].review).toBe("approved");
+    expect(Object.values(undo.state.links).filter((l) => l.generationId === tea)).toHaveLength(1);
+    expect(undo.state.tombstones).toHaveLength(0);
+    expect(undoImport(undo.state, b.importId as string, ctx)).toMatchObject({ ok: false, code: "already_undone" });
+  });
+
+  it("never removes the last supporting evidence of an approved fact", () => {
+    const a = importConvs(emptyProfile("p"), [conv("c1", [["user", "I like tea."]])]);
+    const tea = idOf(a.state, "tea");
+    const ap = approve(a.state, tea, ctx);
+    if (!ap.ok) throw new Error(ap.message);
+    const undo = undoImport(ap.state, a.importId as string, ctx);
+    if (!undo.ok) throw new Error(undo.message);
+    expect(undo.state.generations[tea]).toBeDefined();
+    expect(undo.receipt.retainedGenerations[0]).toMatchObject({ generationId: tea });
+  });
+});
