@@ -166,6 +166,22 @@ describe("scope notes after reopen and hide", () => {
     expect(exportProjection(edited, { includeSensitive: false }).find((i) => i.generation.id === boston)?.scopeNote ?? null).toBeNull();
   });
 
+  it("editing a kept preference to a new value withholds the shared note from both facts", () => {
+    let { state } = importConvs(emptyProfile("p"), [conv("c1", [["user", "I like coffee."], ["user", "I hate coffee."]])]);
+    const group = Object.values(state.groups).find((g) => g.state === "open");
+    if (!group) throw new Error("expected a group");
+    const ids = group.members.map((m) => m.generationId);
+    state = ok(resolveGroup(state, group.id, { decision: "keep_several", keep: ids, scopeNote: "coffee mornings only", displaced: {} }, ctx));
+    const likes = ids.find((id) => state.generations[id].revisions[0].slot === "preference.likes") as string;
+    const dislikes = ids.find((id) => id !== likes) as string;
+    state = ok(edit(state, likes, "tea", 1, ctx));
+    state = ok(approve(state, likes, ctx));
+    state = ok(approve(state, dislikes, ctx));
+    const items = exportProjection(state, { includeSensitive: false });
+    expect(items.map((i) => i.generation.id).sort()).toEqual([likes, dislikes].sort());
+    expect(items.every((i) => i.scopeNote === null)).toBe(true);
+  });
+
   it("hiding one kept fact keeps the shared note out of exports of the other", () => {
     const { state } = keepBoth();
     const boston = idOf(state, "Boston");
