@@ -165,6 +165,17 @@ describe("portable profile v1", () => {
     expect(Object.keys(target.generations).length).toBe(countAfterSecond + 1); // + jam only
   });
 
+  // what_bug_this_catches: buildPortable emitting a file its own validator rejects (51 alias keys after 50 edits).
+  it("blocks a file that would fail its own validation", () => {
+    let state = demoState();
+    const tea = idOf(state, "tea");
+    for (let i = 1; i <= 50; i += 1) state = ok(edit(state, tea, `tea blend ${i}`, i, ctx)).state;
+    state = ok(approve(state, tea, ctx)).state;
+    const built = buildPortable(state, { includeSensitive: false });
+    expect(state.generations[tea].aliasKeys.length).toBe(51);
+    expect(built.problems.length).toBeGreaterThan(0);
+  });
+
   it("refuses a stale preview", () => {
     const state = demoState();
     const { bytes } = buildPortable(state, { includeSensitive: false });

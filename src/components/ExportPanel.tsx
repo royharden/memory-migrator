@@ -110,7 +110,7 @@ export function ExportPanel({ profile, run, busy, onPortableSaved }: Props) {
           <div className="row-actions">
             <a className="button" href={prepared.markdownUrl} download="memory-profile.md">Download Markdown</a>
             {prepared.jsonUrl ? (
-              <a className="button" href={prepared.jsonUrl} download="profile.v1.json" onClick={() => { if (portableIsComplete(profile, prepared.includeSensitive)) onPortableSaved(); }}>Download profile.v1.json</a>
+              <a className="button" href={prepared.jsonUrl} download="profile.v1.json" onClick={() => { if (prepared.jsonNotices.length === 0 && portableIsComplete(profile, prepared.includeSensitive)) onPortableSaved(); }}>Download profile.v1.json</a>
             ) : null}
           </div>
           {prepared.jsonProblems.length > 0 ? <ul className="error" role="alert">{prepared.jsonProblems.map((p, i) => <li key={i}>{p}</li>)}</ul> : null}

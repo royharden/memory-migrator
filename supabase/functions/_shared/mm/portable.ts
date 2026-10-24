@@ -147,6 +147,11 @@ export function buildPortable(state: ProfileState, options: BuildOptions): Built
   const profile = { ...body, canonicalPayloadSha256: canonicalSha256(body) } as PortableProfile;
   const bytes = canonicalize(profile);
   if (utf8Length(bytes) > LIMITS.maxPortableBytes) problems.push("The profile file would exceed 1 MiB; it is not split silently. Erase or hide facts, or export without sensitive facts.");
+  else {
+    // Never offer a file our own validator would reject (alias/tombstone key caps, list bounds, future drift).
+    const check = validatePortable(bytes);
+    if (!check.ok) problems.push(...check.errors.slice(0, 10).map((e) => `The file would fail validation: ${e}`));
+  }
   return { profile, bytes, notices, problems };
 }
 

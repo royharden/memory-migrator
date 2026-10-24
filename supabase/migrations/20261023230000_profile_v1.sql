@@ -549,6 +549,9 @@ declare
   v_link uuid; v_tomb uuid; v_err text;
   v_created int := 0; v_attached int := 0; v_unchanged int := 0; v_suppressed int := 0; v_tombs int := 0; v_hidden int := 0;
   v_added int;
+  v_own_tomb uuid;
+  v_origin_rev integer;
+  v_has_origin boolean;
   v_origin_profile text; v_origin_gen text; v_mapped uuid;
 begin
   select * into b from mm_private.begin_request('apply_import_plan', envelope);
@@ -590,6 +593,10 @@ begin
         update public.mm_restoration_relations set open = false where fact_id = v_fact.id and open;
       end if;
       update public.mm_facts set lifecycle = 'hidden', approved_revision = null, review = case when review = 'approved' then 'pending' else review end, row_version = row_version + 1 where id = v_fact.id;
+      -- Suppress every identity the hidden fact has had (edit aliases), like a local hide.
+      v_own_tomb := gen_random_uuid();
+      insert into public.mm_tombstones (id, user_id, profile_id, generation_id, mode, created_at) values (v_own_tomb, b.o_user, b.o_profile, v_fact.id::text, 'hide', now());
+      insert into public.mm_suppression_keys (tombstone_id, user_id, key) select v_own_tomb, b.o_user, a.key from public.mm_fact_alias_keys a where a.fact_id = v_fact.id on conflict do nothing;
       v_hidden := v_hidden + 1;
     end loop;
   end loop;
@@ -635,13 +642,26 @@ begin
       where id = v_target;
       continue;
     end if;
+    -- Foreign revision semantics (parity with portable.ts): a revision not newer than the mapped origin
+    -- revision is stale; a newer one becomes a pending proposal WITHOUT taking over the origin mapping.
+    v_has_origin := false;
+    if v_origin_gen is not null and v_origin_profile is distinct from b.o_profile::text then
+      select f.origin_revision into v_origin_rev from public.mm_facts f
+      where f.profile_id = b.o_profile and f.origin_profile_id = v_origin_profile and f.origin_generation_id = v_origin_gen
+      order by f.created_at limit 1;
+      v_has_origin := found;
+      if v_has_origin and coalesce((it -> 'origin' ->> 'revision')::integer, 0) <= coalesce(v_origin_rev, 0) then
+        v_unchanged := v_unchanged + 1; -- stale foreign revision
+        continue;
+      end if;
+    end if;
     v_target := gen_random_uuid();
     insert into public.mm_facts (id, user_id, profile_id, current_revision, review, lifecycle, sensitivity, origin_profile_id, origin_generation_id, origin_revision)
     values (v_target, b.o_user, b.o_profile, 1, 'pending', 'live',
       coalesce((select array_agg(distinct x order by x) from jsonb_array_elements_text(it -> 'sensitivity') x), '{}'),
-      case when v_origin_gen is not null and v_origin_profile is distinct from b.o_profile::text then v_origin_profile end,
-      case when v_origin_profile is distinct from b.o_profile::text then v_origin_gen end,
-      case when v_origin_gen is not null and v_origin_profile is distinct from b.o_profile::text then (it -> 'origin' ->> 'revision')::integer end);
+      case when v_origin_gen is not null and v_origin_profile is distinct from b.o_profile::text and not v_has_origin then v_origin_profile end,
+      case when v_origin_gen is not null and v_origin_profile is distinct from b.o_profile::text and not v_has_origin then v_origin_gen end,
+      case when v_origin_gen is not null and v_origin_profile is distinct from b.o_profile::text and not v_has_origin then (it -> 'origin' ->> 'revision')::integer end);
     insert into public.mm_fact_revisions (fact_id, user_id, revision, slot, value, polarity, change_cue, assertion, user_authored, rule_id, extractor_version)
     values (v_target, b.o_user, 1, it ->> 'slot', it ->> 'value', it ->> 'polarity', coalesce(it ->> 'changeCue', 'none'),
       mm_private.render_assertion(it ->> 'slot', it ->> 'value', it ->> 'polarity'), coalesce((it ->> 'userAuthored')::boolean, false), it ->> 'ruleId', it ->> 'extractorVersion');
