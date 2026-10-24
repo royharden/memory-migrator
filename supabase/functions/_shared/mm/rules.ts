@@ -118,7 +118,7 @@ const VALUE_STOPWORDS = new Set([
 // "I work as hard/much/long as I can" is a comparison, not a role.
 const TIME_OR_DURATION = /^\d+(?:[:.]\d+)?(?:\s*(?:am|pm|a\.m\.|p\.m\.|hours?|hrs?|minutes?|days?|weeks?|months?|years?|o['’]clock))?(?=\s|$)/iu;
 // Hedged or spelled-out durations ("about 10 hours", "two hours", "a couple of hours"); a unit is required so "Two Sigma" survives.
-const DURATION_PHRASE = /^(?:(?:about|around|over|nearly|almost|roughly|approximately|like|up to)\s+)?(?:\d+(?:[:.]\d+)?|an?|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|fifteen|twenty|thirty|forty|fifty|sixty|a few|a couple(?: of)?|several|many)\s*(?:hours?|hrs?|minutes?|days?|weeks?|months?|years?|shifts?)\b/iu;
+const DURATION_PHRASE = /^(?:(?:about|around|over|nearly|almost|roughly|approximately|like|up to)\s+)?(?:\d+(?:[:.]\d+)?(?:\s*(?:-|–|—|to)\s*\d+(?:[:.]\d+)?)?\+?|an?|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|fifteen|twenty|thirty|forty|fifty|sixty|a few|a couple(?: of)?|several|many|half an?)\s*-?\s*(?:hours?|hrs?|minutes?|days?|weeks?|months?|years?|shifts?)\b/iu;
 const ROLE_STOPWORDS = new Set(["hard", "much", "fast", "long", "well", "little", "often", "many", "late", "early", "quickly", "slowly", "best", "usual", "always", "part", "needed", "required", "necessary", "such"]);
 const NAME_STOPWORDS = new Set(["actually", "really", "also", "still", "just", "not", "spelled", "spelt", "pronounced", "hard", "too", "pretty", "kind", "important", "unusual", "common", "weird", "easy", "dr", "mr", "mrs", "ms"]);
 // "X, not Y" only when Y ends the clause; "not far from Y" and similar compounds abstain.
@@ -130,7 +130,7 @@ const RETRACTING_TAIL = /^(?:anymore|any more|any longer|now|so much)$/iu;
 const SLOT_PREPOSITION: Partial<Record<Slot, RegExp>> = { "location.home": /^in\s+/iu, "work.employer": /^(?:at|for)\s+/iu, "work.role": /^(?:an?|the)\s+/iu };
 // Objects of "at/for" that are not employers ("I work as a nurse at night"): a few exact words
 // ("at home", but not "Home Depot"), the rest matched as a prefix ("at least 40 hours", "for free").
-const NON_ORG = /^(?:(?:home|work|first|most|times|nights?)$|(?:the moment|the weekend|weekends|nights and weekends|the same time|least|my desk|a desk|the office|an office|the store|a company|a startup|the hospital|myself|yourself|himself|herself|ourselves|themselves|self|self-employed|free|a living|minimum wage|tips|hours|a few hours|long hours|overtime)(?=\s|$))/iu;
+const NON_ORG = /^(?:(?:home|work|first|most|times|nights?)$|(?:the moment|the weekend|weekends|nights and weekends|the same time|least|my desk|a desk|the office|an office|the store|a company|a startup|the hospital|myself|yourself|himself|herself|ourselves|themselves|self|self-employed|free|a living|a while|my computer|minimum wage|tips|hours|a few hours|long hours|overtime)(?=\s|$))/iu;
 const CORRECTION_SLOTS: Slot[] = ["identity.name", "location.home", "work.employer", "work.role"];
 
 const HYPOTHETICAL = /\b(?:if|suppose|supposing|imagine|hypothetically|what if|let['’]s say|would|could|might|wish|unless|in case|maybe|someday|one day)\b/iu;

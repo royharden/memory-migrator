@@ -176,7 +176,7 @@ describe("rule catalogue", () => {
     }
     expect(facts("I work at 3M.")).toEqual([["work.employer", "3M", "assert", "none"]]);
     expect(facts("I work at 7-Eleven.")).toEqual([["work.employer", "7-Eleven", "assert", "none"]]);
-    for (const text of ["I work for about 10 hours a day.", "I work for two hours every morning.", "I work for a couple of hours after dinner.", "I work for several hours at a time."]) {
+    for (const text of ["I work for about 10 hours a day.", "I work for two hours every morning.", "I work for a couple of hours after dinner.", "I work for several hours at a time.", "I work for 8-10 hours a day.", "I work for 10+ hours a day.", "I work for 2–3 hours every morning.", "I work for a while."]) {
       expect(facts(text)).toEqual([]);
     }
     expect(facts("I work at Two Sigma.")).toEqual([["work.employer", "Two Sigma", "assert", "none"]]);
