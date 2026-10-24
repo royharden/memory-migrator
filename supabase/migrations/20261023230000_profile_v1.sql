@@ -729,6 +729,10 @@ begin
     v_value := pg_catalog.regexp_replace(p ->> 'value', '^\s+|\s+$', '', 'g');
     if v_value is null or char_length(v_value) not between 1 and 280 then return jsonb_build_object('ok', false, 'code', 'bad_value', 'message', 'Wording must be 1-280 characters.'); end if;
     if v_value = v_rev.value then return mm_private.finish_request(b.o_user, b.o_profile, 'review', envelope, jsonb_build_object('ok', true, 'noop', true)); end if;
+    if (select count(*) from public.mm_fact_alias_keys where fact_id = v_fact.id) >= 50
+       and not exists (select 1 from public.mm_fact_alias_keys where fact_id = v_fact.id and key = mm_private.identity_key(v_rev.slot, v_value, v_rev.polarity)) then
+      return jsonb_build_object('ok', false, 'code', 'too_many_edits', 'message', 'A fact can carry at most 50 different wordings.');
+    end if;
     v_key := mm_private.identity_key(v_rev.slot, v_value, v_rev.polarity);
     if exists (select 1 from public.mm_fact_alias_keys a join public.mm_facts f on f.id = a.fact_id where a.user_id = b.o_user and a.key = v_key and f.id <> v_fact.id and f.lifecycle = 'live') then
       return jsonb_build_object('ok', false, 'code', 'matches_other_fact', 'message', 'This wording matches another fact.');

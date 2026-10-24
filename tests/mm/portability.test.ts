@@ -123,7 +123,7 @@ describe("portable profile v1", () => {
     const next = ok(commitProfilePreview(target, preview)).state;
     const g = Object.values(next.generations)[0];
     expect(g.review).toBe("pending");
-    expect(g.origin).toEqual({ profileId: "profile-a", generationId: idOf(source, "tea") });
+    expect(g.origin).toEqual({ profileId: "profile-a", generationId: idOf(source, "tea"), revision: 1 });
     expect(g.id).not.toBe(idOf(source, "tea"));
     // repeat import: no duplicates, no new events
     const again = previewProfileImport(next, validated.profile, ctx);
@@ -166,14 +166,17 @@ describe("portable profile v1", () => {
   });
 
   // what_bug_this_catches: buildPortable emitting a file its own validator rejects (51 alias keys after 50 edits).
-  it("blocks a file that would fail its own validation", () => {
+  it("caps identities per fact and blocks any file that would fail its own validation", () => {
     let state = demoState();
     const tea = idOf(state, "tea");
-    for (let i = 1; i <= 50; i += 1) state = ok(edit(state, tea, `tea blend ${i}`, i, ctx)).state;
+    for (let i = 1; i <= 49; i += 1) state = ok(edit(state, tea, `tea blend ${i}`, i, ctx)).state;
+    expect(state.generations[tea].aliasKeys.length).toBe(50);
+    expect(edit(state, tea, "tea blend 50", 50, ctx)).toMatchObject({ ok: false, code: "too_many_edits" });
     state = ok(approve(state, tea, ctx)).state;
-    const built = buildPortable(state, { includeSensitive: false });
-    expect(state.generations[tea].aliasKeys.length).toBe(51);
-    expect(built.problems.length).toBeGreaterThan(0);
+    expect(buildPortable(state, { includeSensitive: false }).problems).toEqual([]);
+    // a self-validation failure still blocks: a hand-corrupted state with 51 keys is refused
+    const corrupt = { ...state, generations: { ...state.generations, [tea]: { ...state.generations[tea], aliasKeys: [...state.generations[tea].aliasKeys, "f".repeat(64)] } } };
+    expect(buildPortable(corrupt, { includeSensitive: false }).problems.length).toBeGreaterThan(0);
   });
 
   it("refuses a stale preview", () => {

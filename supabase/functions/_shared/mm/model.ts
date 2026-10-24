@@ -6,6 +6,9 @@ import { normalizeExact } from "./unicode.ts";
 /** Profile domain model shared by the local reducer, ImportPlan, exports and the account adapter. */
 
 /** Bumped whenever rule behaviour changes. rules/2 = post-review fixes after the eval fixture froze at rules/1. */
+/** Max identities (original + edits) per fact; matches the portable file bound so exports never block. */
+export const MAX_ALIAS_KEYS = 50;
+
 export const EXTRACTOR_VERSION = "rules/2";
 
 export const SINGLE_SLOTS = ["identity.name", "location.home", "work.role", "work.employer"] as const;

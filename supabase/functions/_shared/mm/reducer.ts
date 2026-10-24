@@ -7,6 +7,7 @@ import {
   currentRevision,
   identityKey,
   isSuppressed,
+  MAX_ALIAS_KEYS,
   linksFor,
   openRestoration,
   renderAssertion,
@@ -306,6 +307,9 @@ export function edit(state: ProfileState, id: string, value: string, expectedRev
   const key = identityKey(rev.slot, trimmed, rev.polarity);
   const other = Object.values(state.generations).find((o) => o.id !== id && o.lifecycle === "live" && o.aliasKeys.includes(key));
   if (other) return fail("matches_other_fact", "This wording matches another fact. Review that fact instead of merging silently.");
+  if (!g.aliasKeys.includes(key) && g.aliasKeys.length >= MAX_ALIAS_KEYS) {
+    return fail("too_many_edits", `A fact can carry at most ${MAX_ALIAS_KEYS} different wordings. Reject it and add a fresh one instead.`);
+  }
   if (isSuppressed(state, key) && openRestoration(state, key)?.generationId !== id) return fail("suppressed", "This wording matches an erased or hidden fact.");
   const assertion = renderAssertion(rev.slot, trimmed, rev.polarity);
   const revision: Revision = {

@@ -394,20 +394,33 @@ function mapLocalId(state: ProfileState, originProfileId: string, foreignId: str
   return g ? g.id : null;
 }
 
-function addLinks(draft: ProfileState, generationId: string, evidence: Evidence[], importId: string, ctx: Ctx, record: ImportRecord): number {
+/**
+ * Attach a file fact's quotes to a local generation. Mirrors the source-import attach path and the SQL:
+ * sensitivity from the file and from every quote is merged (raising it voids confirmation), a displaced
+ * claim re-enters review, and first/last seen widen.
+ */
+function addLinks(draft: ProfileState, generationId: string, fact: PortableFact, importId: string, ctx: Ctx, record: ImportRecord): number {
   let added = 0;
-  for (const e of evidence) {
+  for (const e of fact.evidence) {
     const key = evidenceKey(e);
     if (Object.values(draft.links).some((l) => l.generationId === generationId && l.evidenceKey === key)) continue;
     const link: EvidenceLink = { linkId: ctx.newId(), generationId, evidenceKey: key, evidence: e, importId, addedAt: ctx.now };
     draft.links[link.linkId] = link;
     record.addedLinks.push(link.linkId);
     added += 1;
-    // Sensitivity applies to every included quote; raising it voids earlier confirmation.
-    const g = draft.generations[generationId];
-    const merged = mergeSensitivity(g.sensitivity, classifyText(e.quote));
-    if (merged.length > g.sensitivity.length) draft.generations[generationId] = { ...g, sensitivity: merged, sensitivityConfirmedRevision: null };
   }
+  if (added === 0) return 0;
+  const g = draft.generations[generationId];
+  const merged = mergeSensitivity(g.sensitivity, [...fact.sensitivity, ...fact.evidence.flatMap((e) => classifyText(e.quote))]);
+  const raised = merged.length > g.sensitivity.length;
+  draft.generations[generationId] = {
+    ...g,
+    sensitivity: merged,
+    sensitivityConfirmedRevision: raised ? null : g.sensitivityConfirmedRevision,
+    firstSeen: earliest([g.firstSeen, ...fact.evidence.map((e) => e.sourceTime)]),
+    lastSeen: latestOf([g.lastSeen, ...fact.evidence.map((e) => e.sourceTime)]),
+    ...(g.superseded ? { superseded: null, approvedRevision: null, review: g.review === "approved" ? ("pending" as const) : g.review } : {}),
+  };
   return added;
 }
 
@@ -515,7 +528,7 @@ export function previewProfileImport(state: ProfileState, profile: PortableProfi
       const current = currentRevision(mapped);
       const identical = current.value !== null && identityKey(current.slot, current.value, current.polarity) === key;
       if (identical || mapped.aliasKeys.includes(key)) {
-        const added = addLinks(draft, mapped.id, fact.evidence, importId, ctx, record);
+        const added = addLinks(draft, mapped.id, fact, importId, ctx, record);
         if (added > 0) counts.sameAttached += 1;
         else counts.unchanged += 1;
         continue;
@@ -531,19 +544,27 @@ export function previewProfileImport(state: ProfileState, profile: PortableProfi
         // SAME rule: an existing live fact (e.g. an earlier proposal) with this identity just gains evidence.
         const existing = restored ? draft.generations[restored.generationId] : Object.values(draft.generations).find((x) => x.lifecycle === "live" && x.aliasKeys.includes(key));
         if (existing) {
-          const added = addLinks(draft, existing.id, fact.evidence, importId, ctx, record);
+          const added = addLinks(draft, existing.id, fact, importId, ctx, record);
           if (added > 0) counts.sameAttached += 1;
           else counts.unchanged += 1;
           continue;
         }
         const g = newGeneration(draft, fact, null, ctx);
-        addLinks(draft, g.id, fact.evidence, importId, ctx, record);
+        addLinks(draft, g.id, fact, importId, ctx, record);
         record.createdGenerations.push(g.id);
         counts.proposals += 1;
         continue;
       }
       counts.staleForeign += 1;
       continue;
+    }
+    if (mapped) {
+      // Mapped but hidden/erased: revision order still applies (stale stays stale); a newer revision is a proposal.
+      const newerThanMapped = foreign ? fact.revision > (mapped.origin?.revision ?? 0) : fact.revision > mapped.currentRevision;
+      if (!newerThanMapped) {
+        counts.staleForeign += 1;
+        continue;
+      }
     }
     const restoration = openRestoration(draft, key);
     if (!restoration && isSuppressed(draft, key)) {
@@ -555,13 +576,13 @@ export function previewProfileImport(state: ProfileState, profile: PortableProfi
       : Object.values(draft.generations).find((g) => g.lifecycle === "live" && g.aliasKeys.includes(key));
     if (same) {
       // SAME: keep local wording and any locally granted approval; attach evidence only.
-      const added = addLinks(draft, same.id, fact.evidence, importId, ctx, record);
+      const added = addLinks(draft, same.id, fact, importId, ctx, record);
       if (added > 0) counts.sameAttached += 1;
       else counts.unchanged += 1;
       continue;
     }
-    const g = newGeneration(draft, fact, foreign ? { profileId: profile.originProfileId, generationId: fact.id, revision: fact.revision } : null, ctx);
-    addLinks(draft, g.id, fact.evidence, importId, ctx, record);
+    const g = newGeneration(draft, fact, foreign && !mapped ? { profileId: profile.originProfileId, generationId: fact.id, revision: fact.revision } : null, ctx);
+    addLinks(draft, g.id, fact, importId, ctx, record);
     record.createdGenerations.push(g.id);
     counts.created += 1;
   }
