@@ -19,7 +19,8 @@ interface Props {
   profile: ProfileState;
   run: (action: ProfileAction) => Promise<boolean>;
   busy: boolean;
-  onDownloaded: () => void;
+  /** Called only when the downloaded profile.v1.json holds the complete working state. */
+  onPortableSaved: () => void;
 }
 
 const REASON_LABEL: Record<string, string> = {
@@ -35,7 +36,15 @@ const REASON_LABEL: Record<string, string> = {
   purged: "erased",
 };
 
-export function ExportPanel({ profile, run, busy, onDownloaded }: Props) {
+/** True when nothing outside profile.v1.json would be lost: every live fact is exported, no versions or decisions only held in-app. */
+function portableIsComplete(profile: ProfileState, includeSensitive: boolean): boolean {
+  const exported = new Set(exportProjection(profile, { includeSensitive }).map((i) => i.generation.id));
+  const allLiveExported = Object.values(profile.generations).every((g) => g.lifecycle === "erased" || exported.has(g.id));
+  const hasDecisions = Object.values(profile.groups).some((g) => g.state === "resolved" && g.resolution?.decision !== "dissolved");
+  return allLiveExported && !hasDecisions && profile.versions.length === 0;
+}
+
+export function ExportPanel({ profile, run, busy, onPortableSaved }: Props) {
   const [includeSensitive, setIncludeSensitive] = useState(false);
   const [budget, setBudget] = useState<number>(LIMITS.defaultPromptBudget);
   const [prepared, setPrepared] = useState<Prepared | null>(null);
@@ -95,8 +104,8 @@ export function ExportPanel({ profile, run, busy, onDownloaded }: Props) {
         <div className="report">
           <p>{prepared.factCount} fact(s) included.</p>
           <div className="row-actions">
-            <a className="button" href={prepared.markdownUrl} download="memory-profile.md" onClick={onDownloaded}>Download Markdown</a>
-            <a className="button" href={prepared.jsonUrl} download="profile.v1.json" onClick={onDownloaded}>Download profile.v1.json</a>
+            <a className="button" href={prepared.markdownUrl} download="memory-profile.md">Download Markdown</a>
+            <a className="button" href={prepared.jsonUrl} download="profile.v1.json" onClick={() => { if (portableIsComplete(profile, prepared.includeSensitive)) onPortableSaved(); }}>Download profile.v1.json</a>
           </div>
           <h3>Paste prompt ({prepared.prompt.length} / {prepared.prompt.budget})</h3>
           <textarea readOnly rows={8} value={prepared.prompt.text} aria-label="Paste prompt" />
@@ -141,7 +150,14 @@ function ProfileFileImport({ profile, run, busy }: { profile: ProfileState; run:
       setErrors([`Profile files are limited to 1 MiB; ${file.name} is larger. Bundles are never split silently.`]);
       return;
     }
-    const result = validatePortable(await file.text());
+    let text: string;
+    try {
+      text = await file.text();
+    } catch {
+      setErrors([`Could not read ${file.name}.`]);
+      return;
+    }
+    const result = validatePortable(text);
     if (!result.ok) {
       setErrors(result.errors.slice(0, 20));
       return;
@@ -155,7 +171,17 @@ function ProfileFileImport({ profile, run, busy }: { profile: ProfileState; run:
     <div className="report">
       <h2>Reopen or merge a profile file</h2>
       <p className="muted">Imported facts arrive as pending. Approval, verification or restore flags inside a file are never trusted. Quotes from a file show “original source not attached”.</p>
-      <input type="file" accept=".json,application/json" aria-label="Choose profile.v1.json" onChange={(e) => void choose(e.target.files)} />
+      <input
+        type="file"
+        accept=".json,application/json"
+        aria-label="Choose profile.v1.json"
+        onChange={(e) => {
+          const input = e.target;
+          void choose(input.files).finally(() => {
+            input.value = ""; // allow choosing the same file again (repeat-import check)
+          });
+        }}
+      />
       {errors.length > 0 ? (
         <ul className="error" role="alert">{errors.map((e, i) => <li key={i}>{e}</li>)}</ul>
       ) : null}

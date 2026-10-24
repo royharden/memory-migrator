@@ -113,13 +113,18 @@ export function Workspace({ mode, initial, perform, onExit, banner, reload }: Wo
       </nav>
       {error ? <p className="error" role="alert">{error}</p> : null}
       {receipt ? <ReceiptView receipt={receipt} onDismiss={() => setReceipt(null)} /> : null}
-      {dirty ? <p className="notice">Unsaved local changes (profile revision {profile.revision}). Download the profile file from “Export & profile file” to keep them.</p> : null}
-
-      {tab === "import" ? (
-        <ImportPanel profile={profile} extraction={extraction} onExtraction={setExtraction} run={run} busy={busy} />
+      {dirty ? (
+        <p className="notice">
+          Unsaved local changes (profile revision {profile.revision}). profile.v1.json keeps only approved, exportable facts and deletion records — pending, rejected and hidden facts, conflict decisions and versions are lost on reload.
+        </p>
       ) : null}
+
+      {/* Kept mounted (hidden) so loaded sources, a running worker and Clear source survive tab switches. */}
+      <div hidden={tab !== "import"}>
+        <ImportPanel profile={profile} extraction={extraction} onExtraction={setExtraction} run={run} busy={busy} />
+      </div>
       {tab === "review" ? <ReviewPanel profile={profile} sourceMap={sourceMap} extraction={extraction} run={run} busy={busy} /> : null}
-      {tab === "export" ? <ExportPanel profile={profile} run={run} busy={busy} onDownloaded={() => setSavedRevision(profile.revision)} /> : null}
+      {tab === "export" ? <ExportPanel profile={profile} run={run} busy={busy} onPortableSaved={() => setSavedRevision(profile.revision)} /> : null}
       {tab === "versions" ? <VersionsPanel profile={profile} run={run} busy={busy} /> : null}
       {tab === "history" ? <HistoryPanel profile={profile} run={run} busy={busy} /> : null}
       {tab === "evaluation" ? <EvaluationPanel /> : null}

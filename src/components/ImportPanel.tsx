@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import demo from "../../fixtures/synthetic/demo-export.json";
 import { checkFileBounds, LIMITS } from "../../supabase/functions/_shared/mm/limits.ts";
 import type { ProfileState } from "../../supabase/functions/_shared/mm/model.ts";
@@ -40,6 +40,10 @@ export function ImportPanel({ profile, extraction, onExtraction, run, busy }: Pr
   const [job, setJob] = useState<{ label: string; handle: RunningJob<unknown> } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
+  const jobRef = useRef<RunningJob<unknown> | null>(null);
+  jobRef.current = job?.handle ?? null;
+  // Leaving the workspace terminates any running worker.
+  useEffect(() => () => jobRef.current?.cancel(), []);
 
   function resetDownstream() {
     setInventory(null);
@@ -55,6 +59,7 @@ export function ImportPanel({ profile, extraction, onExtraction, run, busy }: Pr
     setJob(null);
     setSources([]);
     resetDownstream();
+    setError(null);
     if (fileInput.current) fileInput.current.value = "";
   }
 
@@ -74,7 +79,7 @@ export function ImportPanel({ profile, extraction, onExtraction, run, busy }: Pr
       setInventory(result);
       setSelected(new Set(result.index.filter((e) => e.state === "ok").map((e) => e.id)));
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Inventory failed.");
+      if (!(caught instanceof Error && caught.message === "Cancelled.")) setError(caught instanceof Error ? caught.message : "Inventory failed.");
     } finally {
       setJob(null);
     }
@@ -105,7 +110,7 @@ export function ImportPanel({ profile, extraction, onExtraction, run, busy }: Pr
       if ("error" in built) setPreviewError(built.error);
       else setPreview(built);
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Extraction failed.");
+      if (!(caught instanceof Error && caught.message === "Cancelled.")) setError(caught instanceof Error ? caught.message : "Extraction failed.");
     } finally {
       setJob(null);
     }
@@ -137,7 +142,7 @@ export function ImportPanel({ profile, extraction, onExtraction, run, busy }: Pr
       <div className="row-actions">
         <input ref={fileInput} type="file" accept=".json,application/json" multiple aria-label="Choose ChatGPT JSON files" onChange={(event) => chooseFiles(event.target.files)} disabled={job !== null} />
         <button type="button" onClick={loadDemo} disabled={job !== null}>Load built-in synthetic demo</button>
-        <button type="button" onClick={clearSource} disabled={sources.length === 0 && !job}>Clear source</button>
+        <button type="button" onClick={clearSource} disabled={sources.length === 0 && !job && !extraction}>Clear source</button>
       </div>
       <p className="muted">Clear source releases the loaded files, the worker and local message context. Your reviewed profile (quotes only) stays. Erasing a fact never rewrites your source files.</p>
       {job ? (
