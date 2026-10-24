@@ -32,12 +32,12 @@ export interface ExtractResult {
 /** Future extractor seam (e.g. a provider-backed adapter in F3). MVP ships only the rules extractor. */
 export type Extractor = (conversations: ParsedConversation[]) => ExtractResult;
 
-const END = String.raw`(?=\s+(?:and|but|so|because|since|though|although|while|which|who|where|when|with|for|from|anymore|any more|now|too|as well|these days|instead)\b|\s*[,;:!?\n"“”()]|\s*(?:\.{2,}|…)|\s*\.(?=[\s)\]"”’']|$)|\s*$)`;
-const ROLE_END = String.raw`(?=\s+(?:at|in|on|near|and|but|so|because|since|though|although|while|which|who|where|when|with|for|from|anymore|any more|now|too|these days)\b|\s*[,;:!?\n"“”()]|\s*(?:\.{2,}|…)|\s*\.(?=[\s)\]"”’']|$)|\s*$)`;
+const END = String.raw`(?=\s+(?:and|but|so|because|since|though|although|while|which|who|where|when|with|for|from|anymore|any more|now|too|as well|these days|instead)\b|\s*[,;:!?\n"“”()]|\s+[-–—](?=\s)|\s*(?:\.{2,}|…)|\s*\.(?=[\s)\]"”’']|$)|\s*$)`;
+const ROLE_END = String.raw`(?=\s+(?:at|in|on|near|and|but|so|because|since|though|although|while|which|who|where|when|with|for|from|anymore|any more|now|too|these days)\b|\s*[,;:!?\n"“”()]|\s+[-–—](?=\s)|\s*(?:\.{2,}|…)|\s*\.(?=[\s)\]"”’']|$)|\s*$)`;
 // Employer values stop before "as a ...", "in London", "on weekends", "near ...", "based in ...".
-const ORG_END = String.raw`(?=\s+(?:as|in|on|near|based|and|but|so|because|since|though|although|while|which|who|where|when|with|for|from|anymore|any more|now|too|as well|these days|instead)\b|\s*[,;:!?\n"“”()]|\s*(?:\.{2,}|…)|\s*\.(?=[\s)\]"”’']|$)|\s*$)`;
+const ORG_END = String.raw`(?=\s+(?:as|in|on|near|based|and|but|so|because|since|though|although|while|which|who|where|when|with|for|from|anymore|any more|now|too|as well|these days|instead)\b|\s*[,;:!?\n"“”()]|\s+[-–—](?=\s)|\s*(?:\.{2,}|…)|\s*\.(?=[\s)\]"”’']|$)|\s*$)`;
 // Home values additionally stop before temporary/time cues so TEMPORARY can see them.
-const HOME_END = String.raw`(?=\s+(?:and|but|so|because|since|though|although|while|which|who|where|when|with|for|from|anymore|any more|now|too|as well|these days|instead|until|till|temporarily|this|right now|at the moment|on vacation|on holiday|on a trip|on business|last|next|ago)\b|\s*[,;:!?\n"“”()]|\s*(?:\.{2,}|…)|\s*\.(?=[\s)\]"”’']|$)|\s*$)`;
+const HOME_END = String.raw`(?=\s+(?:and|but|so|because|since|though|although|while|which|who|where|when|with|for|from|anymore|any more|now|too|as well|these days|instead|until|till|temporarily|this|right now|at the moment|on vacation|on holiday|on a trip|on business|last|next|ago)\b|\s*[,;:!?\n"“”()]|\s+[-–—](?=\s)|\s*(?:\.{2,}|…)|\s*\.(?=[\s)\]"”’']|$)|\s*$)`;
 const NAME = String.raw`\p{L}[\p{L}\p{M}'’\-]*(?:\s+\p{L}[\p{L}\p{M}'’\-]*){0,3}?`;
 const PLACE = String.raw`(?:(?:St|Mt|Ft)\.\s)?\p{L}[\p{L}\p{M}\p{N}'’.\- ]{0,60}?`;
 const ROLE = String.raw`\p{L}[\p{L}\p{M}\p{N}'’\- ]{0,40}?`;
@@ -115,6 +115,8 @@ const VALUE_STOPWORDS = new Set([
   "these", "those", "both", "all", "everything", "anything", "something", "nothing", "where", "which", "who", "why", "some", "any", "either", "neither", "each", "every",
 ]);
 // Name values never start with an adverb/predicate ("My name is actually Ada", "... hard to pronounce").
+// "I work as hard/much/long as I can" is a comparison, not a role.
+const ROLE_STOPWORDS = new Set(["hard", "much", "fast", "long", "well", "little", "often", "many", "late", "early", "quickly", "slowly", "best", "usual", "always"]);
 const NAME_STOPWORDS = new Set(["actually", "really", "also", "still", "just", "not", "spelled", "spelt", "pronounced", "hard", "too", "pretty", "kind", "important", "unusual", "common", "weird", "easy", "dr", "mr", "mrs", "ms"]);
 // "X, not Y" only when Y ends the clause; "not far from Y" and similar compounds abstain.
 const CORRECTION_TAIL = new RegExp(String.raw`^,?\s+not\s+(?<y>${PLACE})(?=\s*[.!?;\n]|\s*$)`, "iud");
@@ -124,22 +126,23 @@ const RETRACTING_TAIL = /^(?:anymore|any more|any longer|now|so much)$/iu;
 // A slot-appropriate preposition before Y is dropped ("in Austin, not in Dallas" -> deny "Dallas").
 const SLOT_PREPOSITION: Partial<Record<Slot, RegExp>> = { "location.home": /^in\s+/iu, "work.employer": /^(?:at|for)\s+/iu, "work.role": /^(?:an?|the)\s+/iu };
 // Objects of "at" that are not employers ("I work as a nurse at night").
-const NON_ORG = /^(?:night|nights|home|work|the moment|the weekend|weekends|the same time|times|first|least|most|my desk|a desk|the office|an office|the store|a company|a startup|the hospital|myself|yourself|himself|herself|ourselves|themselves|self|self-employed)$/iu;
+// Objects of "at/for" that are not employers; matched as a prefix ("at least 40 hours", "for free").
+const NON_ORG = /^(?:night|nights|home|work|the moment|the weekend|weekends|the same time|times|first|least|most|my desk|a desk|the office|an office|the store|a company|a startup|the hospital|myself|yourself|himself|herself|ourselves|themselves|self|self-employed|least|free|a living|minimum wage|tips|hours|a few hours|long hours|overtime|nights and weekends|weekends)(?=\s|$)/iu;
 const CORRECTION_SLOTS: Slot[] = ["identity.name", "location.home", "work.employer", "work.role"];
 
 const HYPOTHETICAL = /\b(?:if|suppose|supposing|imagine|hypothetically|what if|let['’]s say|would|could|might|wish|unless|in case|maybe|someday|one day)\b/iu;
 const REPORTED = /\b(?:said|says|told|tells|think|thinks|thought|believe|believes|claim|claims|claimed|asked|wrote|writes|according to|quote|quoting|heard)\b/iu;
 const THIRD_PARTY = /\b(?:he|she|they|his|her|their|my (?:friend|brother|sister|mom|mother|dad|father|boss|colleague|cousin|neighbou?r|roommate|son|daughter|wife|husband|partner))\b/iu;
 const INSTRUCTION = /\b(?:pretend|act as|role-?play|you are|you['’]re|for this (?:conversation|chat|session)|assume|in this story|my character|persona|today is)\b/iu;
-const TEMPORARY = /^[\s,.…;:–-]*(?:for (?:the|a|this|next|two|a few|a couple of) \p{L}+|this (?:week|weekend|month|summer|winter|semester|year)|temporarily|(?:until|till)\b|on (?:vacation|holiday|a trip|business)|for now|right now|at the moment)/iu;
+const TEMPORARY = /^[\s,.…;:–—-]*(?:for (?:the|a|this|next|two|a few|a couple of) \p{L}+|this (?:week|weekend|month|summer|winter|semester|year)|temporarily|(?:until|till)\b|on (?:vacation|holiday|a trip|business)|for now|right now|at the moment)/iu;
 const FORGET_PREFIX = /\b(?:forget|remove|delete|erase|don['’]t remember)\b/iu;
 const FORGET = /\b(?:forget|remove|delete|erase)\b[^.!?\n]{0,40}\b(?:that|my|about|me)\b/iu;
 const QUOTE_CHARS = /["“”]/gu;
 // Attribution after the clause: "I live in Oslo, she said." / "'I live in Oslo,' he wrote."
-const TRAILING_REPORT = /^[\s,.…;:–-]*["'”’]?\s*,?\s*(?:she|he|they|someone|somebody|my\s+\p{L}+|\p{Lu}\p{Ll}+)\s+(?:said|says|wrote|writes|told|tells|thinks|thought|claimed|claims|insisted|insists|asked)\b/u;
+const TRAILING_REPORT = /^[\s,.…;:–—-]*["'”’]?\s*,?\s*(?:she|he|they|someone|somebody|my\s+\p{L}+|\p{Lu}\p{Ll}+)\s+(?:said|says|wrote|writes|told|tells|thinks|thought|claimed|claims|insisted|insists|asked)\b/u;
 // "X, not anymore ..." retracts X itself, whatever follows.
-const RETRACT_AFTER = /^,?\s+not\s+(?:any\s?more|any longer)\b/iu;
-const NOT_FOLLOWS = /^,?\s+not\b/iu;
+const RETRACT_AFTER = /^[\s,.…;:–—(-]*not\s+(?:any\s?more|any longer)\b/iu;
+const NOT_FOLLOWS = /^[\s,.…;:–—(-]*not\b/iu;
 const OTHER_PREPOSITION = /^(?:in|at|for|from|near|with|by|to|on|of|about)\s/iu;
 const TAIL_CLAUSE_WORDS = /\b(?:any\s?more|any longer|like|or|and|but|than|because|anymore)\b/iu;
 
@@ -197,6 +200,7 @@ function validValue(slot: Slot, value: string): boolean {
   if (trimmed.length < 2) return false;
   const words = trimmed.split(/\s+/u);
   if (VALUE_STOPWORDS.has(words[0].toLowerCase()) && slot !== "work.employer") return false;
+  if (slot === "work.role" && (ROLE_STOPWORDS.has(words[0].toLowerCase()) || /\bas\b/iu.test(trimmed))) return false;
   if (slot === "identity.name" && (words.length > 4 || /\p{N}/u.test(trimmed) || NAME_STOPWORDS.has(words[0].toLowerCase().replace(/\.$/u, "")))) return false;
   if (slot === "work.employer" && words.length === 1 && VALUE_STOPWORDS.has(words[0].toLowerCase())) return false;
   return true;

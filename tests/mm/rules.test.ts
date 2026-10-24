@@ -150,6 +150,22 @@ describe("rule catalogue", () => {
     expect(facts("I work for myself.")).toEqual([]);
   });
 
+  // what_bug_this_catches: prefix non-employers, "as ... as" roles, spaced dashes, retractions after punctuation (review #6).
+  it("rejects prefix non-employers and comparison roles, stops at dashes, sees 'not' after punctuation", () => {
+    expect(facts("I work at least 40 hours a week.")).toEqual([]);
+    expect(facts("I work as a nurse at least three days a week.")).toEqual([["work.role", "nurse", "assert", "none"]]);
+    expect(facts("I work for free.")).toEqual([]);
+    expect(facts("I work for a living.")).toEqual([]);
+    expect(facts("I work as hard as I can.")).toEqual([]);
+    expect(facts("I don't work as hard anymore.")).toEqual([]);
+    expect(facts("I work at Google - it's great.")).toEqual([["work.employer", "Google", "assert", "none"]]);
+    expect(facts("I live in Denver - not Boulder.")).toEqual([]);
+    expect(facts("I live in Denver - not anymore.")).toEqual([]);
+    expect(facts("I work at Google... not anymore.")).toEqual([]);
+    expect(facts("I work at Google (not anymore).")).toEqual([]);
+    expect(facts("I live in Oslo... not anymore.")).toEqual([]);
+  });
+
   // what_bug_this_catches: reported speech with the attribution after the clause.
   it("rejects trailing attributions", () => {
     expect(facts("I live in Oslo, she said.")).toEqual([]);
