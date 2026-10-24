@@ -136,6 +136,20 @@ describe("rule catalogue", () => {
     expect(facts("I work at the office.")).toEqual([]);
   });
 
+  // what_bug_this_catches: cues after an ellipsis/comma lost; "St." employers; self-employment as an employer (review #5).
+  it("sees temporary/report cues after punctuation, keeps St. employers whole, ignores 'myself'", () => {
+    for (const text of ["I live in Lisbon... until June.", "I live in Lisbon… until June.", "I live in Rome... for now.", "I live in Paris... for the summer.", "I moved to Berlin... temporarily.", "I live in Oslo, until June."]) {
+      const result = extractCandidates([conv("c", [["user", text]])]);
+      expect(result.candidates).toEqual([]);
+      expect(result.diagnostics.ineligible.temporary).toBe(1);
+    }
+    expect(facts("I live in Oslo... she said.")).toEqual([]);
+    expect(facts("I live in Oslo...and I love it.")).toEqual([["location.home", "Oslo", "assert", "none"]]);
+    expect(facts("I work at St. Mary's Hospital.")).toEqual([["work.employer", "St. Mary's Hospital", "assert", "none"]]);
+    expect(facts("I work at Mt. Sinai.")).toEqual([["work.employer", "Mt. Sinai", "assert", "none"]]);
+    expect(facts("I work for myself.")).toEqual([]);
+  });
+
   // what_bug_this_catches: reported speech with the attribution after the clause.
   it("rejects trailing attributions", () => {
     expect(facts("I live in Oslo, she said.")).toEqual([]);
