@@ -117,7 +117,9 @@ const VALUE_STOPWORDS = new Set([
 // Name values never start with an adverb/predicate ("My name is actually Ada", "... hard to pronounce").
 // "I work as hard/much/long as I can" is a comparison, not a role.
 const TIME_OR_DURATION = /^\d+(?:[:.]\d+)?(?:\s*(?:am|pm|a\.m\.|p\.m\.|hours?|hrs?|minutes?|days?|weeks?|months?|years?|o['’]clock))?(?=\s|$)/iu;
-const ROLE_STOPWORDS = new Set(["hard", "much", "fast", "long", "well", "little", "often", "many", "late", "early", "quickly", "slowly", "best", "usual", "always", "part", "needed", "required", "necessary", "such", "usual"]);
+// Hedged or spelled-out durations ("about 10 hours", "two hours", "a couple of hours"); a unit is required so "Two Sigma" survives.
+const DURATION_PHRASE = /^(?:(?:about|around|over|nearly|almost|roughly|approximately|like|up to)\s+)?(?:\d+(?:[:.]\d+)?|an?|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|fifteen|twenty|thirty|forty|fifty|sixty|a few|a couple(?: of)?|several|many)\s*(?:hours?|hrs?|minutes?|days?|weeks?|months?|years?|shifts?)\b/iu;
+const ROLE_STOPWORDS = new Set(["hard", "much", "fast", "long", "well", "little", "often", "many", "late", "early", "quickly", "slowly", "best", "usual", "always", "part", "needed", "required", "necessary", "such"]);
 const NAME_STOPWORDS = new Set(["actually", "really", "also", "still", "just", "not", "spelled", "spelt", "pronounced", "hard", "too", "pretty", "kind", "important", "unusual", "common", "weird", "easy", "dr", "mr", "mrs", "ms"]);
 // "X, not Y" only when Y ends the clause; "not far from Y" and similar compounds abstain.
 const CORRECTION_TAIL = new RegExp(String.raw`^,?\s+not\s+(?<y>${PLACE})(?=\s*[.!?;\n]|\s*$)`, "iud");
@@ -298,7 +300,7 @@ function extractMessage(message: CanonicalMessage, digest: string, out: Candidat
             diagnostics.abstained.bad_value += 1;
             continue;
           }
-          if (emission.slot === "work.employer" && (NON_ORG.test(value) || TIME_OR_DURATION.test(value))) {
+          if (emission.slot === "work.employer" && (NON_ORG.test(value) || TIME_OR_DURATION.test(value) || DURATION_PHRASE.test(value))) {
             diagnostics.abstained.ambiguous += 1;
             continue;
           }
