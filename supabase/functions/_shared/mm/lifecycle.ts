@@ -170,6 +170,11 @@ export function deleteGeneration(
     for (const group of Object.values(draft.groups)) {
       if (group.resolution?.scopeNote && group.members.some((m) => ids.includes(m.generationId))) {
         draft.groups[group.id] = { ...group, resolution: { ...group.resolution, scopeNote: null } };
+        // The note was copied onto every kept fact; surviving kept facts lose it too.
+        for (const keptId of group.resolution.kept) {
+          const kept = draft.generations[keptId];
+          if (kept?.scopeNote) draft.generations[keptId] = { ...kept, scopeNote: null };
+        }
       }
     }
   }

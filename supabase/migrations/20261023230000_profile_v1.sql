@@ -846,6 +846,12 @@ begin
     end if;
   end loop;
   if p ->> 'mode' = 'erase' then
+    -- The keep_several note was copied onto every kept fact: clear it on surviving kept facts first.
+    update public.mm_facts f set scope_note = null, row_version = row_version + 1
+    where f.profile_id = b.o_profile and f.scope_note is not null and f.id in (
+      select (k.value)::uuid from public.mm_conflict_groups g cross join lateral jsonb_array_elements_text(coalesce(g.resolution -> 'kept', '[]'::jsonb)) as k(value)
+      where g.profile_id = b.o_profile and coalesce(g.resolution ->> 'scopeNote', '') <> ''
+        and exists (select 1 from public.mm_conflict_members m where m.group_id = g.id and m.fact_id = any (v_ids)));
     update public.mm_conflict_groups g set resolution = jsonb_set(g.resolution, '{scopeNote}', 'null'::jsonb)
     where g.profile_id = b.o_profile and g.resolution ? 'scopeNote' and exists (select 1 from public.mm_conflict_members m where m.group_id = g.id and m.fact_id = any (v_ids));
   end if;

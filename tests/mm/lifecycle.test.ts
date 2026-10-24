@@ -109,6 +109,21 @@ describe("erase and groups", () => {
     }
     expect(JSON.stringify(state)).not.toContain("zydeco");
   });
+
+  // what_bug_this_catches: the copied keep_several note surviving on the kept fact that was not erased.
+  it("erasing one kept member clears the shared scope note on the surviving kept member", () => {
+    let { state } = importConvs(emptyProfile("p"), [conv("c1", [["user", "I live in Quahog."], ["user", "I live in Boston."]])]);
+    const group = Object.values(state.groups).find((g) => g.state === "open");
+    if (!group) throw new Error("expected a group");
+    const ids = group.members.map((m) => m.generationId);
+    const kept = resolveGroup(state, group.id, { decision: "keep_several", keep: ids, scopeNote: "Quahog weekdays, Boston weekends", displaced: {} }, ctx);
+    if (!kept.ok) throw new Error(kept.message);
+    const erased = deleteGeneration(kept.state, idOf(kept.state, "Quahog"), "erase", "retain", ctx);
+    if (!erased.ok) throw new Error(erased.message);
+    state = erased.state;
+    expect(JSON.stringify(state)).not.toContain("Quahog");
+    expect(state.generations[idOf(state, "Boston")].scopeNote).toBeNull();
+  });
 });
 
 describe("restore", () => {
