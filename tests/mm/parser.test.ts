@@ -155,6 +155,33 @@ describe("inventory and active branch", () => {
     expect(inventoryShard(deep, 0, "a.json", null).fatal?.code).toBe("too_deep");
   });
 
+  // what_bug_this_catches: a lone-surrogate id crashing the whole shard instead of a diagnostic.
+  it("skips conversations with malformed or oversized ids with a diagnostic", () => {
+    const badConv = conversation("bad\ud800", [{ id: "u", parent: null, message: msg("u", "user", "I like tea.") }], "u");
+    const badNode = conversation("c8", [{ id: "n\udc00", parent: null, message: { author: { role: "user" }, content: { content_type: "text", parts: ["I like tea."] } } }], "n\udc00");
+    const longMsg = conversation("c9", [{ id: "u", parent: null, message: msg("x".repeat(300), "user", "I like tea.") }], "u");
+    const inv = inventoryShard([badConv, badNode, longMsg, branched], 0, "a.json", null);
+    expect(inv.conversations.map((c) => c.state)).toEqual(["broken_tree", "broken_tree", "broken_tree", "ok"]);
+    expect(inv.issues.filter((i) => i.code === "invalid_id")).toHaveLength(3);
+  });
+
+  // what_bug_this_catches: selected conversations silently dropping out when a file changes between passes.
+  it("reports selected conversations that changed since the inventory", () => {
+    const sel = selectConversations(inventoryShard([branched], 0, "a.json", null).conversations, allSelection);
+    const changed = conversation("c1", [{ id: "u1", parent: null, message: msg("u1", "user", "I live in Paris.") }], "u1");
+    const out = extractSelected([changed], 0, sel, allSelection, { messages: 0, textBytes: 0 });
+    expect(out.conversations).toHaveLength(0);
+    expect(out.issues.map((i) => i.code)).toEqual(["changed_since_inventory"]);
+  });
+
+  // what_bug_this_catches: lexical comparison excluding the last day of an inclusive date-only range.
+  it("treats date-only bounds as whole inclusive UTC days", () => {
+    const inv = inventoryShard([branched], 0, "a.json", null).conversations; // created 2023-11-14T22:13:20Z
+    expect(selectConversations(inv, { ...allSelection, from: "2023-11-14", to: "2023-11-14" })).toHaveLength(1);
+    expect(selectConversations(inv, { ...allSelection, to: "2023-11-13" })).toHaveLength(0);
+    expect(selectConversations(inv, { ...allSelection, from: "2023-11-15" })).toHaveLength(0);
+  });
+
   it("refuses to retain more than the message budget instead of truncating", () => {
     const sel = selectConversations(inventoryShard([branched], 0, "a.json", null).conversations, allSelection);
     expect(() => extractSelected([branched], 0, sel, allSelection, { messages: 1_999, textBytes: 0 })).toThrow(LimitError);

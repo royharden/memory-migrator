@@ -95,7 +95,9 @@ describe("bounds", () => {
 
 describe("evidence", () => {
   const text = "Hi 😀. My name is Ada Quinn.";
+  const digest = sha256Hex("digest");
   const message: CanonicalMessage = {
+    sourceDigest: digest,
     conversationId: "c1",
     messageId: "m1",
     nodeId: "m1",
@@ -105,7 +107,6 @@ describe("evidence", () => {
     sourceTime: null,
     ordinal: 0,
   };
-  const digest = sha256Hex("digest");
 
   it("builds code-point evidence whose slice and hashes verify against the live source", () => {
     const from = text.indexOf("My name");
@@ -118,6 +119,9 @@ describe("evidence", () => {
     const source = new Map([[messageLookupKey("c1", "m1"), message]]);
     expect(checkEvidence(result.evidence, source)).toBe("verified");
     expect(checkEvidence(result.evidence, null)).toBe("source_not_attached");
+    // what_bug_this_catches: evidence from one export version "verified" against a different tree version.
+    const otherVersion = new Map([[messageLookupKey("c1", "m1"), { ...message, sourceDigest: sha256Hex("other") }]]);
+    expect(checkEvidence(result.evidence, otherVersion)).toBe("source_not_attached");
     expect(evidenceKey(result.evidence)).toMatch(/^ev_[0-9a-f]{40}$/);
   });
 

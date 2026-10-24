@@ -191,7 +191,7 @@ export function conversationDigest(conversation: JsonRecord, rawId: string | nul
       const content = isRecord(message.content) ? message.content : null;
       const contentType = content && typeof content.content_type === "string" ? content.content_type : null;
       let text: string | null = null;
-      if (content && (contentType === "text" || contentType === "multimodal_text") && Array.isArray(content.parts)) {
+      if (!isCarrierMessage(message) && content && (contentType === "text" || contentType === "multimodal_text") && Array.isArray(content.parts)) {
         text = wellFormed(canonicalText(content.parts.filter((p): p is string => typeof p === "string").join("\n")));
       }
       const time = typeof message.create_time === "number" && Number.isFinite(message.create_time) ? Math.floor(message.create_time) : null;
@@ -212,6 +212,23 @@ export function conversationDigest(conversation: JsonRecord, rawId: string | nul
   return sha256Hex(
     canonicalize({ v: PROJECTION_VERSION, conversationId: rawId ? wellFormed(rawId) : null, currentNode, nodes }),
   );
+}
+
+const MAX_ID_LENGTH = 256;
+
+/** Ids must be well-formed (no lone surrogates) and bounded; they are copied into every evidence record. */
+function validId(value: string): boolean {
+  return value.length > 0 && value.length <= MAX_ID_LENGTH && !hasUnpairedSurrogate(value);
+}
+
+/** First invalid conversation/node/message id in a conversation, or null when all are usable. */
+function invalidIdIn(conversation: JsonRecord, id: string): string | null {
+  if (!validId(id)) return "conversation id";
+  for (const [nodeId, node] of Object.entries(conversation.mapping as JsonRecord)) {
+    if (!validId(nodeId)) return "node id";
+    if (isRecord(node) && isRecord(node.message) && typeof node.message.id === "string" && node.message.id.length > 0 && !validId(node.message.id)) return "message id";
+  }
+  return null;
 }
 
 function rawConversationId(conversation: JsonRecord): string | null {
@@ -324,6 +341,15 @@ export function inventoryShard(data: unknown, shardIndex: number, fileName: stri
       stateDetail: null,
     };
 
+    const badId = invalidIdIn(item, id);
+    if (badId) {
+      entry.state = "broken_tree";
+      entry.stateDetail = `A ${badId} is malformed (lone surrogate or longer than ${MAX_ID_LENGTH} characters); conversation skipped.`;
+      inventory.issues.push({ code: "invalid_id", shardIndex, conversationId: id.slice(0, MAX_ID_LENGTH), detail: entry.stateDetail });
+      inventory.conversations.push(entry);
+      return;
+    }
+
     // Carrier inventory and off-branch counts over all nodes.
     const chain = activeChain(item, undefined);
     const onBranch = new Set(chain.ok ? chain.nodeIds : []);
@@ -408,11 +434,22 @@ export function mergeInventories(shards: ShardInventory[]): ConversationIndexEnt
   return result;
 }
 
+const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
+
+/** Normalizes an inclusive bound: date-only -> start/end of that UTC day; otherwise canonical UTC seconds. */
+export function normalizeBound(bound: string | null, edge: "from" | "to"): string | null {
+  if (!bound) return null;
+  if (DATE_ONLY.test(bound)) return edge === "from" ? `${bound}T00:00:00Z` : `${bound}T23:59:59Z`;
+  return canonicalTime(bound);
+}
+
 function inDateRange(entry: ConversationIndexEntry, selection: Selection): boolean {
   const time = entry.createTime ?? entry.updateTime;
   if (!time) return selection.includeUnknownDate;
-  if (selection.from && time < selection.from) return false;
-  if (selection.to && time > selection.to) return false;
+  const from = normalizeBound(selection.from, "from");
+  const to = normalizeBound(selection.to, "to");
+  if (from && time < from) return false;
+  if (to && time > to) return false;
   return true;
 }
 
@@ -476,6 +513,7 @@ export function extractSelected(
       out.retainedMessages += 1;
       out.retainedTextBytes += bytes;
       messages.push({
+        sourceDigest: digest,
         conversationId: id,
         messageId: messageIdFor(node.message, id, nodeId, cls.role, cls.text),
         nodeId,
@@ -487,6 +525,10 @@ export function extractSelected(
       });
     }
     out.conversations.push({ id, title: entry.title, sourceDigest: digest, createTime: entry.createTime, updateTime: entry.updateTime, messages });
+  }
+  // Never drop a selected conversation silently (file changed between passes or vanished).
+  for (const entry of wanted.values()) {
+    out.issues.push({ code: "changed_since_inventory", shardIndex, conversationId: entry.id, detail: "This conversation changed or disappeared since the inventory; it was not extracted. Load the files again." });
   }
   return out;
 }

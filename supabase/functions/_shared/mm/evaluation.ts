@@ -183,7 +183,7 @@ export function evaluate(ds: EvalDataset, ctx: Ctx): EvalReport {
       sourceDigest: "0".repeat(64),
       createTime: null,
       updateTime: null,
-      messages: [{ conversationId: `elig-${i}`, messageId: `e${i}`, nodeId: `e${i}`, role: "user", text: item.text, textSha256: "0".repeat(64), sourceTime: null, ordinal: 0 }],
+      messages: [{ sourceDigest: "0".repeat(64), conversationId: `elig-${i}`, messageId: `e${i}`, nodeId: `e${i}`, role: "user", text: item.text, textSha256: "0".repeat(64), sourceTime: null, ordinal: 0 }],
     };
     const emitted = extractCandidates([conv]).candidates.length > 0;
     if (emitted && item.eligible) etp += 1;

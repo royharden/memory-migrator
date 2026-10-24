@@ -7,6 +7,8 @@ export type Role = "user" | "assistant";
 
 /** A visible, supported user/assistant message on the active branch. Text is canonical (LF only). */
 export interface CanonicalMessage {
+  /** Digest of the conversation projection this message was read from. */
+  sourceDigest: string;
   conversationId: string;
   messageId: string;
   nodeId: string;
@@ -67,7 +69,9 @@ export type IssueCode =
   | "invalid_date"
   | "message_too_long"
   | "skipped_item"
-  | "branch_choice_invalid";
+  | "branch_choice_invalid"
+  | "invalid_id"
+  | "changed_since_inventory";
 
 export interface Issue {
   code: IssueCode;
@@ -108,7 +112,7 @@ export interface ShardInventory {
 
 export interface Selection {
   conversationIds: string[] | null;
-  /** Inclusive ISO date bounds on conversation source time. */
+  /** Inclusive bounds on conversation source time: YYYY-MM-DD (whole UTC day) or an ISO timestamp. */
   from: string | null;
   to: string | null;
   includeUnknownDate: boolean;

@@ -86,7 +86,8 @@ export function checkEvidence(e: Evidence, source: Map<string, CanonicalMessage>
   if (evidenceShapeErrors(e).length > 0) return "invalid";
   if (!source) return "source_not_attached";
   const message = source.get(messageLookupKey(e.conversationId, e.messageId));
-  if (!message) return "source_not_attached";
+  // A different version of the conversation is not the attached source for this evidence.
+  if (!message || message.sourceDigest !== e.sourceDigest) return "source_not_attached";
   if (message.textSha256 !== e.textSha256) return "mismatch";
   const slice = codePointSlice(message.text, e.start, e.end);
   return slice === e.quote ? "verified" : "mismatch";

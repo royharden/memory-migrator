@@ -242,6 +242,9 @@ export function ImportPanel({ profile, extraction, onExtraction, run, busy }: Pr
             Read {extraction.diagnostics.userMessages} of your messages ({extraction.diagnostics.assistantMessagesSkipped} assistant messages used only as local context). {extraction.candidates.length} candidate statements.
             Not stored as facts: question {extraction.diagnostics.ineligible.question}, hypothetical {extraction.diagnostics.ineligible.hypothetical}, quoted/reported {extraction.diagnostics.ineligible.reported}, third party {extraction.diagnostics.ineligible.third_party}, code {extraction.diagnostics.ineligible.code}, temporary {extraction.diagnostics.ineligible.temporary}, instruction {extraction.diagnostics.ineligible.instruction}; abstained {extraction.diagnostics.abstained.bad_value + extraction.diagnostics.abstained.ambiguous + extraction.diagnostics.abstained.quote_too_long}.
           </p>
+          {extraction.issues.length > 0 ? (
+            <ul className="error">{extraction.issues.map((issue, i) => <li key={i}>{issue.code}{issue.conversationId ? ` (${issue.conversationId})` : ""}: {issue.detail}</li>)}</ul>
+          ) : null}
           {extraction.diagnostics.forgetRequests.length > 0 ? (
             <p className="notice">{extraction.diagnostics.forgetRequests.length} message(s) asked ChatGPT to forget or remove something. They are not executed here; review and erase matching facts yourself if you want.</p>
           ) : null}

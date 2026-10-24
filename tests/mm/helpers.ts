@@ -10,7 +10,9 @@ export function testCtx(now = "2026-10-23T12:00:00Z"): Ctx {
 
 /** Build a parsed conversation from user/assistant lines without going through the parser. */
 export function conv(id: string, lines: Array<[role: "user" | "assistant", text: string, time?: string | null]>): ParsedConversation {
+  const sourceDigest = sha256Hex(`digest:${id}:${lines.map((l) => l[1]).join("|")}`);
   const messages: CanonicalMessage[] = lines.map(([role, text, time], index) => ({
+    sourceDigest,
     conversationId: id,
     messageId: `${id}-m${index + 1}`,
     nodeId: `${id}-n${index + 1}`,
@@ -20,5 +22,5 @@ export function conv(id: string, lines: Array<[role: "user" | "assistant", text:
     sourceTime: time ?? null,
     ordinal: index,
   }));
-  return { id, title: id, sourceDigest: sha256Hex(`digest:${id}:${lines.map((l) => l[1]).join("|")}`), createTime: null, updateTime: null, messages };
+  return { id, title: id, sourceDigest, createTime: null, updateTime: null, messages };
 }
