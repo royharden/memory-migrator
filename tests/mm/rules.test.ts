@@ -167,6 +167,19 @@ describe("rule catalogue", () => {
     expect(facts("I live in Oslo... not anymore.")).toEqual([]);
   });
 
+  // what_bug_this_catches: "--" dashes, times/durations as employers, "as part of"/"as needed" roles (review #7).
+  it("handles double-hyphen dashes, time phrases after 'work at', and non-role 'as' phrases", () => {
+    expect(facts("I work at Google -- it's great.")).toEqual([["work.employer", "Google", "assert", "none"]]);
+    expect(facts("I live in Denver -- not Boulder.")).toEqual([]);
+    for (const text of ["I work at 7am so I go to bed early.", "I work at 8am tomorrow.", "I work at 10 tomorrow.", "I work for 12 hours a day.", "I work at 11."]) {
+      expect(facts(text)).toEqual([]);
+    }
+    expect(facts("I work at 3M.")).toEqual([["work.employer", "3M", "assert", "none"]]);
+    expect(facts("I work at 7-Eleven.")).toEqual([["work.employer", "7-Eleven", "assert", "none"]]);
+    expect(facts("I work as part of a small team.")).toEqual([]);
+    expect(facts("I work as needed.")).toEqual([]);
+  });
+
   // what_bug_this_catches: reported speech with the attribution after the clause.
   it("rejects trailing attributions", () => {
     expect(facts("I live in Oslo, she said.")).toEqual([]);

@@ -32,12 +32,12 @@ export interface ExtractResult {
 /** Future extractor seam (e.g. a provider-backed adapter in F3). MVP ships only the rules extractor. */
 export type Extractor = (conversations: ParsedConversation[]) => ExtractResult;
 
-const END = String.raw`(?=\s+(?:and|but|so|because|since|though|although|while|which|who|where|when|with|for|from|anymore|any more|now|too|as well|these days|instead)\b|\s*[,;:!?\n"“”()]|\s+[-–—](?=\s)|\s*(?:\.{2,}|…)|\s*\.(?=[\s)\]"”’']|$)|\s*$)`;
-const ROLE_END = String.raw`(?=\s+(?:at|in|on|near|and|but|so|because|since|though|although|while|which|who|where|when|with|for|from|anymore|any more|now|too|these days)\b|\s*[,;:!?\n"“”()]|\s+[-–—](?=\s)|\s*(?:\.{2,}|…)|\s*\.(?=[\s)\]"”’']|$)|\s*$)`;
+const END = String.raw`(?=\s+(?:and|but|so|because|since|though|although|while|which|who|where|when|with|for|from|anymore|any more|now|too|as well|these days|instead)\b|\s*[,;:!?\n"“”()]|\s*-{2,}|\s+[-–—](?=\s)|\s*(?:\.{2,}|…)|\s*\.(?=[\s)\]"”’']|$)|\s*$)`;
+const ROLE_END = String.raw`(?=\s+(?:at|in|on|near|and|but|so|because|since|though|although|while|which|who|where|when|with|for|from|anymore|any more|now|too|these days)\b|\s*[,;:!?\n"“”()]|\s*-{2,}|\s+[-–—](?=\s)|\s*(?:\.{2,}|…)|\s*\.(?=[\s)\]"”’']|$)|\s*$)`;
 // Employer values stop before "as a ...", "in London", "on weekends", "near ...", "based in ...".
-const ORG_END = String.raw`(?=\s+(?:as|in|on|near|based|and|but|so|because|since|though|although|while|which|who|where|when|with|for|from|anymore|any more|now|too|as well|these days|instead)\b|\s*[,;:!?\n"“”()]|\s+[-–—](?=\s)|\s*(?:\.{2,}|…)|\s*\.(?=[\s)\]"”’']|$)|\s*$)`;
+const ORG_END = String.raw`(?=\s+(?:as|in|on|near|based|and|but|so|because|since|though|although|while|which|who|where|when|with|for|from|anymore|any more|now|too|as well|these days|instead)\b|\s*[,;:!?\n"“”()]|\s*-{2,}|\s+[-–—](?=\s)|\s*(?:\.{2,}|…)|\s*\.(?=[\s)\]"”’']|$)|\s*$)`;
 // Home values additionally stop before temporary/time cues so TEMPORARY can see them.
-const HOME_END = String.raw`(?=\s+(?:and|but|so|because|since|though|although|while|which|who|where|when|with|for|from|anymore|any more|now|too|as well|these days|instead|until|till|temporarily|this|right now|at the moment|on vacation|on holiday|on a trip|on business|last|next|ago)\b|\s*[,;:!?\n"“”()]|\s+[-–—](?=\s)|\s*(?:\.{2,}|…)|\s*\.(?=[\s)\]"”’']|$)|\s*$)`;
+const HOME_END = String.raw`(?=\s+(?:and|but|so|because|since|though|although|while|which|who|where|when|with|for|from|anymore|any more|now|too|as well|these days|instead|until|till|temporarily|this|right now|at the moment|on vacation|on holiday|on a trip|on business|last|next|ago)\b|\s*[,;:!?\n"“”()]|\s*-{2,}|\s+[-–—](?=\s)|\s*(?:\.{2,}|…)|\s*\.(?=[\s)\]"”’']|$)|\s*$)`;
 const NAME = String.raw`\p{L}[\p{L}\p{M}'’\-]*(?:\s+\p{L}[\p{L}\p{M}'’\-]*){0,3}?`;
 const PLACE = String.raw`(?:(?:St|Mt|Ft)\.\s)?\p{L}[\p{L}\p{M}\p{N}'’.\- ]{0,60}?`;
 const ROLE = String.raw`\p{L}[\p{L}\p{M}\p{N}'’\- ]{0,40}?`;
@@ -116,7 +116,8 @@ const VALUE_STOPWORDS = new Set([
 ]);
 // Name values never start with an adverb/predicate ("My name is actually Ada", "... hard to pronounce").
 // "I work as hard/much/long as I can" is a comparison, not a role.
-const ROLE_STOPWORDS = new Set(["hard", "much", "fast", "long", "well", "little", "often", "many", "late", "early", "quickly", "slowly", "best", "usual", "always"]);
+const TIME_OR_DURATION = /^\d+(?:[:.]\d+)?(?:\s*(?:am|pm|a\.m\.|p\.m\.|hours?|hrs?|minutes?|days?|weeks?|months?|years?|o['’]clock))?(?=\s|$)/iu;
+const ROLE_STOPWORDS = new Set(["hard", "much", "fast", "long", "well", "little", "often", "many", "late", "early", "quickly", "slowly", "best", "usual", "always", "part", "needed", "required", "necessary", "such", "usual"]);
 const NAME_STOPWORDS = new Set(["actually", "really", "also", "still", "just", "not", "spelled", "spelt", "pronounced", "hard", "too", "pretty", "kind", "important", "unusual", "common", "weird", "easy", "dr", "mr", "mrs", "ms"]);
 // "X, not Y" only when Y ends the clause; "not far from Y" and similar compounds abstain.
 const CORRECTION_TAIL = new RegExp(String.raw`^,?\s+not\s+(?<y>${PLACE})(?=\s*[.!?;\n]|\s*$)`, "iud");
@@ -142,7 +143,7 @@ const QUOTE_CHARS = /["“”]/gu;
 const TRAILING_REPORT = /^[\s,.…;:–—-]*["'”’]?\s*,?\s*(?:she|he|they|someone|somebody|my\s+\p{L}+|\p{Lu}\p{Ll}+)\s+(?:said|says|wrote|writes|told|tells|thinks|thought|claimed|claims|insisted|insists|asked)\b/u;
 // "X, not anymore ..." retracts X itself, whatever follows.
 const RETRACT_AFTER = /^[\s,.…;:–—(-]*not\s+(?:any\s?more|any longer)\b/iu;
-const NOT_FOLLOWS = /^[\s,.…;:–—(-]*not\b/iu;
+const NOT_FOLLOWS = /^[\s,.…;:–—(-]*not\b/iu; // the class includes "-", so "-- not" is covered
 const OTHER_PREPOSITION = /^(?:in|at|for|from|near|with|by|to|on|of|about)\s/iu;
 const TAIL_CLAUSE_WORDS = /\b(?:any\s?more|any longer|like|or|and|but|than|because|anymore)\b/iu;
 
@@ -297,7 +298,7 @@ function extractMessage(message: CanonicalMessage, digest: string, out: Candidat
             diagnostics.abstained.bad_value += 1;
             continue;
           }
-          if (emission.slot === "work.employer" && NON_ORG.test(value)) {
+          if (emission.slot === "work.employer" && (NON_ORG.test(value) || TIME_OR_DURATION.test(value))) {
             diagnostics.abstained.ambiguous += 1;
             continue;
           }
