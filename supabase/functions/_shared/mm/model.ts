@@ -5,7 +5,8 @@ import { normalizeExact } from "./unicode.ts";
 
 /** Profile domain model shared by the local reducer, ImportPlan, exports and the account adapter. */
 
-export const EXTRACTOR_VERSION = "rules/1";
+/** Bumped whenever rule behaviour changes. rules/2 = post-review fixes after the eval fixture froze at rules/1. */
+export const EXTRACTOR_VERSION = "rules/2";
 
 export const SINGLE_SLOTS = ["identity.name", "location.home", "work.role", "work.employer"] as const;
 export const MULTI_SLOTS = ["preference.likes", "preference.dislikes", "health.note", "financial.note"] as const;

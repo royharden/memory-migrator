@@ -192,9 +192,17 @@ export function evaluate(ds: EvalDataset, ctx: Ctx): EvalReport {
   });
 
   // Groups: compare gold groups and predicted groups by their member fact identities.
-  const preview = previewCandidateImport(emptyProfile("eval"), candidates, ctx, PARSER_VERSION);
+  // Groups are scored per conversation: each synthetic conversation is its own persona/profile,
+  // matching the per-conversation gold groups (a whole fixture is not one person's profile).
   const predictedGroups: string[][] = [];
-  if (!("error" in preview)) {
+  for (const conversation of conversations) {
+    const own = candidates.filter((c) => c.evidence.conversationId === conversation.id);
+    if (own.length === 0) continue;
+    const preview = previewCandidateImport(emptyProfile(`eval-${conversation.id}`), own, ctx, PARSER_VERSION);
+    if ("error" in preview) {
+      limitations.push(preview.error);
+      continue;
+    }
     for (const group of Object.values(preview.next.groups)) {
       if (group.state !== "open") continue;
       predictedGroups.push(
@@ -206,7 +214,7 @@ export function evaluate(ds: EvalDataset, ctx: Ctx): EvalReport {
           .sort(),
       );
     }
-  } else limitations.push(preview.error);
+  }
   const labelById = new Map(ds.labels.map((l) => [l.id, l]));
   const goldGroups = ds.groups.map((g) =>
     [...new Set(g.members.map((id) => labelById.get(id)).filter((l): l is GoldLabel => Boolean(l)).map((l) => factKey(l.slot, l.value, l.polarity)))].sort(),
@@ -238,6 +246,9 @@ export function evaluate(ds: EvalDataset, ctx: Ctx): EvalReport {
     `Synthetic fixture with ${ds.labels.length} labels in ${conversations.length} conversations: far too small for confidence intervals; treat numbers as smoke indicators.`,
     "Labels and rules were written by the same agent, so the split is not independent. A later independent audit of at least 20% of labels is required.",
     "Retrieval benchmarks (and LoCoMo) cannot establish this extractor's quality; none are used.",
+    "Held-out split is contaminated: rules changed after the fixture froze at rules/1 (combining-mark support motivated by a held-out case; temporary-location and correction-tail fixes overlapping held-out eligibility items). Treat held-out numbers as dev-like until a fresh, unseen split is written.",
+    "Fact identity is counted corpus-wide (identical facts in different conversations count once); conflict groups are scored per conversation.",
+    "Sensitivity misses for labels the extractor did not emit are judged on the gold quote's text classification, not on an extracted fact.",
   );
 
   return {

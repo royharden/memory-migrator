@@ -21,7 +21,8 @@ Large-file performance is unverified. Retrieval benchmarks are not used to claim
 ```bash
 npm install        # no lockfile yet; keep the generated one
 npm run typecheck && npm run typecheck:tests
-npm run test:mm    # new pipeline tests (constructed, never run)
+npm run test:mm    # authoritative: the new pipeline tests (constructed, never run)
+npm test           # also runs the legacy Grok-era tests in tests/*.test.ts (kept, not maintained)
 npm run dev
 ```
 

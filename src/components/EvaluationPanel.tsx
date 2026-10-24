@@ -63,7 +63,13 @@ export function EvaluationPanel() {
       {report ? (
         <div className="report">
           <p>
-            Dataset {report.datasetId} · parser {report.parserVersion} · rules {report.extractorVersion} (frozen with {manifest.rulesAtFreeze}) · label SHA-256 {report.datasetSha256.slice(0, 12)}…{" "}
+            Dataset {report.datasetId} · parser {report.parserVersion} · rules {report.extractorVersion}{" "}
+            {report.extractorVersion === manifest.rulesAtFreeze ? (
+              "(same rules as at freeze)"
+            ) : (
+              <strong className="error">(fixture froze with {manifest.rulesAtFreeze}; rules changed since, held-out split contaminated)</strong>
+            )}{" "}
+            · label SHA-256 {report.datasetSha256.slice(0, 12)}…{" "}
             {report.datasetSha256 === expectedSha ? "matches the manifest" : <strong className="error">does NOT match the manifest — labels changed since freezing</strong>}
           </p>
           <p>

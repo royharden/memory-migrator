@@ -28,11 +28,11 @@ Local mode needs no env and makes no network requests.
 | `supabase/migrations/20261023180000_init.sql` (legacy Grok baseline) | constructed earlier; **apply history unknown**; bytes preserved |
 | `supabase/migrations/20261023230000_profile_v1.sql` (forward-only: revokes legacy writes/raw-upload policies, adds `mm_*` tables, owner-read RLS, SECURITY DEFINER RPCs) | constructed; not applied |
 | RPCs: `mm_ensure_profile`, `mm_apply_import_plan`, `mm_review`, `mm_resolve_group`, `mm_delete_fact`, `mm_restore_fact`, `mm_undo_import`, `mm_publish_version` | constructed; not executed |
-| Storage buckets | **none for MVP**. Legacy `memory-exports` bucket (if it exists in a target) is retained read/delete-only pending an explicit retention decision |
+| Storage buckets | **none used by the MVP.** But applying the ordered migrations creates one: `init.sql` inserts the legacy `memory-exports` bucket and policies, and the forward migration then leaves it read/delete-only (no uploads). On a fresh target this is an empty unused bucket; removing it needs a separate, explicitly approved migration. |
 | Edge functions | **none for MVP**. `supabase/functions/propose-facts` is legacy, disconnected — **do not deploy**; if already deployed in a target, disable it |
 | Realtime, cron, vectors, paid/external APIs | none |
 
-Before applying: inspect the target's real migration history read-only. If `init.sql` was never applied, it may still be applied first (it is preserved, then superseded by the forward migration); if applied or unknown, apply only the forward migration on top.
+Before applying: inspect the target's real migration history read-only. The forward migration expects the legacy tables from `init.sql` to exist (it revokes their grants and drops their write policies), so on a fresh target both files run in order — which also creates the empty `memory-exports` bucket noted above. If `init.sql` was already applied, apply only the forward migration on top. If the owner wants no legacy objects on a fresh target, that needs a separately approved rewrite of the baseline, not done here.
 
 ## Auth settings to confirm later
 
