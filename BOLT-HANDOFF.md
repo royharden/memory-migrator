@@ -1,93 +1,47 @@
 # Bolt infrastructure handoff: Portable memory migrator
 
-Dirty Mode construction — runtime unverified. No secrets. Inventory of files in this repo. Nothing here has been installed, built, migrated, or opened in a browser.
+Dirty Mode construction — runtime unverified. No secrets. Updated 2026-10-24 (S18-INT rebuild). The previous version of this file is in git history (baseline commit `bf48dc9`).
 
 ## Target and readiness
 
-- Repository / branch / prepared revision: local source only. No git repo and no remote were created in the wind-down close-out.
-- App root: this directory (`memory-migrator`), the inner folder that would be imported.
-- Database: Bolt Database (Supabase-compatible Postgres). Not connected Supabase. Not omitted: profiles, imports, messages, facts, and the audit log are per-user.
-- Target: fresh empty database. Do not replace an existing populated database.
-- Existing baseline / applied migrations: Unknown. The SQL file is not proof it was applied.
-- Hosting: prepare only. No host was chosen.
-- Publication: prepare only. Do not publish.
-- Bolt action: inspect and prepare only. Provisioning is not authorized by this build.
-- Status: implementation present as source, infrastructure pending. Dirty Mode construction — runtime unverified.
-- Owner prerequisites: GitHub access if importing later, a Bolt Database connection, and optional extractor secrets. No account was created here.
+- Repository: local git only (`main`), no remote. Nothing pushed or published.
+- App root: this directory (inner `memory-migrator`).
+- Database: **Bolt Database** (Supabase-compatible Postgres + Auth) — intended, not provisioned. If a real connection already exists, preserve it; do not create a second project or replace a populated target.
+- Bolt action now: **inspect and prepare only.** Git import, provisioning and publication are separate, not-yet-authorized actions.
 
-## Build and connection
+## Build
 
-| Item | Exact command or configuration name |
-|---|---|
-| Runtime / package manager | Node >= 20, npm. No lockfile in the repo. |
-| Frozen install / dev | Not run. After a lockfile exists: `npm ci` then `npm run dev`. Until then: `npm install` is still outstanding. |
-| Build / output | `npm run build` (`tsc --noEmit` then `vite build`). Output directory would be `dist`. Not run. |
-| Type/lint/tests | `npm run typecheck`, `npm test` (`vitest run`). Not run. Hand trace only; that is not a pass. |
-| Client file / public env names | `src/lib/supabase.ts`. `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`. No values. |
-| Missing config behavior | Setup text plus an explicit **Use local demo** control. The demo keeps state in the tab and does not invent a cloud session. |
-
-## Database
-
-| Order | Exact migration file | Resources / dependencies | Applied status |
-|---|---|---|---|
-| 1 | `supabase/migrations/20261023180000_init.sql` | `profiles`, `imports`, `messages`, `facts`, `audit_log`; RLS using `auth.uid()`; new-user profile trigger; private `memory-exports` bucket (50 MB, JSON) and owner object policies | pending |
-
-- Access model: private per signed-in user. No anonymous read or write. Facts are updated in place for review; deletes are tombstones (`status = tombstoned`), not SQL deletes. Audit rows are insert-only.
-- Ownership checks: `user_id = auth.uid()` on every policy. Storage object name must start with the user id folder.
-- Extensions/RPC permissions/Realtime: Not required. No `pg_cron`, `pg_net`, pgvector, or Realtime publication.
-- Seeds: Not required. The labelled sample is a JSON fixture in `src/fixtures/labelled-set.json`, not SQL.
-- Retry rule: inspect migration tracking, apply only this pending file, preserve existing data. Do not drop and recreate.
-
-## Functions
-
-| Name / source | Caller + auth | Input / output | Resources + secret names | Deploy config |
-|---|---|---|---|---|
-| `propose-facts`; `supabase/functions/propose-facts/index.ts` | Signed-in user JWT. Gateway `verify_jwt = true` and `auth.getUser()`. An anon key is not a user. | POST `{ importId }` or `{ dryRun: true, messages }`. Optional `mode`: `rules` (default) or `llm`. Returns `{ facts, conflicts, dropped, events }` or `{ error, message, secret? }`. | Reads `imports` and `messages`. Upserts `facts`. Inserts `audit_log` extract rows. Rules mode uses no provider. LLM mode uses `MEMORY_EXTRACT_API_KEY` and `MEMORY_EXTRACT_URL`. Platform `SUPABASE_URL` and `SUPABASE_ANON_KEY`. No service-role key. | `supabase/config.toml` sets `verify_jwt = true`. Shared code is `supabase/functions/_shared/`. Confirm the deploy bundle includes that folder. |
-
-- CORS/preflight: `OPTIONS` returns 204. `POST` allows `authorization`, `x-client-info`, `apikey`, `content-type`.
-- Identity/ownership and abuse controls: the user-scoped client loads the import. Another user's import looks missing. Rules cap: 2000 messages, 20,000 characters each. LLM cap: 30 messages, one fetch, 20 second abort, no retry. Provider quotes that are not an exact slice of the cited user message are dropped.
-- Paid API limits: one provider call per LLM request when both secrets exist. Rules mode makes no paid call. Not required for the demo path.
-- Webhooks: Not required.
-- Platform credentials: `SUPABASE_URL`, `SUPABASE_ANON_KEY` injected for the function. Never copy another project's values.
-
-## Server secrets to enter through settings
-
-| Name | Consumer | Required / optional | Owner source |
-|---|---|---|---|
-| `MEMORY_EXTRACT_API_KEY` | `propose-facts` LLM mode only | Optional. Rules mode does not read it. | Owner's extractor account. No value in the repo. |
-| `MEMORY_EXTRACT_URL` | `propose-facts` LLM mode only | Optional, and required before any LLM call if the key is set. | Owner's extractor endpoint. No default vendor URL. |
-
-Missing-secret behavior: HTTP 503 `{ error: "missing_secret", secret, message }` and no invented facts. Missing `SUPABASE_URL` or `SUPABASE_ANON_KEY` returns 500 `missing_platform_env` and writes nothing.
-Only `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` belong in frontend env. Backend secrets never use a `VITE_` prefix.
-
-## Auth, storage, and external steps
-
-- Auth providers/confirmation: email and password in `src/components/AuthGate.tsx`. If sign-up returns no session, the UI says to confirm email and does not invent one.
-- Site URL and callback/recovery routes: not built. Set the Bolt Auth Site URL and redirect allowlist after a host exists. There is no password-recovery page.
-- Buckets: `memory-exports`, private, 52,428,800 bytes, MIME `application/json`, `text/json`, `text/plain`. Object path `{userId}/{importId}.json`.
-- Realtime: Not required.
-- Scheduled/long jobs: Not required.
-- Outside services: an extractor account only if LLM mode is turned on. The demo path is the rules engine.
-- Real integrations: `propose-facts` rules path and Supabase auth/storage/database when provisioned. Explicit demos: **Use local demo** (in-memory, labeled). LLM fetch is implemented and was not called.
-
-## Acceptance checks and receipts
-
-Use synthetic data and authorized accounts. Unexecuted checks stay pending.
-
-| Check | Expected result | Outcome / receipt |
+| Item | Value | State |
 |---|---|---|
-| Import/install/build | Frozen install and `npm run build` pass | Pending. No lockfile, no install, no build. |
-| Schema | `20261023180000_init.sql` applied on the intended database | Pending. File only. |
-| Function round trip | Signed-in `propose-facts` returns the rules contract | Pending. Function was not deployed or invoked. |
-| Auth/isolation | No JWT fails. User B cannot read or write user A facts or storage objects. | Pending. Policies are source only. |
-| Missing secret | LLM mode without `MEMORY_EXTRACT_API_KEY` returns `missing_secret` and no facts | Pending. Gate is source only. Not invoked. |
-| Uploads, if needed | Raw JSON in `memory-exports` is readable only by that user | Pending. Client upload is written. Not executed. |
-| Webhooks, if needed | Not required | Not required |
-| Jobs, if needed | Not required | Not required |
-| Publish, if requested | Not requested | Not run |
+| Runtime / package manager | Node >= 20, npm | no lockfile yet |
+| Install | `npm install` once (then keep lockfile; `npm ci` afterwards) | not run |
+| Checks | `npm run typecheck`, `npm run typecheck:tests`, `npm run test:mm` | not run |
+| Build / output | `npm run build` → static `dist/` (single page, no client routes) | not run |
+| Public env (account mode only) | `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` | names only |
 
-## One prompt after GitHub import
+Local mode needs no env and makes no network requests.
 
-### Inspect and prepare only
+## Database resources (constructed / pending / verified)
 
-> Read BOLT-HANDOFF.md and inspect the imported source at the intended branch/revision. Compare proposed resources with implemented files, reconcile unknown migration baselines through read-only history/schema inspection when access is available, and report concrete deployment gaps and owner/external blockers. Preserve the app design and existing database/data. Prepare a reviewable setup plan with actual file/resource names and pending checks. Do not create or change cloud resources, apply migrations, deploy functions, enter secrets, enable schedules, or publish. Do not describe proposed resources or unexecuted checks as complete.
+| Resource | State |
+|---|---|
+| `supabase/migrations/20261023180000_init.sql` (legacy Grok baseline) | constructed earlier; **apply history unknown**; bytes preserved |
+| `supabase/migrations/20261023230000_profile_v1.sql` (forward-only: revokes legacy writes/raw-upload policies, adds `mm_*` tables, owner-read RLS, SECURITY DEFINER RPCs) | constructed; not applied |
+| RPCs: `mm_ensure_profile`, `mm_apply_import_plan`, `mm_review`, `mm_resolve_group`, `mm_delete_fact`, `mm_restore_fact`, `mm_undo_import`, `mm_publish_version` | constructed; not executed |
+| Storage buckets | **none for MVP**. Legacy `memory-exports` bucket (if it exists in a target) is retained read/delete-only pending an explicit retention decision |
+| Edge functions | **none for MVP**. `supabase/functions/propose-facts` is legacy, disconnected — **do not deploy**; if already deployed in a target, disable it |
+| Realtime, cron, vectors, paid/external APIs | none |
+
+Before applying: inspect the target's real migration history read-only. If `init.sql` was never applied, it may still be applied first (it is preserved, then superseded by the forward migration); if applied or unknown, apply only the forward migration on top.
+
+## Auth settings to confirm later
+
+Email/password sign-up, email confirmation, password recovery (`resetPasswordForEmail` redirects to the site origin), Site URL and redirect allow-list for the eventual host.
+
+## Deferred validation (owner of each: next authorized validation phase)
+
+Install + typecheck + tests + build; TS↔SQL digest/normalization parity (golden vectors); RLS with anonymous and two real users; concurrent delete/import, stale revisions, idempotent retry and payload-mismatch; erase residue search across every table and the request log; version publish/redaction; network inspection (local mode zero requests, account mode quotes only); auth recovery/session refresh without losing edits; accessibility and XSS checks; large-file memory/cancel measurements; independent audit of ≥20% of evaluation labels.
+
+## Bolt prompt (inspect and prepare only)
+
+> Import this repository for inspection only. Do not provision, migrate, deploy or publish. Report: the target database's existing migration history (read-only), whether `memory-exports` storage or a `propose-facts` function already exists, and what the static build would need. Wait for explicit approval before any change.
