@@ -765,7 +765,7 @@ begin
     update public.mm_facts set review = 'rejected', approved_revision = null, row_version = row_version + 1 where id in (select fact_id from public.mm_conflict_members where group_id = v_group.id);
     v_keep := '{}';
   elsif v_decision in ('keep_one', 'keep_several') then
-    v_keep := (select coalesce(array_agg(x::uuid), '{}') from jsonb_array_elements_text(p -> 'keep') x);
+    v_keep := (select coalesce(array_agg(distinct x::uuid), '{}') from jsonb_array_elements_text(p -> 'keep') x);
     if (v_decision = 'keep_one' and cardinality(v_keep) <> 1) or (v_decision = 'keep_several' and cardinality(v_keep) < 2) then
       return jsonb_build_object('ok', false, 'code', 'bad_decision', 'message', 'Wrong number of kept facts.');
     end if;
@@ -790,7 +790,9 @@ begin
   end if;
   update public.mm_conflict_members cm set revision = f.current_revision from public.mm_facts f where cm.group_id = v_group.id and f.id = cm.fact_id;
   update public.mm_conflict_groups set state = 'resolved', resolution = jsonb_build_object('decision', v_decision, 'kept', to_jsonb(v_keep::text[]),
-    'displaced', coalesce(p -> 'displaced', '{}'::jsonb), 'scopeNote', v_scope, 'effectiveDate', v_date, 'resolvedAt', now()) where id = v_group.id;
+    'displaced', (select coalesce(jsonb_object_agg(m.fact_id::text, p -> 'displaced' ->> m.fact_id::text), '{}'::jsonb)
+                  from public.mm_conflict_members m where m.group_id = v_group.id and not (m.fact_id = any (v_keep)) and v_decision <> 'reject_all'),
+    'scopeNote', v_scope, 'effectiveDate', v_date, 'resolvedAt', now()) where id = v_group.id;
   perform mm_private.recompute_groups(b.o_profile, b.o_user);
   perform mm_private.bump(b.o_profile);
   perform mm_private.event(b.o_profile, b.o_user, 'group_resolved', array[v_group.id::text], null);
@@ -804,6 +806,7 @@ language plpgsql security definer set search_path = '' as $$
 declare
   b record; p jsonb; v_root public.mm_facts; v_ids uuid[]; v_deps uuid[]; v_prev int := -1; v_id uuid; v_tomb uuid;
   v_purged_rev int := 0; v_purged_q int := 0; v_n int; v_redacted bigint[]; v_tombs uuid[] := '{}';
+  v_closed int := 0; v_hidden_q int := 0; v_groups uuid[];
 begin
   select * into b from mm_private.begin_request('delete_fact', envelope);
   if b.o_early is not null then return b.o_early; end if;
@@ -834,6 +837,7 @@ begin
     insert into public.mm_tombstones (id, user_id, profile_id, generation_id, mode, created_at) values (v_tomb, b.o_user, b.o_profile, v_id::text, p ->> 'mode', now());
     insert into public.mm_suppression_keys (tombstone_id, user_id, key) select v_tomb, b.o_user, a.key from public.mm_fact_alias_keys a where a.fact_id = v_id on conflict do nothing;
     update public.mm_restoration_relations set open = false where fact_id = v_id and open;
+    get diagnostics v_n = row_count; v_closed := v_closed + v_n;
     if p ->> 'mode' = 'erase' then
       update public.mm_fact_revisions set value = null, assertion = null where fact_id = v_id and value is not null;
       get diagnostics v_n = row_count; v_purged_rev := v_purged_rev + v_n;
@@ -842,9 +846,11 @@ begin
       update public.mm_facts set lifecycle = 'erased', review = 'rejected', approved_revision = null, sensitivity = '{}', sensitivity_confirmed_revision = null,
         scope_note = null, superseded_reason = null, superseded_group = null, superseded_effective = null, row_version = row_version + 1 where id = v_id;
     else
+      v_hidden_q := v_hidden_q + (select count(*) from public.mm_fact_evidence where fact_id = v_id and quote is not null);
       update public.mm_facts set lifecycle = 'hidden', approved_revision = null, review = case when review = 'approved' then 'pending' else review end, row_version = row_version + 1 where id = v_id;
     end if;
   end loop;
+  select coalesce(array_agg(distinct m.group_id), '{}') into v_groups from public.mm_conflict_members m where m.fact_id = any (v_ids);
   if p ->> 'mode' = 'erase' then
     -- The keep_several note was copied onto every kept fact: clear it on surviving kept facts first.
     update public.mm_facts f set scope_note = null, row_version = row_version + 1
@@ -862,7 +868,8 @@ begin
     jsonb_build_object('purgedRevisions', v_purged_rev, 'purgedQuotes', v_purged_q, 'retainedDependencies', cardinality(v_deps), 'redactedVersions', cardinality(v_redacted)));
   return mm_private.finish_request(b.o_user, b.o_profile, 'delete_fact', envelope, jsonb_build_object('ok', true, 'mode', p ->> 'mode',
     'generationIds', to_jsonb(v_ids::text[]), 'tombstoneIds', to_jsonb(v_tombs::text[]), 'purgedRevisions', v_purged_rev, 'purgedQuotes', v_purged_q,
-    'retainedDependencies', to_jsonb(v_deps::text[]), 'redactedVersions', to_jsonb(v_redacted)));
+    'retainedDependencies', to_jsonb(v_deps::text[]), 'redactedVersions', to_jsonb(v_redacted),
+    'hiddenQuotes', v_hidden_q, 'closedRestorations', v_closed, 'recomputedGroups', to_jsonb(v_groups::text[])));
 end;
 $$;
 
@@ -889,7 +896,10 @@ begin
       return jsonb_build_object('ok', false, 'code', 'identity_mismatch', 'message', 'The reselected text does not match the deleted fact.');
     end if;
     insert into public.mm_facts (id, user_id, profile_id, current_revision, review, lifecycle, sensitivity, restored_from)
-    values (v_new, b.o_user, b.o_profile, 1, 'pending', 'live', coalesce((select array_agg(distinct x order by x) from jsonb_array_elements_text(it -> 'sensitivity') x), '{}'), v_old.id);
+    -- Sensitivity never drops on restore: union the old classification with the reselected one.
+    values (v_new, b.o_user, b.o_profile, 1, 'pending', 'live',
+      (select coalesce(array_agg(distinct s order by s), '{}') from unnest(v_old.sensitivity || coalesce((select array_agg(x) from jsonb_array_elements_text(it -> 'sensitivity') x), '{}')) s
+       where s in ('health', 'finance', 'intimate', 'belief', 'minors', 'precise_location')), v_old.id);
     insert into public.mm_fact_revisions (fact_id, user_id, revision, slot, value, polarity, change_cue, assertion, user_authored, rule_id, extractor_version)
     values (v_new, b.o_user, 1, it ->> 'slot', it ->> 'value', it ->> 'polarity', coalesce(it ->> 'changeCue', 'none'), mm_private.render_assertion(it ->> 'slot', it ->> 'value', it ->> 'polarity'), false, it ->> 'ruleId', it ->> 'extractorVersion');
     perform mm_private.add_evidence(b.o_user, v_new, it -> 'evidence' -> 0, null);

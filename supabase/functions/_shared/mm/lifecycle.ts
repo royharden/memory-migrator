@@ -254,7 +254,8 @@ export function restoreGeneration(state: ProfileState, oldId: string, reselected
     approvedRevision: null,
     lifecycle: "live",
     superseded: null,
-    sensitivity: old.lifecycle === "hidden" ? old.sensitivity : reselected?.sensitivity ?? [],
+    // Never lowered by restore: union of the old classification and the reselected quote's.
+    sensitivity: [...new Set([...old.sensitivity, ...(reselected?.sensitivity ?? [])])].sort() as Generation["sensitivity"],
     sensitivityConfirmedRevision: null,
     aliasKeys: [key],
     firstSeen,

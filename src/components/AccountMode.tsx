@@ -28,11 +28,10 @@ export function AccountMode({ onExit }: { onExit: () => void }) {
         return;
       }
       setClient(c);
-      const { data } = await c.auth.getSession();
-      if (!active) return;
-      setSession(data.session);
-      setStage(data.session ? "consent" : "auth");
+      // Subscribe BEFORE getSession: initialization may emit PASSWORD_RECOVERY from the link.
+      let recovering = window.location.hash.includes("type=recovery");
       const sub = c.auth.onAuthStateChange((event, next) => {
+        if (event === "PASSWORD_RECOVERY") recovering = true;
         if (event === "PASSWORD_RECOVERY") setStage("recovery");
         else if (event === "SIGNED_OUT") {
           setSession(null);
@@ -42,6 +41,10 @@ export function AccountMode({ onExit }: { onExit: () => void }) {
         // TOKEN_REFRESHED / USER_UPDATED: keep the current review state untouched.
       });
       unsubscribe = () => sub.data.subscription.unsubscribe();
+      const { data } = await c.auth.getSession();
+      if (!active) return;
+      setSession(data.session);
+      setStage(recovering ? "recovery" : data.session ? "consent" : "auth");
     });
     return () => {
       active = false;
@@ -68,13 +71,7 @@ export function AccountMode({ onExit }: { onExit: () => void }) {
         mode="account"
         initial={profile}
         perform={(state, action) => performAccount(client, state, action)}
-        reload={async () => {
-          try {
-            return await loadProfile(client);
-          } catch {
-            return null;
-          }
-        }}
+        reload={() => loadProfile(client)}
         onExit={onExit}
         banner={
           <section className="banner panel">

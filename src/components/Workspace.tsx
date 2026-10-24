@@ -30,7 +30,7 @@ export interface WorkspaceProps {
   onExit: () => void;
   banner?: ReactNode;
   /** Account mode can refresh state from the server after a conflict. */
-  reload?: () => Promise<ProfileState | null>;
+  reload?: () => Promise<ProfileState>;
 }
 
 export function Workspace({ mode, initial, perform, onExit, banner, reload }: WorkspaceProps) {
@@ -97,7 +97,19 @@ export function Workspace({ mode, initial, perform, onExit, banner, reload }: Wo
         <div className="row-actions">
           <button type="button" onClick={exit}>Change mode</button>
           {reload ? (
-            <button type="button" onClick={() => void reload().then((next) => next && setProfile(next))} disabled={busy}>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() =>
+                void reload().then(
+                  (next) => {
+                    setError(null);
+                    setProfile(next);
+                  },
+                  (caught: unknown) => setError(caught instanceof Error ? `Reload failed: ${caught.message}` : "Reload failed."),
+                )
+              }
+            >
               Reload from account
             </button>
           ) : null}

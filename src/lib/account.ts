@@ -49,28 +49,61 @@ export function getAccountClient(): Promise<SupabaseClient | null> {
 }
 
 const PAGE = 1000;
+const IN_CHUNK = 100;
+
+/** Unique ordering per table so range pages are stable across requests. */
+const ORDER: Record<string, string[]> = {
+  mm_facts: ["id"],
+  mm_fact_revisions: ["fact_id", "revision"],
+  mm_fact_evidence: ["id"],
+  mm_fact_alias_keys: ["fact_id", "key"],
+  mm_conflict_groups: ["id"],
+  mm_conflict_members: ["group_id", "fact_id"],
+  mm_tombstones: ["id"],
+  mm_suppression_keys: ["tombstone_id", "key"],
+  mm_restoration_relations: ["id"],
+  mm_imports: ["id"],
+  mm_import_occurrences: ["import_id", "kind", "target_id"],
+  mm_profile_versions: ["seq"],
+  mm_version_items: ["version_id", "ord"],
+  mm_profile_events: ["seq"],
+  mm_applied_fingerprints: ["fingerprint"],
+};
+
+type Filter = { kind: "eq"; column: string; value: string } | { kind: "in"; column: string; values: string[] };
+
+/**
+ * Ordered, count-checked paging: keeps reading until the exact row count is reached and
+ * fails visibly if a page comes back empty early (e.g. a lower server max-rows) - never a
+ * silently truncated read.
+ */
+async function readPaged<T>(client: SupabaseClient, table: string, filter: Filter): Promise<T[]> {
+  const rows: T[] = [];
+  let total: number | null = null;
+  let from = 0;
+  while (total === null || rows.length < total) {
+    let query = client.from(table).select("*", { count: "exact" });
+    query = filter.kind === "eq" ? query.eq(filter.column, filter.value) : query.in(filter.column, filter.values);
+    for (const column of ORDER[table] ?? ["id"]) query = query.order(column, { ascending: true });
+    const { data, error, count } = await query.range(from, from + PAGE - 1);
+    if (error) throw new Error(`Could not read ${table}: ${error.message}`);
+    if (count === null || count === undefined) throw new Error(`Could not read ${table}: the server did not report a row count.`);
+    total = count;
+    const page = (data ?? []) as T[];
+    if (page.length === 0 && rows.length < total) throw new Error(`Could not read ${table} completely (${rows.length} of ${total} rows).`);
+    rows.push(...page);
+    from += page.length;
+  }
+  return rows;
+}
 
 async function readAll<T>(client: SupabaseClient, table: string, column: string, value: string): Promise<T[]> {
-  const rows: T[] = [];
-  for (let from = 0; ; from += PAGE) {
-    const { data, error } = await client.from(table).select("*").eq(column, value).range(from, from + PAGE - 1);
-    if (error) throw new Error(`Could not read ${table}: ${error.message}`);
-    rows.push(...((data ?? []) as T[]));
-    if (!data || data.length < PAGE) return rows;
-  }
+  return readPaged<T>(client, table, { kind: "eq", column, value });
 }
 
 async function readIn<T>(client: SupabaseClient, table: string, column: string, values: string[]): Promise<T[]> {
   const rows: T[] = [];
-  for (let i = 0; i < values.length; i += 200) {
-    const chunk = values.slice(i, i + 200);
-    for (let from = 0; ; from += PAGE) {
-      const { data, error } = await client.from(table).select("*").in(column, chunk).range(from, from + PAGE - 1);
-      if (error) throw new Error(`Could not read ${table}: ${error.message}`);
-      rows.push(...((data ?? []) as T[]));
-      if (!data || data.length < PAGE) break;
-    }
-  }
+  for (let i = 0; i < values.length; i += IN_CHUNK) rows.push(...(await readPaged<T>(client, table, { kind: "in", column, values: values.slice(i, i + IN_CHUNK) })));
   return rows;
 }
 
@@ -352,13 +385,13 @@ export async function performAccount(client: SupabaseClient, state: ProfileState
   }
   const next = await loadProfile(client);
   if (action.kind === "delete") {
-    const res = r.result as { mode: "erase" | "hide"; generationIds: string[]; tombstoneIds: string[]; purgedRevisions: number; purgedQuotes: number; retainedDependencies: string[]; redactedVersions: number[] };
+    const res = r.result as { mode: "erase" | "hide"; generationIds: string[]; tombstoneIds: string[]; purgedRevisions: number; purgedQuotes: number; hiddenQuotes: number; closedRestorations: number; recomputedGroups: string[]; retainedDependencies: string[]; redactedVersions: number[] };
     return {
       ok: true,
       state: next,
       receipt: {
         type: "delete",
-        receipt: { mode: res.mode, generationIds: res.generationIds, tombstoneIds: res.tombstoneIds, purgedRevisions: res.purgedRevisions, purgedQuotes: res.purgedQuotes, hiddenQuotes: 0, retainedDependencies: res.retainedDependencies, closedRestorations: 0, recomputedGroups: [], redactedVersions: res.redactedVersions, invalidatedOutputs: true },
+        receipt: { mode: res.mode, generationIds: res.generationIds, tombstoneIds: res.tombstoneIds, purgedRevisions: res.purgedRevisions, purgedQuotes: res.purgedQuotes, hiddenQuotes: res.hiddenQuotes, retainedDependencies: res.retainedDependencies, closedRestorations: res.closedRestorations, recomputedGroups: res.recomputedGroups, redactedVersions: res.redactedVersions, invalidatedOutputs: true },
       },
     };
   }
