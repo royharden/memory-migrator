@@ -34,11 +34,11 @@ export type Extractor = (conversations: ParsedConversation[]) => ExtractResult;
 
 const END = String.raw`(?=\s+(?:and|but|so|because|since|though|although|while|which|who|where|when|with|for|from|anymore|any more|now|too|as well|these days|instead)\b|\s*[,.;:!?\n"“”()]|\s*$)`;
 const ROLE_END = String.raw`(?=\s+(?:at|and|but|so|because|since|though|although|while|which|who|where|when|with|for|from|anymore|any more|now|too|these days)\b|\s*[,.;:!?\n"“”()]|\s*$)`;
-const NAME = String.raw`\p{L}[\p{L}'’\-]*(?:\s+\p{L}[\p{L}'’\-]*){0,3}?`;
-const PLACE = String.raw`\p{L}[\p{L}\p{N}'’.\- ]{0,60}?`;
-const ROLE = String.raw`\p{L}[\p{L}\p{N}'’\- ]{0,40}?`;
-const ORG = String.raw`[\p{L}\p{N}][\p{L}\p{N}'’&.\- ]{0,60}?`;
-const THING = String.raw`[\p{L}\p{N}][\p{L}\p{N}'’&\- ]{0,60}?`;
+const NAME = String.raw`\p{L}[\p{L}\p{M}'’\-]*(?:\s+\p{L}[\p{L}\p{M}'’\-]*){0,3}?`;
+const PLACE = String.raw`\p{L}[\p{L}\p{M}\p{N}'’.\- ]{0,60}?`;
+const ROLE = String.raw`\p{L}[\p{L}\p{M}\p{N}'’\- ]{0,40}?`;
+const ORG = String.raw`[\p{L}\p{N}][\p{L}\p{M}\p{N}'’&.\- ]{0,60}?`;
+const THING = String.raw`[\p{L}\p{N}][\p{L}\p{M}\p{N}'’&\- ]{0,60}?`;
 const MONEY = String.raw`(?:[$€£]\s?)?\d[\d,]*(?:\.\d+)?(?:\s?(?:k|thousand|million))?(?:\s(?:dollars|usd|euros|pounds))?`;
 const NEG = String.raw`(?:no longer|don['’]?t|do not)`;
 
@@ -65,6 +65,7 @@ function hasAnymore(m: RegExpMatchArray): boolean {
   return Boolean(m.groups?.any);
 }
 
+// Combining marks (\p{M}) stay inside values so decomposed text such as "Zürich" is not cut.
 const ANY = String.raw`(?<any>\s+any ?more)?`;
 
 /** Ordered: specific negations first; a later rule cannot reuse a claimed clause start. */

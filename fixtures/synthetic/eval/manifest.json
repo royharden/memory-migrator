@@ -1,0 +1,23 @@
+{
+ "fixtureVersion": 1,
+ "frozen": "2026-10-23",
+ "rulesAtFreeze": "rules/1",
+ "parserAtFreeze": "chatgpt-json/1",
+ "files": {
+  "dev.json": {
+   "labelSha256": "423fd849ff87b8133b5c99290424567f1fd40db23a2d214f9d377ac34afbfa4b",
+   "conversations": 5,
+   "labels": 24,
+   "supportedLabels": 22,
+   "eligibilitySentences": 10
+  },
+  "heldout.json": {
+   "labelSha256": "406e07bde47ca82d81af166cc413bcb3a72f514a1ec45ad0420db6eba1efc01d",
+   "conversations": 5,
+   "labels": 22,
+   "supportedLabels": 21,
+   "eligibilitySentences": 40
+  }
+ },
+ "notes": "labelSha256 = SHA-256 of the canonical JSON (sorted keys, no whitespace, UTF-8) of each dataset object."
+}

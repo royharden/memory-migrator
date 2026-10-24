@@ -1,0 +1,922 @@
+{
+ "id": "synthetic-eval-dev-v1",
+ "split": "dev",
+ "notes": "Wholly synthetic. Not real people. Not LoCoMo or any third-party dataset.",
+ "export": [
+  {
+   "id": "dev-1",
+   "title": "Intro",
+   "mapping": {
+    "n1": {
+     "id": "n1",
+     "parent": null,
+     "children": [
+      "n2"
+     ],
+     "message": {
+      "id": "m1",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1675209660,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "Hi there! My name is Priya Raman and I live in Leeds."
+       ]
+      }
+     }
+    },
+    "n2": {
+     "id": "n2",
+     "parent": "n1",
+     "children": [
+      "n3"
+     ],
+     "message": {
+      "id": "m2",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1675209720,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I work as a nurse at St Mary's Hospital."
+       ]
+      }
+     }
+    },
+    "n3": {
+     "id": "n3",
+     "parent": "n2",
+     "children": [
+      "n4"
+     ],
+     "message": {
+      "id": "m3",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1675209780,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I love climbing. I'm allergic to penicillin."
+       ]
+      }
+     }
+    },
+    "n4": {
+     "id": "n4",
+     "parent": "n3",
+     "children": [
+      "n5"
+     ],
+     "message": {
+      "id": "m4",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1675209840,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "If I lived in Paris I'd learn French."
+       ]
+      }
+     }
+    },
+    "n5": {
+     "id": "n5",
+     "parent": "n4",
+     "children": [
+      "n6"
+     ],
+     "message": {
+      "id": "m5",
+      "author": {
+       "role": "assistant"
+      },
+      "create_time": 1675209900,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "You work as a doctor, right?"
+       ]
+      }
+     }
+    },
+    "n6": {
+     "id": "n6",
+     "parent": "n5",
+     "children": [],
+     "message": {
+      "id": "m6",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1675209960,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "my salary is £41,000"
+       ]
+      }
+     }
+    }
+   },
+   "current_node": "n6",
+   "create_time": 1675209600
+  },
+  {
+   "id": "dev-2",
+   "title": "Moving",
+   "mapping": {
+    "n1": {
+     "id": "n1",
+     "parent": null,
+     "children": [
+      "n2"
+     ],
+     "message": {
+      "id": "m1",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1676937660,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I live in Bristol."
+       ]
+      }
+     }
+    },
+    "n2": {
+     "id": "n2",
+     "parent": "n1",
+     "children": [
+      "n3"
+     ],
+     "message": {
+      "id": "m2",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1695945600,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I moved to Cardiff last spring."
+       ]
+      }
+     }
+    },
+    "n3": {
+     "id": "n3",
+     "parent": "n2",
+     "children": [
+      "n4"
+     ],
+     "message": {
+      "id": "m3",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1676937780,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I don't like coffee."
+       ]
+      }
+     }
+    },
+    "n4": {
+     "id": "n4",
+     "parent": "n3",
+     "children": [
+      "n5"
+     ],
+     "message": {
+      "id": "m4",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1676937840,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "Do I like tea?"
+       ]
+      }
+     }
+    },
+    "n5": {
+     "id": "n5",
+     "parent": "n4",
+     "children": [],
+     "message": {
+      "id": "m5",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1676937900,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I have two cats."
+       ]
+      }
+     }
+    }
+   },
+   "current_node": "n5",
+   "create_time": 1676937600
+  },
+  {
+   "id": "dev-3",
+   "title": "Work change",
+   "mapping": {
+    "n1": {
+     "id": "n1",
+     "parent": null,
+     "children": [
+      "n2"
+     ],
+     "message": {
+      "id": "m1",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1678665660,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I work at Acme Corp."
+       ]
+      }
+     }
+    },
+    "n2": {
+     "id": "n2",
+     "parent": "n1",
+     "children": [
+      "n3"
+     ],
+     "message": {
+      "id": "m2",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1678665720,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I no longer work at Acme Corp. I work at Globex now."
+       ]
+      }
+     }
+    },
+    "n3": {
+     "id": "n3",
+     "parent": "n2",
+     "children": [
+      "n4"
+     ],
+     "message": {
+      "id": "m3",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1678665780,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "My friend says I live in Rome."
+       ]
+      }
+     }
+    },
+    "n4": {
+     "id": "n4",
+     "parent": "n3",
+     "children": [
+      "n5"
+     ],
+     "message": {
+      "id": "m4",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1678665840,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "Please forget that I like jazz."
+       ]
+      }
+     }
+    },
+    "n5": {
+     "id": "n5",
+     "parent": "n4",
+     "children": [
+      "n6"
+     ],
+     "message": {
+      "id": "m5",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1678665900,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "😀 I enjoy board games."
+       ]
+      }
+     }
+    },
+    "n6": {
+     "id": "n6",
+     "parent": "n5",
+     "children": [],
+     "message": {
+      "id": "m6",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1678665960,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I live in Kraków."
+       ]
+      }
+     }
+    }
+   },
+   "current_node": "n6",
+   "create_time": 1678665600
+  },
+  {
+   "id": "dev-4",
+   "title": "Correction",
+   "mapping": {
+    "n1": {
+     "id": "n1",
+     "parent": null,
+     "children": [
+      "n2"
+     ],
+     "message": {
+      "id": "m1",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1680393660,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "My name is Jon. Actually, my name is John, not Jon."
+       ]
+      }
+     }
+    },
+    "n2": {
+     "id": "n2",
+     "parent": "n1",
+     "children": [
+      "n3"
+     ],
+     "message": {
+      "id": "m2",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1680393720,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I live in São Paulo."
+       ]
+      }
+     }
+    },
+    "n3": {
+     "id": "n3",
+     "parent": "n2",
+     "children": [
+      "n4"
+     ],
+     "message": {
+      "id": "m3",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1680393780,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I go to church every Sunday."
+       ]
+      }
+     }
+    },
+    "n4": {
+     "id": "n4",
+     "parent": "n3",
+     "children": [],
+     "message": {
+      "id": "m4",
+      "author": {
+       "role": "tool"
+      },
+      "create_time": 1680393840,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I live in Toolville"
+       ]
+      }
+     }
+    }
+   },
+   "current_node": "n4",
+   "create_time": 1680393600
+  },
+  {
+   "id": "dev-5",
+   "title": "Back and forth",
+   "mapping": {
+    "n1": {
+     "id": "n1",
+     "parent": null,
+     "children": [
+      "n2"
+     ],
+     "message": {
+      "id": "m1",
+      "author": {
+       "role": "user"
+      },
+      "create_time": null,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I live in Austin.\r\nI live in Dallas."
+       ]
+      }
+     }
+    },
+    "n2": {
+     "id": "n2",
+     "parent": "n1",
+     "children": [
+      "n3"
+     ],
+     "message": {
+      "id": "m2",
+      "author": {
+       "role": "user"
+      },
+      "create_time": null,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I live in Austin."
+       ]
+      }
+     }
+    },
+    "n3": {
+     "id": "n3",
+     "parent": "n2",
+     "children": [
+      "n4"
+     ],
+     "message": {
+      "id": "m3",
+      "author": {
+       "role": "user"
+      },
+      "create_time": null,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "```\nmy name is Bob\n```"
+       ]
+      }
+     }
+    },
+    "n4": {
+     "id": "n4",
+     "parent": "n3",
+     "children": [
+      "n5"
+     ],
+     "message": {
+      "id": "m4",
+      "author": {
+       "role": "user"
+      },
+      "create_time": null,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I'm in Chicago this week."
+       ]
+      }
+     }
+    },
+    "n5": {
+     "id": "n5",
+     "parent": "n4",
+     "children": [],
+     "message": {
+      "id": "m5",
+      "author": {
+       "role": "user"
+      },
+      "create_time": null,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "My daughter is 9 years old."
+       ]
+      }
+     }
+    }
+   },
+   "current_node": "n5"
+  }
+ ],
+ "labels": [
+  {
+   "id": "dev-1-L1",
+   "conversationId": "dev-1",
+   "messageId": "m1",
+   "quote": "My name is Priya Raman",
+   "slot": "identity.name",
+   "value": "Priya Raman",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "dev-1-L2",
+   "conversationId": "dev-1",
+   "messageId": "m1",
+   "quote": "I live in Leeds",
+   "slot": "location.home",
+   "value": "Leeds",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "dev-1-L3",
+   "conversationId": "dev-1",
+   "messageId": "m2",
+   "quote": "I work as a nurse",
+   "slot": "work.role",
+   "value": "nurse",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "dev-1-L4",
+   "conversationId": "dev-1",
+   "messageId": "m2",
+   "quote": "I work as a nurse at St Mary's Hospital",
+   "slot": "work.employer",
+   "value": "St Mary's Hospital",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "dev-1-L5",
+   "conversationId": "dev-1",
+   "messageId": "m3",
+   "quote": "I love climbing",
+   "slot": "preference.likes",
+   "value": "climbing",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "dev-1-L6",
+   "conversationId": "dev-1",
+   "messageId": "m3",
+   "quote": "I'm allergic to penicillin",
+   "slot": "health.note",
+   "value": "allergic to penicillin",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": [
+    "health"
+   ]
+  },
+  {
+   "id": "dev-1-L7",
+   "conversationId": "dev-1",
+   "messageId": "m6",
+   "quote": "my salary is £41,000",
+   "slot": "financial.note",
+   "value": "£41,000",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": [
+    "finance"
+   ]
+  },
+  {
+   "id": "dev-2-L1",
+   "conversationId": "dev-2",
+   "messageId": "m1",
+   "quote": "I live in Bristol",
+   "slot": "location.home",
+   "value": "Bristol",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "dev-2-L2",
+   "conversationId": "dev-2",
+   "messageId": "m2",
+   "quote": "I moved to Cardiff",
+   "slot": "location.home",
+   "value": "Cardiff",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "dev-2-L3",
+   "conversationId": "dev-2",
+   "messageId": "m3",
+   "quote": "I don't like coffee",
+   "slot": "preference.dislikes",
+   "value": "coffee",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "dev-2-L4",
+   "conversationId": "dev-2",
+   "messageId": "m5",
+   "quote": "I have two cats",
+   "slot": "other.pets",
+   "value": "two cats",
+   "polarity": "assert",
+   "supported": false,
+   "sensitivity": []
+  },
+  {
+   "id": "dev-3-L1",
+   "conversationId": "dev-3",
+   "messageId": "m1",
+   "quote": "I work at Acme Corp",
+   "slot": "work.employer",
+   "value": "Acme Corp",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "dev-3-L2",
+   "conversationId": "dev-3",
+   "messageId": "m2",
+   "quote": "I no longer work at Acme Corp",
+   "slot": "work.employer",
+   "value": "Acme Corp",
+   "polarity": "deny",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "dev-3-L3",
+   "conversationId": "dev-3",
+   "messageId": "m2",
+   "quote": "I work at Globex",
+   "slot": "work.employer",
+   "value": "Globex",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "dev-3-L4",
+   "conversationId": "dev-3",
+   "messageId": "m5",
+   "quote": "I enjoy board games",
+   "slot": "preference.likes",
+   "value": "board games",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "dev-3-L5",
+   "conversationId": "dev-3",
+   "messageId": "m6",
+   "quote": "I live in Kraków",
+   "slot": "location.home",
+   "value": "Kraków",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "dev-4-L1",
+   "conversationId": "dev-4",
+   "messageId": "m1",
+   "quote": "My name is Jon",
+   "slot": "identity.name",
+   "value": "Jon",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "dev-4-L2",
+   "conversationId": "dev-4",
+   "messageId": "m1",
+   "quote": "my name is John, not Jon",
+   "slot": "identity.name",
+   "value": "John",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "dev-4-L3",
+   "conversationId": "dev-4",
+   "messageId": "m1",
+   "quote": "my name is John, not Jon",
+   "slot": "identity.name",
+   "value": "Jon",
+   "polarity": "deny",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "dev-4-L4",
+   "conversationId": "dev-4",
+   "messageId": "m2",
+   "quote": "I live in São Paulo",
+   "slot": "location.home",
+   "value": "São Paulo",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "dev-4-L5",
+   "conversationId": "dev-4",
+   "messageId": "m3",
+   "quote": "I go to church every Sunday",
+   "slot": "other.religion",
+   "value": "goes to church",
+   "polarity": "assert",
+   "supported": false,
+   "sensitivity": [
+    "belief"
+   ]
+  },
+  {
+   "id": "dev-5-L1",
+   "conversationId": "dev-5",
+   "messageId": "m1",
+   "quote": "I live in Austin",
+   "slot": "location.home",
+   "value": "Austin",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "dev-5-L2",
+   "conversationId": "dev-5",
+   "messageId": "m1",
+   "quote": "I live in Dallas",
+   "slot": "location.home",
+   "value": "Dallas",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "dev-5-L3",
+   "conversationId": "dev-5",
+   "messageId": "m2",
+   "quote": "I live in Austin",
+   "slot": "location.home",
+   "value": "Austin",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  }
+ ],
+ "groups": [
+  {
+   "id": "dev-G1",
+   "slot": "location.home",
+   "members": [
+    "dev-2-L1",
+    "dev-2-L2"
+   ]
+  },
+  {
+   "id": "dev-G2",
+   "slot": "work.employer",
+   "members": [
+    "dev-3-L1",
+    "dev-3-L2",
+    "dev-3-L3"
+   ]
+  },
+  {
+   "id": "dev-G3",
+   "slot": "identity.name",
+   "members": [
+    "dev-4-L1",
+    "dev-4-L2",
+    "dev-4-L3"
+   ]
+  },
+  {
+   "id": "dev-G4",
+   "slot": "location.home",
+   "members": [
+    "dev-5-L1",
+    "dev-5-L2"
+   ]
+  }
+ ],
+ "sensitivityCases": [
+  {
+   "conversationId": "dev-4",
+   "messageId": "m3",
+   "categories": [
+    "belief"
+   ]
+  },
+  {
+   "conversationId": "dev-5",
+   "messageId": "m5",
+   "categories": [
+    "minors"
+   ]
+  }
+ ],
+ "eligibility": [
+  {
+   "text": "I live in Glasgow.",
+   "eligible": true
+  },
+  {
+   "text": "I work as a chef.",
+   "eligible": true
+  },
+  {
+   "text": "If I worked as a chef I'd be tired.",
+   "eligible": false
+  },
+  {
+   "text": "Does she live in Glasgow?",
+   "eligible": false
+  },
+  {
+   "text": "I like rye bread.",
+   "eligible": true
+  },
+  {
+   "text": "He said I like rye bread.",
+   "eligible": false
+  },
+  {
+   "text": "I'm in Rome for the weekend.",
+   "eligible": false
+  },
+  {
+   "text": "I speak three languages.",
+   "eligible": true
+  },
+  {
+   "text": "Pretend I live on Mars.",
+   "eligible": false
+  },
+  {
+   "text": "My name is Lina.",
+   "eligible": true
+  }
+ ]
+}

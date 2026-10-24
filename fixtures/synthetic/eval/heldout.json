@@ -1,0 +1,988 @@
+{
+ "id": "synthetic-eval-heldout-v1",
+ "split": "heldout",
+ "notes": "Wholly synthetic. Not real people. Not LoCoMo or any third-party dataset.",
+ "export": [
+  {
+   "id": "ho-1",
+   "title": "Introductions",
+   "mapping": {
+    "n1": {
+     "id": "n1",
+     "parent": null,
+     "children": [
+      "n2"
+     ],
+     "message": {
+      "id": "m1",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1683849660,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "My name is Mei Chen. I live in Vancouver and I work as an architect at Northwind Studio."
+       ]
+      }
+     }
+    },
+    "n2": {
+     "id": "n2",
+     "parent": "n1",
+     "children": [
+      "n3"
+     ],
+     "message": {
+      "id": "m2",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1683849720,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I really like hiking and I hate olives."
+       ]
+      }
+     }
+    },
+    "n3": {
+     "id": "n3",
+     "parent": "n2",
+     "children": [],
+     "message": {
+      "id": "m3",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1683849780,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I'm allergic to shellfish. I also love sushi."
+       ]
+      }
+     }
+    }
+   },
+   "current_node": "n3",
+   "create_time": 1683849600
+  },
+  {
+   "id": "ho-2",
+   "title": "Relocation",
+   "mapping": {
+    "n1": {
+     "id": "n1",
+     "parent": null,
+     "children": [
+      "n2"
+     ],
+     "message": {
+      "id": "m1",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1685577660,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I live in Lyon."
+       ]
+      }
+     }
+    },
+    "n2": {
+     "id": "n2",
+     "parent": "n1",
+     "children": [
+      "n3"
+     ],
+     "message": {
+      "id": "m2",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1701129600,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I've just moved to Grenoble."
+       ]
+      }
+     }
+    },
+    "n3": {
+     "id": "n3",
+     "parent": "n2",
+     "children": [
+      "n4"
+     ],
+     "message": {
+      "id": "m3",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1685577780,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I earn $85,000 a year."
+       ]
+      }
+     }
+    },
+    "n4": {
+     "id": "n4",
+     "parent": "n3",
+     "children": [],
+     "message": {
+      "id": "m4",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1685577840,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "Imagine I worked at NASA."
+       ]
+      }
+     }
+    }
+   },
+   "current_node": "n4",
+   "create_time": 1685577600
+  },
+  {
+   "id": "ho-3",
+   "title": "Music and home",
+   "mapping": {
+    "n1": {
+     "id": "n1",
+     "parent": null,
+     "children": [
+      "n2"
+     ],
+     "message": {
+      "id": "m1",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1687305660,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I like jazz."
+       ]
+      }
+     }
+    },
+    "n2": {
+     "id": "n2",
+     "parent": "n1",
+     "children": [
+      "n3"
+     ],
+     "message": {
+      "id": "m2",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1687305720,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I no longer like jazz."
+       ]
+      }
+     }
+    },
+    "n3": {
+     "id": "n3",
+     "parent": "n2",
+     "children": [
+      "n4"
+     ],
+     "message": {
+      "id": "m3",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1687305780,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "Is my name Ana?"
+       ]
+      }
+     }
+    },
+    "n4": {
+     "id": "n4",
+     "parent": "n3",
+     "children": [
+      "n5"
+     ],
+     "message": {
+      "id": "m4",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1687305840,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "My partner and I live in Boston."
+       ]
+      }
+     }
+    },
+    "n5": {
+     "id": "n5",
+     "parent": "n4",
+     "children": [],
+     "message": {
+      "id": "m5",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1687305900,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I live at 42 Elm Street."
+       ]
+      }
+     }
+    }
+   },
+   "current_node": "n5",
+   "create_time": 1687305600
+  },
+  {
+   "id": "ho-4",
+   "title": "Career",
+   "mapping": {
+    "n1": {
+     "id": "n1",
+     "parent": null,
+     "children": [
+      "n2"
+     ],
+     "message": {
+      "id": "m1",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1689033660,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I work as a teacher."
+       ]
+      }
+     }
+    },
+    "n2": {
+     "id": "n2",
+     "parent": "n1",
+     "children": [
+      "n3"
+     ],
+     "message": {
+      "id": "m2",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1689033720,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I don't work as a teacher anymore."
+       ]
+      }
+     }
+    },
+    "n3": {
+     "id": "n3",
+     "parent": "n2",
+     "children": [
+      "n4"
+     ],
+     "message": {
+      "id": "m3",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1689033780,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I enjoy Zürich in winter."
+       ]
+      }
+     }
+    },
+    "n4": {
+     "id": "n4",
+     "parent": "n3",
+     "children": [],
+     "message": {
+      "id": "m4",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1689033840,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "She told me I live in Denver."
+       ]
+      }
+     }
+    }
+   },
+   "current_node": "n4",
+   "create_time": 1689033600
+  },
+  {
+   "id": "ho-5",
+   "title": "Jobs, undated",
+   "mapping": {
+    "n1": {
+     "id": "n1",
+     "parent": null,
+     "children": [
+      "n2"
+     ],
+     "message": {
+      "id": "m1",
+      "author": {
+       "role": "user"
+      },
+      "create_time": null,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I work at Initech."
+       ]
+      }
+     }
+    },
+    "n2": {
+     "id": "n2",
+     "parent": "n1",
+     "children": [
+      "n3"
+     ],
+     "message": {
+      "id": "m2",
+      "author": {
+       "role": "user"
+      },
+      "create_time": null,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I work at Hooli."
+       ]
+      }
+     }
+    },
+    "n3": {
+     "id": "n3",
+     "parent": "n2",
+     "children": [
+      "n4"
+     ],
+     "message": {
+      "id": "m3",
+      "author": {
+       "role": "user"
+      },
+      "create_time": null,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I'm an atheist."
+       ]
+      }
+     }
+    },
+    "n4": {
+     "id": "n4",
+     "parent": "n3",
+     "children": [
+      "n5"
+     ],
+     "message": {
+      "id": "m4",
+      "author": {
+       "role": "user"
+      },
+      "create_time": null,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I was diagnosed with ADHD."
+       ]
+      }
+     }
+    },
+    "n5": {
+     "id": "n5",
+     "parent": "n4",
+     "children": [
+      "n6"
+     ],
+     "message": {
+      "id": "m5",
+      "author": {
+       "role": "user"
+      },
+      "create_time": null,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "My girlfriend lives in Oslo."
+       ]
+      }
+     }
+    },
+    "n6": {
+     "id": "n6",
+     "parent": "n5",
+     "children": [
+      "n7"
+     ],
+     "message": {
+      "id": "m6",
+      "author": {
+       "role": "user"
+      },
+      "create_time": null,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I live in Hiddenville."
+       ]
+      },
+      "metadata": {
+       "is_visually_hidden_from_conversation": true
+      }
+     }
+    },
+    "n7": {
+     "id": "n7",
+     "parent": "n6",
+     "children": [],
+     "message": {
+      "id": "m7",
+      "author": {
+       "role": "user"
+      },
+      "create_time": null,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I live in Branchville."
+       ]
+      }
+     }
+    }
+   },
+   "current_node": "n6"
+  }
+ ],
+ "labels": [
+  {
+   "id": "ho-1-L1",
+   "conversationId": "ho-1",
+   "messageId": "m1",
+   "quote": "My name is Mei Chen",
+   "slot": "identity.name",
+   "value": "Mei Chen",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "ho-1-L2",
+   "conversationId": "ho-1",
+   "messageId": "m1",
+   "quote": "I live in Vancouver",
+   "slot": "location.home",
+   "value": "Vancouver",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "ho-1-L3",
+   "conversationId": "ho-1",
+   "messageId": "m1",
+   "quote": "I work as an architect",
+   "slot": "work.role",
+   "value": "architect",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "ho-1-L4",
+   "conversationId": "ho-1",
+   "messageId": "m1",
+   "quote": "I work as an architect at Northwind Studio",
+   "slot": "work.employer",
+   "value": "Northwind Studio",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "ho-1-L5",
+   "conversationId": "ho-1",
+   "messageId": "m2",
+   "quote": "I really like hiking",
+   "slot": "preference.likes",
+   "value": "hiking",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "ho-1-L6",
+   "conversationId": "ho-1",
+   "messageId": "m2",
+   "quote": "I hate olives",
+   "slot": "preference.dislikes",
+   "value": "olives",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "ho-1-L7",
+   "conversationId": "ho-1",
+   "messageId": "m3",
+   "quote": "I'm allergic to shellfish",
+   "slot": "health.note",
+   "value": "allergic to shellfish",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": [
+    "health"
+   ]
+  },
+  {
+   "id": "ho-1-L8",
+   "conversationId": "ho-1",
+   "messageId": "m3",
+   "quote": "I also love sushi",
+   "slot": "preference.likes",
+   "value": "sushi",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "ho-2-L1",
+   "conversationId": "ho-2",
+   "messageId": "m1",
+   "quote": "I live in Lyon",
+   "slot": "location.home",
+   "value": "Lyon",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "ho-2-L2",
+   "conversationId": "ho-2",
+   "messageId": "m2",
+   "quote": "I've just moved to Grenoble",
+   "slot": "location.home",
+   "value": "Grenoble",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "ho-2-L3",
+   "conversationId": "ho-2",
+   "messageId": "m3",
+   "quote": "I earn $85,000 a year",
+   "slot": "financial.note",
+   "value": "$85,000 a year",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": [
+    "finance"
+   ]
+  },
+  {
+   "id": "ho-3-L1",
+   "conversationId": "ho-3",
+   "messageId": "m1",
+   "quote": "I like jazz",
+   "slot": "preference.likes",
+   "value": "jazz",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "ho-3-L2",
+   "conversationId": "ho-3",
+   "messageId": "m2",
+   "quote": "I no longer like jazz",
+   "slot": "preference.likes",
+   "value": "jazz",
+   "polarity": "deny",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "ho-3-L3",
+   "conversationId": "ho-3",
+   "messageId": "m4",
+   "quote": "My partner and I live in Boston",
+   "slot": "location.home",
+   "value": "Boston",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": [
+    "intimate"
+   ]
+  },
+  {
+   "id": "ho-3-L4",
+   "conversationId": "ho-3",
+   "messageId": "m5",
+   "quote": "I live at 42 Elm Street",
+   "slot": "location.home",
+   "value": "42 Elm Street",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": [
+    "precise_location"
+   ]
+  },
+  {
+   "id": "ho-4-L1",
+   "conversationId": "ho-4",
+   "messageId": "m1",
+   "quote": "I work as a teacher",
+   "slot": "work.role",
+   "value": "teacher",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "ho-4-L2",
+   "conversationId": "ho-4",
+   "messageId": "m2",
+   "quote": "I don't work as a teacher anymore",
+   "slot": "work.role",
+   "value": "teacher",
+   "polarity": "deny",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "ho-4-L3",
+   "conversationId": "ho-4",
+   "messageId": "m3",
+   "quote": "I enjoy Zürich in winter",
+   "slot": "preference.likes",
+   "value": "Zürich in winter",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "ho-5-L1",
+   "conversationId": "ho-5",
+   "messageId": "m1",
+   "quote": "I work at Initech",
+   "slot": "work.employer",
+   "value": "Initech",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "ho-5-L2",
+   "conversationId": "ho-5",
+   "messageId": "m2",
+   "quote": "I work at Hooli",
+   "slot": "work.employer",
+   "value": "Hooli",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "ho-5-L3",
+   "conversationId": "ho-5",
+   "messageId": "m3",
+   "quote": "I'm an atheist",
+   "slot": "other.belief",
+   "value": "atheist",
+   "polarity": "assert",
+   "supported": false,
+   "sensitivity": [
+    "belief"
+   ]
+  },
+  {
+   "id": "ho-5-L4",
+   "conversationId": "ho-5",
+   "messageId": "m4",
+   "quote": "I was diagnosed with ADHD",
+   "slot": "health.note",
+   "value": "diagnosed with ADHD",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": [
+    "health"
+   ]
+  }
+ ],
+ "groups": [
+  {
+   "id": "ho-G1",
+   "slot": "location.home",
+   "members": [
+    "ho-2-L1",
+    "ho-2-L2"
+   ]
+  },
+  {
+   "id": "ho-G2",
+   "slot": "preference.likes",
+   "members": [
+    "ho-3-L1",
+    "ho-3-L2"
+   ]
+  },
+  {
+   "id": "ho-G3",
+   "slot": "work.role",
+   "members": [
+    "ho-4-L1",
+    "ho-4-L2"
+   ]
+  },
+  {
+   "id": "ho-G4",
+   "slot": "work.employer",
+   "members": [
+    "ho-5-L1",
+    "ho-5-L2"
+   ]
+  }
+ ],
+ "sensitivityCases": [
+  {
+   "conversationId": "ho-3",
+   "messageId": "m4",
+   "categories": [
+    "intimate"
+   ]
+  },
+  {
+   "conversationId": "ho-3",
+   "messageId": "m5",
+   "categories": [
+    "precise_location"
+   ]
+  },
+  {
+   "conversationId": "ho-5",
+   "messageId": "m3",
+   "categories": [
+    "belief"
+   ]
+  },
+  {
+   "conversationId": "ho-5",
+   "messageId": "m4",
+   "categories": [
+    "health"
+   ]
+  },
+  {
+   "conversationId": "ho-5",
+   "messageId": "m5",
+   "categories": [
+    "intimate"
+   ]
+  }
+ ],
+ "eligibility": [
+  {
+   "text": "I live in Porto.",
+   "eligible": true
+  },
+  {
+   "text": "I live in Seoul now.",
+   "eligible": true
+  },
+  {
+   "text": "I moved to Nairobi.",
+   "eligible": true
+  },
+  {
+   "text": "My name is Tomas.",
+   "eligible": true
+  },
+  {
+   "text": "I work as a pharmacist.",
+   "eligible": true
+  },
+  {
+   "text": "I work at the public library.",
+   "eligible": true
+  },
+  {
+   "text": "I love sailing.",
+   "eligible": true
+  },
+  {
+   "text": "I hate mushrooms.",
+   "eligible": true
+  },
+  {
+   "text": "I'm allergic to latex.",
+   "eligible": true
+  },
+  {
+   "text": "My salary is $52,000.",
+   "eligible": true
+  },
+  {
+   "text": "I no longer live in Oslo.",
+   "eligible": true
+  },
+  {
+   "text": "I used to work at Initrode.",
+   "eligible": true
+  },
+  {
+   "text": "I don't like spicy food.",
+   "eligible": true
+  },
+  {
+   "text": "i work as a welder.",
+   "eligible": true
+  },
+  {
+   "text": "I enjoy long walks.",
+   "eligible": true
+  },
+  {
+   "text": "I have a sesame allergy.",
+   "eligible": true
+  },
+  {
+   "text": "I play the cello.",
+   "eligible": true
+  },
+  {
+   "text": "I have three brothers.",
+   "eligible": true
+  },
+  {
+   "text": "I'm vegetarian.",
+   "eligible": true
+  },
+  {
+   "text": "I'm a night owl.",
+   "eligible": true
+  },
+  {
+   "text": "If I lived in Tokyo I would learn Japanese.",
+   "eligible": false
+  },
+  {
+   "text": "Do I live in Porto?",
+   "eligible": false
+  },
+  {
+   "text": "What if I work at Google?",
+   "eligible": false
+  },
+  {
+   "text": "My brother lives in Lima.",
+   "eligible": false
+  },
+  {
+   "text": "She says I love sailing.",
+   "eligible": false
+  },
+  {
+   "text": "My boss thinks I work as a manager.",
+   "eligible": false
+  },
+  {
+   "text": "He wrote \"I live in Paris\" in his book.",
+   "eligible": false
+  },
+  {
+   "text": "I'm in Madrid for the summer.",
+   "eligible": false
+  },
+  {
+   "text": "I live in Berlin temporarily.",
+   "eligible": false
+  },
+  {
+   "text": "Pretend you are a pirate and I live in Tortuga.",
+   "eligible": false
+  },
+  {
+   "text": "For this chat, assume I work at NASA.",
+   "eligible": false
+  },
+  {
+   "text": "Please forget that I like jazz.",
+   "eligible": false
+  },
+  {
+   "text": "    I live in Codeville",
+   "eligible": false
+  },
+  {
+   "text": "Would I like opera?",
+   "eligible": false
+  },
+  {
+   "text": "Imagine I hate cheese.",
+   "eligible": false
+  },
+  {
+   "text": "Maybe I like opera.",
+   "eligible": false
+  },
+  {
+   "text": "They told me I work as a spy.",
+   "eligible": false
+  },
+  {
+   "text": "I might move to Lisbon someday.",
+   "eligible": false
+  },
+  {
+   "text": "Let's say my name is Zed.",
+   "eligible": false
+  },
+  {
+   "text": "Today is my birthday.",
+   "eligible": false
+  }
+ ]
+}
