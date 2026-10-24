@@ -93,6 +93,27 @@ describe("rule catalogue", () => {
     ]);
     expect(facts("I work at Acme, not for long.")).toEqual([["work.employer", "Acme", "assert", "none"]]);
     expect(facts("I live in Denver, not anymore.")).toEqual([]);
+    // what_bug_this_catches: invented or malformed denials and retracted assertions kept (review #3).
+    expect(facts("I work at Acme, not at the moment.")).toEqual([["work.employer", "Acme", "assert", "none"]]);
+    expect(facts("I work at Acme, not for much longer.")).toEqual([["work.employer", "Acme", "assert", "none"]]);
+    expect(facts("I work for Acme, not for free.")).toEqual([["work.employer", "Acme", "assert", "none"]]);
+    expect(facts("I live in Austin, not Dallas anymore.")).toEqual([["location.home", "Austin", "assert", "none"]]);
+    expect(facts("I work as a nurse, not a doctor like my dad.")).toEqual([["work.role", "nurse", "assert", "none"]]);
+    expect(facts("I live in Denver, not anymore though.")).toEqual([]);
+    expect(facts("I live in Denver, not anymore, sadly.")).toEqual([]);
+  });
+
+  // what_bug_this_catches: sentence splitting on decimals/domains/abbreviations producing wrong values.
+  it("keeps decimals, domains and common abbreviations inside one sentence", () => {
+    expect(facts("My salary is $85.5k.")).toEqual([["financial.note", "$85.5k", "assert", "none"]]);
+    expect(facts("I live in St. Louis.")).toEqual([["location.home", "St. Louis", "assert", "none"]]);
+    expect(facts("I work at Amazon.com.")).toEqual([["work.employer", "Amazon.com", "assert", "none"]]);
+  });
+
+  // what_bug_this_catches: reported speech with the attribution after the clause.
+  it("rejects trailing attributions", () => {
+    expect(facts("I live in Oslo, she said.")).toEqual([]);
+    expect(facts("'I live in Oslo,' he wrote.")).toEqual([]);
   });
 
   it("never reads assistant text, never stores quoted forget commands as facts and never executes them", () => {

@@ -32,12 +32,12 @@ export interface ExtractResult {
 /** Future extractor seam (e.g. a provider-backed adapter in F3). MVP ships only the rules extractor. */
 export type Extractor = (conversations: ParsedConversation[]) => ExtractResult;
 
-const END = String.raw`(?=\s+(?:and|but|so|because|since|though|although|while|which|who|where|when|with|for|from|anymore|any more|now|too|as well|these days|instead)\b|\s*[,.;:!?\n"“”()]|\s*$)`;
-const ROLE_END = String.raw`(?=\s+(?:at|and|but|so|because|since|though|although|while|which|who|where|when|with|for|from|anymore|any more|now|too|these days)\b|\s*[,.;:!?\n"“”()]|\s*$)`;
+const END = String.raw`(?=\s+(?:and|but|so|because|since|though|although|while|which|who|where|when|with|for|from|anymore|any more|now|too|as well|these days|instead)\b|\s*[,;:!?\n"“”()]|\s*\.(?=\s|$)|\s*$)`;
+const ROLE_END = String.raw`(?=\s+(?:at|and|but|so|because|since|though|although|while|which|who|where|when|with|for|from|anymore|any more|now|too|these days)\b|\s*[,;:!?\n"“”()]|\s*\.(?=\s|$)|\s*$)`;
 // Home values additionally stop before temporary/time cues so TEMPORARY can see them.
-const HOME_END = String.raw`(?=\s+(?:and|but|so|because|since|though|although|while|which|who|where|when|with|for|from|anymore|any more|now|too|as well|these days|instead|until|till|temporarily|this|right now|at the moment|on vacation|on holiday|on a trip|on business|last|next|ago)\b|\s*[,.;:!?\n"“”()]|\s*$)`;
+const HOME_END = String.raw`(?=\s+(?:and|but|so|because|since|though|although|while|which|who|where|when|with|for|from|anymore|any more|now|too|as well|these days|instead|until|till|temporarily|this|right now|at the moment|on vacation|on holiday|on a trip|on business|last|next|ago)\b|\s*[,;:!?\n"“”()]|\s*\.(?=\s|$)|\s*$)`;
 const NAME = String.raw`\p{L}[\p{L}\p{M}'’\-]*(?:\s+\p{L}[\p{L}\p{M}'’\-]*){0,3}?`;
-const PLACE = String.raw`\p{L}[\p{L}\p{M}\p{N}'’.\- ]{0,60}?`;
+const PLACE = String.raw`(?:(?:St|Mt|Ft)\.\s)?\p{L}[\p{L}\p{M}\p{N}'’.\- ]{0,60}?`;
 const ROLE = String.raw`\p{L}[\p{L}\p{M}\p{N}'’\- ]{0,40}?`;
 const ORG = String.raw`[\p{L}\p{N}][\p{L}\p{M}\p{N}'’&.\- ]{0,60}?`;
 const THING = String.raw`[\p{L}\p{N}][\p{L}\p{M}\p{N}'’&\- ]{0,60}?`;
@@ -128,6 +128,12 @@ const TEMPORARY = /^\s*(?:for (?:the|a|this|next|two|a few|a couple of) \p{L}+|t
 const FORGET_PREFIX = /\b(?:forget|remove|delete|erase|don['’]t remember)\b/iu;
 const FORGET = /\b(?:forget|remove|delete|erase)\b[^.!?\n]{0,40}\b(?:that|my|about|me)\b/iu;
 const QUOTE_CHARS = /["“”]/gu;
+// Attribution after the clause: "I live in Oslo, she said." / "'I live in Oslo,' he wrote."
+const TRAILING_REPORT = /^\s*,?\s*["'”’]?\s*,?\s*(?:she|he|they|someone|somebody|my\s+\p{L}+|\p{Lu}\p{Ll}+)\s+(?:said|says|wrote|writes|told|tells|thinks|thought|claimed|claims|insisted|insists|asked)\b/u;
+// "X, not anymore ..." retracts X itself, whatever follows.
+const RETRACT_AFTER = /^,?\s+not\s+(?:any\s?more|any longer)\b/iu;
+const OTHER_PREPOSITION = /^(?:in|at|for|from|near|with|by|to|on|of|about)\s/iu;
+const TAIL_CLAUSE_WORDS = /\b(?:any\s?more|any longer|like|or|and|but|than|because|anymore)\b/iu;
 
 interface Range {
   start: number;
@@ -157,7 +163,9 @@ interface Sentence {
 
 function sentences(text: string): Sentence[] {
   const out: Sentence[] = [];
-  for (const m of text.matchAll(/[^.!?\n]+(?:[.!?]+|\n|$)/g)) out.push({ text: m[0], offset: m.index ?? 0 });
+  // A boundary is [.!?] followed by whitespace/end, or a newline; "85.5", "Amazon.com" and "St. Louis" stay whole.
+  const re = /(?:[^.!?\n]|[.!?](?![\s]|$)|(?<=\b(?:St|Mt|Ft|Dr|Mr|Mrs|Ms|Jr|Sr|vs))\.)+(?:[.!?]+|\n|$)/g;
+  for (const m of text.matchAll(re)) out.push({ text: m[0], offset: m.index ?? 0 });
   return out;
 }
 
@@ -171,6 +179,7 @@ function eligibility(sentence: Sentence, matchStart: number, valueEnd: number, s
   if (REPORTED.test(prefix)) return "reported";
   if (THIRD_PARTY.test(prefix)) return "third_party";
   if (slot === "location.home" && TEMPORARY.test(sentence.text.slice(valueEnd))) return "temporary";
+  if (TRAILING_REPORT.test(sentence.text.slice(valueEnd))) return "reported";
   return null;
 }
 
@@ -182,6 +191,19 @@ function validValue(slot: Slot, value: string): boolean {
   if (slot === "identity.name" && (words.length > 4 || /\p{N}/u.test(trimmed))) return false;
   if (slot === "work.employer" && words.length === 1 && VALUE_STOPWORDS.has(words[0].toLowerCase())) return false;
   return true;
+}
+
+/**
+ * Conservative Y for "X, not Y": only the slot's own preposition may be dropped; anything that
+ * looks like a time/adverb/clause, a non-employer object, or (outside roles) a lowercase word abstains.
+ */
+function acceptDenied(slot: Slot, raw: string): string | null {
+  const prep = SLOT_PREPOSITION[slot];
+  const y = prep ? raw.replace(prep, "") : raw;
+  if (OTHER_PREPOSITION.test(y) || NOT_A_TARGET.test(y) || NON_ORG.test(y) || TAIL_CLAUSE_WORDS.test(y)) return null;
+  if (y.split(/\s+/u).length > 3) return null;
+  if (slot !== "work.role" && !/^\p{Lu}/u.test(y)) return null;
+  return validValue(slot, y) ? y : null;
 }
 
 function emptyDiagnostics(): ExtractDiagnostics {
@@ -267,6 +289,11 @@ function extractMessage(message: CanonicalMessage, digest: string, out: Candidat
           }
           let cue = emission.cue;
           if (actually && emission.polarity === "assert" && cue === "none") cue = "correction";
+          // "X, not anymore" retracts X: the whole statement abstains.
+          if (emission.polarity === "assert" && RETRACT_AFTER.test(sentence.text.slice(spanEnd))) {
+            diagnostics.abstained.ambiguous += 1;
+            continue;
+          }
           // "X, not Y" -> assert X (correction) + deny Y (correction), one supporting span.
           let tailEnd = spanEnd;
           if (emission.polarity === "assert" && CORRECTION_SLOTS.includes(emission.slot)) {
@@ -278,9 +305,8 @@ function extractMessage(message: CanonicalMessage, digest: string, out: Candidat
                 diagnostics.abstained.ambiguous += 1;
                 continue;
               }
-              const prep = SLOT_PREPOSITION[emission.slot];
-              const denied = prep ? rawDenied.replace(prep, "") : rawDenied;
-              if (validValue(emission.slot, denied) && !NOT_A_TARGET.test(denied)) {
+              const denied = acceptDenied(emission.slot, rawDenied);
+              if (denied !== null) {
                 // Only an accepted Y turns this into a correction pair.
                 tailEnd = spanEnd + y[1];
                 cue = "correction";
