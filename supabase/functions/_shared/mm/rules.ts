@@ -132,6 +132,7 @@ const QUOTE_CHARS = /["“”]/gu;
 const TRAILING_REPORT = /^\s*,?\s*["'”’]?\s*,?\s*(?:she|he|they|someone|somebody|my\s+\p{L}+|\p{Lu}\p{Ll}+)\s+(?:said|says|wrote|writes|told|tells|thinks|thought|claimed|claims|insisted|insists|asked)\b/u;
 // "X, not anymore ..." retracts X itself, whatever follows.
 const RETRACT_AFTER = /^,?\s+not\s+(?:any\s?more|any longer)\b/iu;
+const NOT_FOLLOWS = /^,?\s+not\b/iu;
 const OTHER_PREPOSITION = /^(?:in|at|for|from|near|with|by|to|on|of|about)\s/iu;
 const TAIL_CLAUSE_WORDS = /\b(?:any\s?more|any longer|like|or|and|but|than|because|anymore)\b/iu;
 
@@ -174,6 +175,7 @@ function eligibility(sentence: Sentence, matchStart: number, valueEnd: number, s
   if (sentence.text.trimEnd().endsWith("?")) return "question";
   const prefix = sentence.text.slice(0, matchStart);
   if ((prefix.match(QUOTE_CHARS)?.length ?? 0) % 2 === 1) return "reported";
+  if (/^\s*['‘]/u.test(prefix)) return "reported"; // sentence-initial single quote opens a quotation
   if (INSTRUCTION.test(sentence.text) || FORGET_PREFIX.test(prefix)) return "instruction";
   if (HYPOTHETICAL.test(prefix)) return "hypothetical";
   if (REPORTED.test(prefix)) return "reported";
@@ -289,32 +291,22 @@ function extractMessage(message: CanonicalMessage, digest: string, out: Candidat
           }
           let cue = emission.cue;
           if (actually && emission.polarity === "assert" && cue === "none") cue = "correction";
-          // "X, not anymore" retracts X: the whole statement abstains.
-          if (emission.polarity === "assert" && RETRACT_AFTER.test(sentence.text.slice(spanEnd))) {
-            diagnostics.abstained.ambiguous += 1;
-            continue;
-          }
-          // "X, not Y" -> assert X (correction) + deny Y (correction), one supporting span.
+          // "X, not ..." after an assertion: either a safely parsed "X, not Y" correction pair, or the
+          // WHOLE statement abstains (X included) — "not anymore", "not at the moment", "not kidding" ...
           let tailEnd = spanEnd;
-          if (emission.polarity === "assert" && CORRECTION_SLOTS.includes(emission.slot)) {
-            const tail = CORRECTION_TAIL.exec(sentence.text.slice(spanEnd));
+          const after = sentence.text.slice(spanEnd);
+          if (emission.polarity === "assert" && NOT_FOLLOWS.test(after)) {
+            const tail = CORRECTION_SLOTS.includes(emission.slot) && !RETRACT_AFTER.test(after) ? CORRECTION_TAIL.exec(after) : null;
             const y = tail?.indices?.groups?.y;
-            if (tail && y) {
-              const rawDenied = sentence.text.slice(spanEnd + y[0], spanEnd + y[1]).trim();
-              if (RETRACTING_TAIL.test(rawDenied)) {
-                diagnostics.abstained.ambiguous += 1;
-                continue;
-              }
-              const denied = acceptDenied(emission.slot, rawDenied);
-              if (denied !== null) {
-                // Only an accepted Y turns this into a correction pair.
-                tailEnd = spanEnd + y[1];
-                cue = "correction";
-                pushCandidate(out, seen, diagnostics, message, digest, rule.id + ".not", emission.slot, "deny", "correction", denied, sentence.offset + start, sentence.offset + tailEnd);
-              } else {
-                diagnostics.abstained.ambiguous += 1;
-              }
+            const rawDenied = y ? after.slice(y[0], y[1]).trim() : "";
+            const denied = y && !RETRACTING_TAIL.test(rawDenied) ? acceptDenied(emission.slot, rawDenied) : null;
+            if (!y || denied === null) {
+              diagnostics.abstained.ambiguous += 1;
+              continue;
             }
+            tailEnd = spanEnd + y[1];
+            if (cue !== "move") cue = "correction"; // a move stays a move; the pair only adds the denial
+            pushCandidate(out, seen, diagnostics, message, digest, rule.id + ".not", emission.slot, "deny", "correction", denied, sentence.offset + start, sentence.offset + tailEnd);
           }
           pushCandidate(out, seen, diagnostics, message, digest, rule.id, emission.slot, emission.polarity, cue, value, sentence.offset + start, sentence.offset + tailEnd);
         }

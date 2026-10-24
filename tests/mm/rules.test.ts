@@ -83,7 +83,7 @@ describe("rule catalogue", () => {
 
   // what_bug_this_catches: invented facts from compounds ("not far from", "at night").
   it("does not invent facts from compound phrases", () => {
-    expect(facts("I live in Denver, not far from Boulder.")).toEqual([["location.home", "Denver", "assert", "none"]]);
+    expect(facts("I live in Denver, not far from Boulder.")).toEqual([]);
     expect(facts("I work as a nurse at night.")).toEqual([["work.role", "nurse", "assert", "none"]]);
     expect(facts("I work at home.")).toEqual([]);
     // "X, not in Y" drops the slot preposition; time/adverb tails abstain; "not anymore" abstains entirely.
@@ -91,14 +91,17 @@ describe("rule catalogue", () => {
       ["location.home", "Dallas", "deny", "correction"],
       ["location.home", "Austin", "assert", "correction"],
     ]);
-    expect(facts("I work at Acme, not for long.")).toEqual([["work.employer", "Acme", "assert", "none"]]);
+    expect(facts("I work at Acme, not for long.")).toEqual([]);
     expect(facts("I live in Denver, not anymore.")).toEqual([]);
     // what_bug_this_catches: invented or malformed denials and retracted assertions kept (review #3).
-    expect(facts("I work at Acme, not at the moment.")).toEqual([["work.employer", "Acme", "assert", "none"]]);
-    expect(facts("I work at Acme, not for much longer.")).toEqual([["work.employer", "Acme", "assert", "none"]]);
-    expect(facts("I work for Acme, not for free.")).toEqual([["work.employer", "Acme", "assert", "none"]]);
-    expect(facts("I live in Austin, not Dallas anymore.")).toEqual([["location.home", "Austin", "assert", "none"]]);
-    expect(facts("I work as a nurse, not a doctor like my dad.")).toEqual([["work.role", "nurse", "assert", "none"]]);
+    // An unparseable "X, not ..." abstains on the whole statement, X included.
+    for (const text of ["I work at Acme, not at the moment.", "I work at Acme, not for much longer.", "I work for Acme, not for free.", "I live in Austin, not Dallas anymore.", "I live in Austin, not Dallas or Houston.", "I work as a nurse, not a doctor like my dad.", "My name is Ada, not kidding."]) {
+      expect(facts(text)).toEqual([]);
+    }
+    expect(facts("I moved to Denver, not Boulder.")).toEqual([
+      ["location.home", "Boulder", "deny", "correction"],
+      ["location.home", "Denver", "assert", "move"],
+    ]);
     expect(facts("I live in Denver, not anymore though.")).toEqual([]);
     expect(facts("I live in Denver, not anymore, sadly.")).toEqual([]);
   });
