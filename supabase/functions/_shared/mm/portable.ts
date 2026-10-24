@@ -83,13 +83,32 @@ export interface PortableProfile {
   canonicalPayloadSha256: string;
 }
 
+const MAX_TOMBSTONES = 10_000;
+const MAX_EVIDENCE_PER_FACT = 50;
+
 export interface BuildOptions extends ExportOptions {
   /** Version labels are user content: generated v1/v2 labels unless explicitly included. */
   includeVersionLabels?: boolean;
 }
 
-export function buildPortable(state: ProfileState, options: BuildOptions): { profile: PortableProfile; bytes: string } {
-  const items = exportProjection(state, options);
+export interface BuiltPortable {
+  profile: PortableProfile;
+  bytes: string;
+  /** Visible notes about bounded content (e.g. quotes beyond the per-fact cap). */
+  notices: string[];
+  /** Non-empty when the file would exceed a bound; it must not be offered for download. */
+  problems: string[];
+}
+
+export function buildPortable(state: ProfileState, options: BuildOptions): BuiltPortable {
+  const notices: string[] = [];
+  const problems: string[] = [];
+  const items = exportProjection(state, options).map((item) => {
+    if (item.evidence.length <= MAX_EVIDENCE_PER_FACT) return item;
+    notices.push(`“${item.revision.assertion}” has ${item.evidence.length} supporting quotes; the file carries the first ${MAX_EVIDENCE_PER_FACT} (the fact itself is complete).`);
+    return { ...item, evidence: item.evidence.slice(0, MAX_EVIDENCE_PER_FACT) };
+  });
+  if (items.length > LIMITS.maxCandidatesPerImport) problems.push(`${items.length} facts exceed the ${LIMITS.maxCandidatesPerImport}-fact limit of one profile file.`);
   const facts: PortableFact[] = items.map(({ generation, revision, evidence }) => ({
     id: generation.id,
     revision: revision.revision,
@@ -126,7 +145,9 @@ export function buildPortable(state: ProfileState, options: BuildOptions): { pro
     versions,
   };
   const profile = { ...body, canonicalPayloadSha256: canonicalSha256(body) } as PortableProfile;
-  return { profile, bytes: canonicalize(profile) };
+  const bytes = canonicalize(profile);
+  if (utf8Length(bytes) > LIMITS.maxPortableBytes) problems.push("The profile file would exceed 1 MiB; it is not split silently. Erase or hide facts, or export without sensitive facts.");
+  return { profile, bytes, notices, problems };
 }
 
 // ---------------------------------------------------------------------------
@@ -136,8 +157,6 @@ export function buildPortable(state: ProfileState, options: BuildOptions): { pro
 const TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/;
 const HEX64 = /^[0-9a-f]{64}$/;
 const ID = /^[A-Za-z0-9_.:-]{1,128}$/;
-const MAX_TOMBSTONES = 10_000;
-const MAX_EVIDENCE_PER_FACT = 50;
 
 type JsonRecord = Record<string, unknown>;
 
@@ -183,7 +202,16 @@ function validateEvidence(e: unknown, path: string, errors: string[]): void {
 
 export type ValidationResult = { ok: true; profile: PortableProfile } | { ok: false; errors: string[] };
 
+/** Never throws: any unexpected failure on hostile input becomes a validation error (fail closed). */
 export function validatePortable(text: string): ValidationResult {
+  try {
+    return validatePortableUnsafe(text);
+  } catch (error) {
+    return { ok: false, errors: [`The file could not be validated: ${error instanceof Error ? error.message : "unknown error"}.`] };
+  }
+}
+
+function validatePortableUnsafe(text: string): ValidationResult {
   if (utf8Length(text) > LIMITS.maxPortableBytes) {
     return { ok: false, errors: [`Profile files are limited to ${LIMITS.maxPortableBytes / 1024 / 1024} MiB; this file is larger. Bundles are never split silently.`] };
   }
@@ -233,8 +261,8 @@ export function validatePortable(text: string): ValidationResult {
       if (!Number.isSafeInteger(f.revision) || (f.revision as number) < 1) errors.push(`${p}.revision must be a positive integer`);
       if (!isSlot(f.slot)) errors.push(`${p}.slot is not supported`);
       if (f.polarity !== "assert" && f.polarity !== "deny") errors.push(`${p}.polarity is not supported`);
-      str(f.value, `${p}.value`, errors, LIMITS.maxQuoteCodePoints);
-      str(f.assertion, `${p}.assertion`, errors, LIMITS.maxQuoteCodePoints + 40);
+      if (str(f.value, `${p}.value`, errors, LIMITS.maxQuoteCodePoints) && f.value.trim().length === 0) errors.push(`${p}.value is empty`);
+      if (str(f.assertion, `${p}.assertion`, errors, LIMITS.maxQuoteCodePoints + 40) && f.assertion.trim().length === 0) errors.push(`${p}.assertion is empty`);
       if (typeof f.userAuthored !== "boolean") errors.push(`${p}.userAuthored must be boolean`);
       if (f.scopeNote !== undefined) str(f.scopeNote, `${p}.scopeNote`, errors, 200);
       timeOrNull(f.firstSeen, `${p}.firstSeen`, errors);
@@ -242,7 +270,7 @@ export function validatePortable(text: string): ValidationResult {
       if (!Array.isArray(f.sensitivity) || f.sensitivity.some((s) => !(SENSITIVITY_CATEGORIES as readonly unknown[]).includes(s))) errors.push(`${p}.sensitivity is invalid`);
       if (!Array.isArray(f.aliasKeys) || f.aliasKeys.length === 0 || f.aliasKeys.length > 50 || f.aliasKeys.some((k) => typeof k !== "string" || !HEX64.test(k))) {
         errors.push(`${p}.aliasKeys is invalid`);
-      } else if (isSlot(f.slot) && (f.polarity === "assert" || f.polarity === "deny") && typeof f.value === "string" && !f.aliasKeys.includes(identityKey(f.slot, f.value, f.polarity))) {
+      } else if (isSlot(f.slot) && (f.polarity === "assert" || f.polarity === "deny") && typeof f.value === "string" && !hasUnpairedSurrogate(f.value) && !f.aliasKeys.includes(identityKey(f.slot, f.value, f.polarity))) {
         errors.push(`${p}.aliasKeys does not include the fact's own identity`);
       }
       if (!Array.isArray(f.evidence) || f.evidence.length === 0 || f.evidence.length > MAX_EVIDENCE_PER_FACT) errors.push(`${p}.evidence must hold 1-${MAX_EVIDENCE_PER_FACT} quotes`);
@@ -286,7 +314,12 @@ export function validatePortable(text: string): ValidationResult {
   const versions = data.versions;
   if (!Array.isArray(versions) || versions.length > 1000) errors.push("$.versions must be an array");
   else {
+    const seqs = new Set<number>();
     versions.forEach((v, i) => {
+      if (isRecord(v) && Number.isSafeInteger(v.seq)) {
+        if (seqs.has(v.seq as number)) errors.push(`$.versions[${i}].seq duplicates another version`);
+        seqs.add(v.seq as number);
+      }
       const p = `$.versions[${i}]`;
       if (!isRecord(v)) {
         errors.push(`${p} must be an object`);
@@ -300,6 +333,13 @@ export function validatePortable(text: string): ValidationResult {
     });
   }
 
+  // Referential integrity: a fact cannot also be tombstoned in the same file.
+  if (Array.isArray(facts) && Array.isArray(tombstones)) {
+    const factIds = new Set(facts.filter(isRecord).map((f) => f.id));
+    tombstones.forEach((t, i) => {
+      if (isRecord(t) && factIds.has(t.generationId)) errors.push(`$.tombstones[${i}] targets a fact that is also exported`);
+    });
+  }
   if (typeof data.canonicalPayloadSha256 !== "string" || !HEX64.test(data.canonicalPayloadSha256)) errors.push("$.canonicalPayloadSha256 is invalid");
   if (errors.length > 0) return { ok: false, errors };
   const { canonicalPayloadSha256, ...body } = data;
@@ -443,6 +483,10 @@ export function previewProfileImport(state: ProfileState, profile: PortableProfi
         counts.restorationsClosed += 1;
       }
       draft.generations[g.id] = { ...g, lifecycle: "hidden", approvedRevision: null, review: g.review === "approved" ? "pending" : g.review };
+      // Suppress every identity the hidden fact has had (edit aliases), like a local hide would.
+      const ownTombstone = ctx.newId();
+      draft.tombstones.push({ id: ownTombstone, generationId: g.id, keys: [...g.aliasKeys].sort(), mode: "hide", at: ctx.now });
+      for (const key of g.aliasKeys) draft.suppression[key] = [...(draft.suppression[key] ?? []), ownTombstone];
       tombstoneEffects.push({ generationId: g.id, tombstoneId: localId });
       counts.localMatchesHidden += 1;
     }
@@ -454,12 +498,14 @@ export function previewProfileImport(state: ProfileState, profile: PortableProfi
     const mappedId = mapLocalId(draft, profile.originProfileId, fact.id);
     const mapped = mappedId ? draft.generations[mappedId] : undefined;
     if (mapped && mapped.lifecycle === "live") {
-      const sameRev = mapped.revisions.find((r) => r.revision === fact.revision);
-      if (!foreign && sameRev) {
-        if (sameRev.value !== null && (sameRev.slot !== fact.slot || sameRev.polarity !== fact.polarity || sameRev.value !== fact.value)) {
-          integrityErrors.push(`Fact ${fact.id} revision ${fact.revision} differs from the local copy with the same id and revision.`);
-          continue;
-        }
+      // Equal id + revision with different content is an integrity error (own files: local revision;
+      // foreign files: the origin revision recorded when the fact was first imported).
+      const sameRev = foreign
+        ? mapped.origin?.revision === fact.revision ? mapped.revisions[0] : undefined
+        : mapped.revisions.find((r) => r.revision === fact.revision);
+      if (sameRev && sameRev.value !== null && (sameRev.slot !== fact.slot || sameRev.polarity !== fact.polarity || sameRev.value !== fact.value)) {
+        integrityErrors.push(`Fact ${fact.id} revision ${fact.revision} differs from the local copy with the same id and revision.`);
+        continue;
       }
       const current = currentRevision(mapped);
       const identical = current.value !== null && identityKey(current.slot, current.value, current.polarity) === key;
@@ -469,10 +515,20 @@ export function previewProfileImport(state: ProfileState, profile: PortableProfi
         else counts.unchanged += 1;
         continue;
       }
-      if (fact.revision > mapped.currentRevision || foreign) {
-        // Higher foreign revision: a pending proposal, never an overwrite of accepted local edits.
-        if (isSuppressed(draft, key) && !openRestoration(draft, key)) {
+      const newer = foreign ? fact.revision > (mapped.origin?.revision ?? 0) : fact.revision > mapped.currentRevision;
+      if (newer) {
+        // Higher revision: a pending proposal, never an overwrite of accepted local edits.
+        const restored = openRestoration(draft, key);
+        if (isSuppressed(draft, key) && !restored) {
           counts.suppressed += 1;
+          continue;
+        }
+        // SAME rule: an existing live fact (e.g. an earlier proposal) with this identity just gains evidence.
+        const existing = restored ? draft.generations[restored.generationId] : Object.values(draft.generations).find((x) => x.lifecycle === "live" && x.aliasKeys.includes(key));
+        if (existing) {
+          const added = addLinks(draft, existing.id, fact.evidence, importId, ctx, record);
+          if (added > 0) counts.sameAttached += 1;
+          else counts.unchanged += 1;
           continue;
         }
         const g = newGeneration(draft, fact, null, ctx);
@@ -499,7 +555,7 @@ export function previewProfileImport(state: ProfileState, profile: PortableProfi
       else counts.unchanged += 1;
       continue;
     }
-    const g = newGeneration(draft, fact, foreign ? { profileId: profile.originProfileId, generationId: fact.id } : null, ctx);
+    const g = newGeneration(draft, fact, foreign ? { profileId: profile.originProfileId, generationId: fact.id, revision: fact.revision } : null, ctx);
     addLinks(draft, g.id, fact.evidence, importId, ctx, record);
     record.createdGenerations.push(g.id);
     counts.created += 1;

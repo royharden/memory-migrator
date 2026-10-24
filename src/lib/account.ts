@@ -79,7 +79,7 @@ interface FactRow {
   id: string; current_revision: number; review: Generation["review"]; approved_revision: number | null; lifecycle: Generation["lifecycle"];
   superseded_reason: "changed_circumstance" | "corrected_error" | null; superseded_group: string | null; superseded_effective: string | null;
   sensitivity: SensitivityCategory[]; sensitivity_confirmed_revision: number | null; first_seen: string | null; last_seen: string | null;
-  scope_note: string | null; restored_from: string | null; origin_profile_id: string | null; origin_generation_id: string | null; created_at: string;
+  scope_note: string | null; restored_from: string | null; origin_profile_id: string | null; origin_generation_id: string | null; origin_revision: number | null; created_at: string;
 }
 interface RevisionRow { fact_id: string; revision: number; slot: Slot; value: string | null; polarity: Polarity; change_cue: ChangeCue; assertion: string | null; user_authored: boolean; rule_id: string | null; extractor_version: string | null; created_at: string }
 interface EvidenceRow { id: string; fact_id: string; evidence_key: string; source_digest: string; conversation_id: string; message_id: string; text_sha256: string; start_cp: number; end_cp: number; quote: string | null; quote_sha256: string; parser_version: string; source_time: string | null; import_id: string | null; added_at: string }
@@ -138,7 +138,7 @@ async function loadOnce(client: SupabaseClient): Promise<{ state: ProfileState; 
       .map((r) => ({ revision: r.revision, slot: r.slot, value: r.value, polarity: r.polarity, changeCue: r.change_cue, assertion: r.assertion, userAuthored: r.user_authored, ruleId: r.rule_id, extractorVersion: r.extractor_version, createdAt: iso(r.created_at) ?? "" }));
     state.generations[f.id] = {
       id: f.id,
-      origin: f.origin_profile_id && f.origin_generation_id ? { profileId: f.origin_profile_id, generationId: f.origin_generation_id } : null,
+      origin: f.origin_profile_id && f.origin_generation_id ? { profileId: f.origin_profile_id, generationId: f.origin_generation_id, ...(f.origin_revision ? { revision: f.origin_revision } : {}) } : null,
       revisions: revs,
       currentRevision: f.current_revision,
       review: f.review,
@@ -257,7 +257,7 @@ function payloadFor(state: ProfileState, action: ProfileAction): { rpc: string; 
             // imported sensitivity can only raise the class; rules re-run locally too
             sensitivity: [...new Set([...f.sensitivity, ...classifyCandidate(f.slot, [renderAssertion(f.slot, f.value, f.polarity), f.value, ...f.evidence.map((e) => e.quote)])])],
             evidence: f.evidence,
-            origin: { profileId: profile.originProfileId, generationId: f.id },
+            origin: { profileId: profile.originProfileId, generationId: f.id, revision: f.revision },
           })),
         },
       };

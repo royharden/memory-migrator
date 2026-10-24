@@ -10,7 +10,9 @@ interface Prepared {
   includeSensitive: boolean;
   budget: number;
   markdownUrl: string;
-  jsonUrl: string;
+  jsonUrl: string | null;
+  jsonNotices: string[];
+  jsonProblems: string[];
   prompt: PromptResult;
   factCount: number;
 }
@@ -54,7 +56,7 @@ export function ExportPanel({ profile, run, busy, onPortableSaved }: Props) {
   function revoke(p: Prepared | null) {
     if (!p) return;
     URL.revokeObjectURL(p.markdownUrl);
-    URL.revokeObjectURL(p.jsonUrl);
+    if (p.jsonUrl) URL.revokeObjectURL(p.jsonUrl);
   }
 
   // Any profile change, sensitivity toggle or budget change invalidates prepared downloads.
@@ -74,13 +76,15 @@ export function ExportPanel({ profile, run, busy, onPortableSaved }: Props) {
     const options = { includeSensitive };
     const items = exportProjection(profile, options);
     const markdown = renderMarkdown(items, options);
-    const { bytes } = buildPortable(profile, options);
+    const built = buildPortable(profile, options);
     const next: Prepared = {
       revision: profile.revision,
       includeSensitive,
       budget,
       markdownUrl: URL.createObjectURL(new Blob([markdown], { type: "text/markdown;charset=utf-8" })),
-      jsonUrl: URL.createObjectURL(new Blob([bytes], { type: "application/json;charset=utf-8" })),
+      jsonUrl: built.problems.length === 0 ? URL.createObjectURL(new Blob([built.bytes], { type: "application/json;charset=utf-8" })) : null,
+      jsonNotices: built.notices,
+      jsonProblems: built.problems,
       prompt: renderPrompt(items, budget),
       factCount: items.length,
     };
@@ -105,8 +109,12 @@ export function ExportPanel({ profile, run, busy, onPortableSaved }: Props) {
           <p>{prepared.factCount} fact(s) included.</p>
           <div className="row-actions">
             <a className="button" href={prepared.markdownUrl} download="memory-profile.md">Download Markdown</a>
-            <a className="button" href={prepared.jsonUrl} download="profile.v1.json" onClick={() => { if (portableIsComplete(profile, prepared.includeSensitive)) onPortableSaved(); }}>Download profile.v1.json</a>
+            {prepared.jsonUrl ? (
+              <a className="button" href={prepared.jsonUrl} download="profile.v1.json" onClick={() => { if (portableIsComplete(profile, prepared.includeSensitive)) onPortableSaved(); }}>Download profile.v1.json</a>
+            ) : null}
           </div>
+          {prepared.jsonProblems.length > 0 ? <ul className="error" role="alert">{prepared.jsonProblems.map((p, i) => <li key={i}>{p}</li>)}</ul> : null}
+          {prepared.jsonNotices.length > 0 ? <ul className="notice">{prepared.jsonNotices.map((n, i) => <li key={i}>{n}</li>)}</ul> : null}
           <h3>Paste prompt ({prepared.prompt.length} / {prepared.prompt.budget})</h3>
           <textarea readOnly rows={8} value={prepared.prompt.text} aria-label="Paste prompt" />
           <button

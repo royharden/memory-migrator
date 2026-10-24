@@ -388,6 +388,7 @@ export function resolveGroup(state: ProfileState, groupId: string, input: GroupD
       if (kept.length < 2) return fail("bad_decision", "Keep several needs at least two facts.");
       scopeNote = input.scopeNote.trim();
       if (!scopeNote) return fail("bad_decision", "Keep several needs a scope note (for example 'weekdays vs weekends').");
+      if (codePointLength(scopeNote) > 200) return fail("bad_decision", "Scope notes are limited to 200 characters.");
     }
     if (kept.some((id) => !memberIds.includes(id))) return fail("bad_decision", "Kept facts must belong to the group.");
     displaced = Object.fromEntries(Object.entries(input.displaced).filter(([id]) => memberIds.includes(id) && !kept.includes(id)));

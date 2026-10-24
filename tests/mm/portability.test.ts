@@ -103,6 +103,13 @@ describe("portable profile v1", () => {
     expect(validatePortable(JSON.stringify({ ...profile, schemaVersion: 2 })).ok).toBe(false);
     expect(validatePortable(JSON.stringify({ ...profile, approved: true })).ok).toBe(false);
     expect(validatePortable("x".repeat(1024 * 1024 + 1)).ok).toBe(false);
+    // what_bug_this_catches: hostile input making the validator throw instead of failing closed.
+    const loneSurrogate = JSON.stringify({ ...profile, facts: profile.facts.map((f) => ({ ...f, value: "\ud800" })) });
+    expect(validatePortable(loneSurrogate).ok).toBe(false);
+    const fractional = JSON.stringify({ ...profile, schemaVersion: 1, facts: profile.facts.map((f) => ({ ...f, value: "", evidence: f.evidence.map((e) => ({ ...e, start: 1.5 })) })) });
+    expect(validatePortable(fractional).ok).toBe(false);
+    const dupVersions = JSON.stringify({ ...profile, versions: [{ seq: 1, label: "v1", digest: "0".repeat(64), createdAt: "2026-10-23T00:00:00Z" }, { seq: 1, label: "v1", digest: "0".repeat(64), createdAt: "2026-10-23T00:00:00Z" }] });
+    expect(validatePortable(dupVersions).ok).toBe(false);
   });
 
   it("imports into another profile as pending, never approved, with owner remapping", () => {
@@ -134,6 +141,28 @@ describe("portable profile v1", () => {
     expect(preview.tombstoneEffects).toHaveLength(1);
     const next = ok(commitProfilePreview(local, preview)).state;
     expect(Object.values(next.generations).filter((g) => g.lifecycle === "live")).toHaveLength(0);
+  });
+
+  // what_bug_this_catches: every later foreign import re-creating the same proposal as a new duplicate fact.
+  it("reconciles a repeated foreign proposal to the existing proposal instead of duplicating it", () => {
+    let source = demoState();
+    const first = validatePortable(buildPortable(source, { includeSensitive: false }).bytes);
+    if (!first.ok) throw new Error("invalid");
+    let target = ok(commitProfilePreview(emptyProfile("profile-b"), previewProfileImport(emptyProfile("profile-b"), first.profile, ctx))).state;
+    source = ok(edit(source, idOf(source, "tea"), "green tea", 1, ctx)).state;
+    source = ok(approve(source, idOf(source, "green tea"), ctx)).state;
+    const second = validatePortable(buildPortable(source, { includeSensitive: false }).bytes);
+    if (!second.ok) throw new Error("invalid");
+    target = ok(commitProfilePreview(target, previewProfileImport(target, second.profile, ctx))).state;
+    const countAfterSecond = Object.keys(target.generations).length;
+    source = ok(approve(source, idOf(source, "jam"), ctx)).state; // unrelated change -> new fingerprint
+    const third = validatePortable(buildPortable(source, { includeSensitive: false }).bytes);
+    if (!third.ok) throw new Error("invalid");
+    const preview = previewProfileImport(target, third.profile, ctx);
+    expect(preview.counts.proposals).toBe(0);
+    target = ok(commitProfilePreview(target, preview)).state;
+    expect(Object.values(target.generations).filter((g) => g.revisions[0].value === "green tea")).toHaveLength(1);
+    expect(Object.keys(target.generations).length).toBe(countAfterSecond + 1); // + jam only
   });
 
   it("refuses a stale preview", () => {

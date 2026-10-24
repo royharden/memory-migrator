@@ -74,6 +74,7 @@ create table public.mm_facts (
   restored_from uuid,
   origin_profile_id text check (origin_profile_id is null or origin_profile_id ~ '^[A-Za-z0-9_.:-]{1,128}$'),
   origin_generation_id text check (origin_generation_id is null or origin_generation_id ~ '^[A-Za-z0-9_.:-]{1,128}$'),
+  origin_revision integer check (origin_revision is null or origin_revision >= 1),
   created_at timestamptz not null default now(),
   row_version bigint not null default 1,
   unique (id, user_id),
@@ -635,11 +636,12 @@ begin
       continue;
     end if;
     v_target := gen_random_uuid();
-    insert into public.mm_facts (id, user_id, profile_id, current_revision, review, lifecycle, sensitivity, origin_profile_id, origin_generation_id)
+    insert into public.mm_facts (id, user_id, profile_id, current_revision, review, lifecycle, sensitivity, origin_profile_id, origin_generation_id, origin_revision)
     values (v_target, b.o_user, b.o_profile, 1, 'pending', 'live',
       coalesce((select array_agg(distinct x order by x) from jsonb_array_elements_text(it -> 'sensitivity') x), '{}'),
       case when v_origin_gen is not null and v_origin_profile is distinct from b.o_profile::text then v_origin_profile end,
-      case when v_origin_profile is distinct from b.o_profile::text then v_origin_gen end);
+      case when v_origin_profile is distinct from b.o_profile::text then v_origin_gen end,
+      case when v_origin_gen is not null and v_origin_profile is distinct from b.o_profile::text then (it -> 'origin' ->> 'revision')::integer end);
     insert into public.mm_fact_revisions (fact_id, user_id, revision, slot, value, polarity, change_cue, assertion, user_authored, rule_id, extractor_version)
     values (v_target, b.o_user, 1, it ->> 'slot', it ->> 'value', it ->> 'polarity', coalesce(it ->> 'changeCue', 'none'),
       mm_private.render_assertion(it ->> 'slot', it ->> 'value', it ->> 'polarity'), coalesce((it ->> 'userAuthored')::boolean, false), it ->> 'ruleId', it ->> 'extractorVersion');

@@ -38,7 +38,7 @@ export function publishVersion(state: ProfileState, input: { label?: string; inc
     userAuthored: revision.userAuthored,
   }));
   const seq = state.nextVersionSeq;
-  const label = input.label?.trim() ? input.label.trim().slice(0, 80) : `v${seq}`;
+  const label = input.label?.trim() ? [...input.label.trim()].slice(0, 80).join("") : `v${seq}`; // cut by code point
   const version: VersionRecord = {
     seq,
     label,

@@ -66,7 +66,7 @@ export interface Superseded {
 export interface Generation {
   id: string;
   /** Identity from another profile this generation was imported from (portable mapping), else null. */
-  origin: { profileId: string; generationId: string } | null;
+  origin: { profileId: string; generationId: string; revision?: number } | null;
   revisions: Revision[];
   currentRevision: number;
   review: ReviewStatus;
