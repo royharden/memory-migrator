@@ -131,10 +131,16 @@ export function previewCandidateImport(state: ProfileState, candidates: Candidat
       const link: EvidenceLink = { linkId: ctx.newId(), generationId: target.id, evidenceKey: ek, evidence: c.evidence, importId, addedAt: ctx.now };
       draft.links[link.linkId] = link;
       record.addedLinks.push(link.linkId);
+      // Sensitivity covers every included quote, not the assertion only: a newly
+      // attached sensitive quote raises the class and voids earlier confirmation.
+      const sensitivity = mergeSensitivity(target.sensitivity, c.sensitivity);
+      const raised = sensitivity.length > target.sensitivity.length;
       const updated: Generation = {
         ...target,
         firstSeen: earliest(target.firstSeen, c.evidence.sourceTime),
         lastSeen: latest(target.lastSeen, c.evidence.sourceTime),
+        sensitivity,
+        sensitivityConfirmedRevision: raised ? null : target.sensitivityConfirmedRevision,
       };
       if (updated.superseded) {
         // A new occurrence of a displaced claim re-enters review: the group reopens; nothing is decided automatically.
