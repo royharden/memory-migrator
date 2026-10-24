@@ -816,8 +816,8 @@ begin
     and not (v_decision = 'keep_several' and id = any (v_keep));
   update public.mm_conflict_members cm set revision = f.current_revision from public.mm_facts f where cm.group_id = v_group.id and f.id = cm.fact_id;
   update public.mm_conflict_groups set state = 'resolved', resolution = jsonb_build_object('decision', v_decision, 'kept', to_jsonb(v_keep::text[]),
-    'displaced', (select coalesce(jsonb_object_agg(m.fact_id::text, p -> 'displaced' ->> m.fact_id::text), '{}'::jsonb)
-                  from public.mm_conflict_members m where m.group_id = v_group.id and not (m.fact_id = any (v_keep)) and v_decision <> 'reject_all'),
+    'displaced', (select coalesce(jsonb_object_agg(cm2.fact_id::text, p -> 'displaced' ->> cm2.fact_id::text), '{}'::jsonb)
+                  from public.mm_conflict_members cm2 where cm2.group_id = v_group.id and not (cm2.fact_id = any (v_keep)) and v_decision <> 'reject_all'),
     'scopeNote', v_scope, 'effectiveDate', v_date, 'resolvedAt', now()) where id = v_group.id;
   perform mm_private.recompute_groups(b.o_profile, b.o_user);
   perform mm_private.bump(b.o_profile);

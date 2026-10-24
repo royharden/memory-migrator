@@ -36,6 +36,9 @@ import { publicConfig } from "./config.ts";
  * Uploads contain candidates, referenced quote spans, IDs, hashes and decisions only.
  */
 
+/** Captured at module load, before any client exists, so supabase-js cannot clear it first. */
+export const RECOVERY_LINK_AT_LOAD = typeof window !== "undefined" && window.location.hash.includes("type=recovery");
+
 let clientPromise: Promise<SupabaseClient | null> | null = null;
 
 export function getAccountClient(): Promise<SupabaseClient | null> {

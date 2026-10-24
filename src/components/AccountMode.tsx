@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Session, SupabaseClient } from "@supabase/supabase-js";
 import type { ProfileState } from "../../supabase/functions/_shared/mm/model.ts";
-import { getAccountClient, loadProfile, performAccount } from "../lib/account.ts";
+import { getAccountClient, loadProfile, performAccount, RECOVERY_LINK_AT_LOAD } from "../lib/account.ts";
 import { SETUP_MESSAGE } from "../lib/config.ts";
 import { Workspace } from "./Workspace.tsx";
 
@@ -29,7 +29,7 @@ export function AccountMode({ onExit }: { onExit: () => void }) {
       }
       setClient(c);
       // Subscribe BEFORE getSession: initialization may emit PASSWORD_RECOVERY from the link.
-      let recovering = window.location.hash.includes("type=recovery");
+      let recovering = RECOVERY_LINK_AT_LOAD;
       const sub = c.auth.onAuthStateChange((event, next) => {
         if (event === "PASSWORD_RECOVERY") recovering = true;
         if (event === "PASSWORD_RECOVERY") setStage("recovery");
