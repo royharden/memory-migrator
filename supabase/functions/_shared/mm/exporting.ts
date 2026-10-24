@@ -3,6 +3,7 @@ import { evidenceKey, evidenceShapeErrors } from "./evidence.ts";
 import { openGroupMembers } from "./groups.ts";
 import { LIMITS } from "./limits.ts";
 import {
+  currentIdentityKey,
   currentRevision,
   isSuppressed,
   linksFor,
@@ -49,7 +50,12 @@ export function exportableScopeNote(state: ProfileState, g: Generation): string 
   if (!g.scopeNote) return null;
   for (const group of Object.values(state.groups)) {
     if (group.state !== "resolved" || group.resolution?.decision !== "keep_several" || !group.resolution.kept.includes(g.id)) continue;
-    if (group.resolution.kept.some((id) => state.generations[id]?.lifecycle !== "live")) return null;
+    // The note names the kept values: withhold it unless every kept fact is still exactly the accepted claim.
+    for (const id of group.resolution.kept) {
+      const other = state.generations[id];
+      const member = group.members.find((m) => m.generationId === id);
+      if (!other || other.lifecycle !== "live" || other.review === "rejected" || other.superseded || !member || currentIdentityKey(other) !== member.identityKey) return null;
+    }
   }
   return g.scopeNote;
 }

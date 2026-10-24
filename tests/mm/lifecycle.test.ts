@@ -3,7 +3,7 @@ import { deleteGeneration, deletionDependencies, restoreGeneration, undoImport }
 import { emptyProfile, type ProfileState } from "../../supabase/functions/_shared/mm/model.ts";
 import { exportProjection } from "../../supabase/functions/_shared/mm/exporting.ts";
 import { buildPortable } from "../../supabase/functions/_shared/mm/portable.ts";
-import { approve, commitPreview, edit, previewCandidateImport, resolveGroup } from "../../supabase/functions/_shared/mm/reducer.ts";
+import { approve, commitPreview, edit, previewCandidateImport, reject, resolveGroup } from "../../supabase/functions/_shared/mm/reducer.ts";
 import { extractCandidates } from "../../supabase/functions/_shared/mm/rules.ts";
 import type { ParsedConversation } from "../../supabase/functions/_shared/mm/source.ts";
 import { conv, testCtx } from "./helpers.ts";
@@ -152,6 +152,18 @@ describe("scope notes after reopen and hide", () => {
     const erased = deleteGeneration(reopened, idOf(reopened, "Quahog"), "erase", "retain", ctx);
     if (!erased.ok) throw new Error(erased.message);
     expect(JSON.stringify(erased.state)).not.toContain("Quahog");
+  });
+
+  // what_bug_this_catches: a rejected or edited co-kept value leaking through the shared note (review #4).
+  it("rejecting or editing one kept fact withholds the shared note from the other's exports", () => {
+    const { state } = keepBoth();
+    const boston = idOf(state, "Boston");
+    const quahog = idOf(state, "Quahog");
+    const approved = ok(approve(state, boston, ctx));
+    const rejected = ok(reject(approved, quahog, ctx));
+    expect(exportProjection(rejected, { includeSensitive: false })[0].scopeNote).toBeNull();
+    const edited = ok(edit(approved, quahog, "Quahog Harbor", 1, ctx));
+    expect(exportProjection(edited, { includeSensitive: false }).find((i) => i.generation.id === boston)?.scopeNote ?? null).toBeNull();
   });
 
   it("hiding one kept fact keeps the shared note out of exports of the other", () => {
