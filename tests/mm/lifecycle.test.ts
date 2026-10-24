@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { deleteGeneration, deletionDependencies, restoreGeneration, undoImport } from "../../supabase/functions/_shared/mm/lifecycle.ts";
 import { emptyProfile, type ProfileState } from "../../supabase/functions/_shared/mm/model.ts";
-import { approve, commitPreview, edit, previewCandidateImport } from "../../supabase/functions/_shared/mm/reducer.ts";
+import { approve, commitPreview, edit, previewCandidateImport, resolveGroup } from "../../supabase/functions/_shared/mm/reducer.ts";
 import { extractCandidates } from "../../supabase/functions/_shared/mm/rules.ts";
 import type { ParsedConversation } from "../../supabase/functions/_shared/mm/source.ts";
 import { conv, testCtx } from "./helpers.ts";
@@ -92,6 +92,25 @@ describe("erase", () => {
   });
 });
 
+// what_bug_this_catches: group keys / scope notes keeping value text after erase.
+describe("erase and groups", () => {
+  it("leaves no value text in groups after erasing one side of a like/dislike pair", () => {
+    let { state } = importConvs(emptyProfile("p"), [conv("c1", [["user", "I like zydeco."], ["user", "I hate zydeco."]])]);
+    const group = Object.values(state.groups).find((g) => g.state === "open");
+    if (!group) throw new Error("expected a group");
+    const ids = group.members.map((m) => m.generationId);
+    const kept = resolveGroup(state, group.id, { decision: "keep_several", keep: ids, scopeNote: "zydeco live vs recorded", displaced: {} }, ctx);
+    if (!kept.ok) throw new Error(kept.message);
+    state = kept.state;
+    for (const id of ids) {
+      const erased = deleteGeneration(state, id, "erase", "retain", ctx);
+      if (!erased.ok) throw new Error(erased.message);
+      state = erased.state;
+    }
+    expect(JSON.stringify(state)).not.toContain("zydeco");
+  });
+});
+
 describe("restore", () => {
   // what_bug_this_catches: restore that revives the old UUID or lets stale flags reauthorize it.
   it("creates a new pending generation, attaches later evidence to it, and re-delete resumes suppression", () => {
@@ -141,6 +160,21 @@ describe("undo import", () => {
     expect(Object.values(undo.state.links).filter((l) => l.generationId === tea)).toHaveLength(1);
     expect(undo.state.tombstones).toHaveLength(0);
     expect(undoImport(undo.state, b.importId as string, ctx)).toMatchObject({ ok: false, code: "already_undone" });
+  });
+
+  // what_bug_this_catches: undo deleting the kept member of a resolved conflict ("B instead of A" -> "neither").
+  it("keeps facts that took part in a resolved group decision", () => {
+    const a = importConvs(emptyProfile("p"), [conv("c1", [["user", "I live in Austin."]])]);
+    const b = importConvs(a.state, [conv("c2", [["user", "I live in Boston."]])]);
+    const group = Object.values(b.state.groups).find((g) => g.state === "open");
+    if (!group) throw new Error("expected a group");
+    const boston = idOf(b.state, "Boston");
+    const resolved = resolveGroup(b.state, group.id, { decision: "keep_one", keep: boston, displaced: { [idOf(b.state, "Austin")]: "changed_circumstance" } }, ctx);
+    if (!resolved.ok) throw new Error(resolved.message);
+    const undo = undoImport(resolved.state, b.importId as string, ctx);
+    if (!undo.ok) throw new Error(undo.message);
+    expect(undo.state.generations[boston]).toBeDefined();
+    expect(undo.receipt.retainedGenerations).toContainEqual({ generationId: boston, reason: "resolved in a conflict group" });
   });
 
   it("never removes the last supporting evidence of an approved fact", () => {

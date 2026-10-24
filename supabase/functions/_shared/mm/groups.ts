@@ -11,6 +11,7 @@ import {
   type ProfileState,
   type Slot,
 } from "./model.ts";
+import { sha256Hex } from "./sha256.ts";
 import { normalizeExact } from "./unicode.ts";
 
 /**
@@ -37,10 +38,11 @@ function claimOf(g: Generation): Claim {
   return { g, slot: rev.slot, target: normalizeExact(rev.value ?? ""), polarity: rev.polarity };
 }
 
+/** Opaque group key: a hash, so stored groups never carry value text (erase must leave none behind). */
 function groupKeyOf(claim: Claim): string {
-  if (isSingleSlot(claim.slot)) return claim.slot;
-  if (claim.slot === "preference.likes" || claim.slot === "preference.dislikes") return `preference|${claim.target}`;
-  return `${claim.slot}|${claim.target}`;
+  if (isSingleSlot(claim.slot)) return sha256Hex(claim.slot);
+  if (claim.slot === "preference.likes" || claim.slot === "preference.dislikes") return sha256Hex(`preference|${claim.target}`);
+  return sha256Hex(`${claim.slot}|${claim.target}`);
 }
 
 function incompatible(a: Claim, b: Claim): boolean {

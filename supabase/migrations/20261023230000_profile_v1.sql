@@ -843,6 +843,10 @@ begin
       update public.mm_facts set lifecycle = 'hidden', approved_revision = null, review = case when review = 'approved' then 'pending' else review end, row_version = row_version + 1 where id = v_id;
     end if;
   end loop;
+  if p ->> 'mode' = 'erase' then
+    update public.mm_conflict_groups g set resolution = jsonb_set(g.resolution, '{scopeNote}', 'null'::jsonb)
+    where g.profile_id = b.o_profile and g.resolution ? 'scopeNote' and exists (select 1 from public.mm_conflict_members m where m.group_id = g.id and m.fact_id = any (v_ids));
+  end if;
   select coalesce(array_agg(distinct v.seq order by v.seq), '{}') into v_redacted from public.mm_version_items i join public.mm_profile_versions v on v.id = i.version_id where i.fact_id = any (v_ids);
   perform mm_private.recompute_groups(b.o_profile, b.o_user);
   perform mm_private.bump(b.o_profile);
@@ -923,6 +927,9 @@ begin
       when f.review <> 'pending' then 'reviewed (' || f.review || ')'
       when f.current_revision <> 1 then 'edited later'
       when exists (select 1 from public.mm_version_items i where i.fact_id = f.id) then 'referenced by a version'
+      when f.superseded_reason is not null or f.scope_note is not null
+        or exists (select 1 from public.mm_conflict_members m join public.mm_conflict_groups g on g.id = m.group_id
+                   where m.fact_id = f.id and g.state = 'resolved' and coalesce(g.resolution ->> 'decision', '') <> 'dissolved') then 'resolved in a conflict group'
       when exists (select 1 from public.mm_fact_evidence e where e.fact_id = f.id and e.import_id is distinct from v_import.id) then 'also supported by another import'
       when exists (select 1 from public.mm_restoration_relations r where r.restored_from = f.id or r.fact_id = f.id) then 'restoration dependency'
       else null end;

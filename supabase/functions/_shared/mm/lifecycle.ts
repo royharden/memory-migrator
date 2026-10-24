@@ -165,6 +165,14 @@ export function deleteGeneration(
     }
   }
 
+  if (mode === "erase") {
+    // Group scope notes are user text that usually names the values: redact them with the erased member.
+    for (const group of Object.values(draft.groups)) {
+      if (group.resolution?.scopeNote && group.members.some((m) => ids.includes(m.generationId))) {
+        draft.groups[group.id] = { ...group, resolution: { ...group.resolution, scopeNote: null } };
+      }
+    }
+  }
   let next = recomputeGroups(draft, ctx);
   const groupsAfter = next.groups;
   const before = JSON.parse(groupsBefore) as ProfileState["groups"];
@@ -271,6 +279,13 @@ export interface UndoReceipt {
 
 export type UndoResult = { ok: true; state: ProfileState; receipt: UndoReceipt } | { ok: false; code: string; message: string };
 
+/** Undo never rewinds a group decision: kept or displaced members of a resolved group stay. */
+function inResolvedGroup(state: ProfileState, generationId: string): boolean {
+  return Object.values(state.groups).some(
+    (g) => g.state === "resolved" && g.resolution !== null && g.resolution.decision !== "dissolved" && g.members.some((m) => m.generationId === generationId),
+  );
+}
+
 function versionReferenced(state: ProfileState, generationId: string): boolean {
   return state.versions.some((v) => v.items.some((item) => item.generationId === generationId));
 }
@@ -302,6 +317,7 @@ export function undoImport(state: ProfileState, importId: string, ctx: Ctx): Und
     else if (g.review !== "pending") retain(gid, `reviewed (${g.review})`);
     else if (g.currentRevision !== 1) retain(gid, "edited later");
     else if (versionReferenced(draft, gid)) retain(gid, "referenced by a version");
+    else if (g.superseded || g.scopeNote || inResolvedGroup(draft, gid)) retain(gid, "resolved in a conflict group");
     else if (otherLinks.length > 0) retain(gid, "also supported by another import");
     else {
       for (const link of linksFor(draft, gid)) {
