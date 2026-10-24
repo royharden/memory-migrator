@@ -45,8 +45,12 @@ export interface ProjectionItem {
   scopeNote: string | null;
 }
 
-/** A keep_several note names the kept values; it is withheld if any co-kept fact is not live. */
-export function exportableScopeNote(state: ProfileState, g: Generation): string | null {
+/**
+ * A keep_several note names the kept values, so it is exported only when every co-kept fact is itself
+ * eligible for THIS export (same predicate, same options) and still exactly the accepted claim.
+ * Held, rejected, superseded, hidden, erased, unconfirmed/excluded-sensitive co-kept facts withhold it.
+ */
+export function exportableScopeNote(state: ProfileState, g: Generation, options: ExportOptions, openMembers: Set<string> = openGroupMembers(state)): string | null {
   if (!g.scopeNote) return null;
   for (const group of Object.values(state.groups)) {
     if (group.state !== "resolved" || group.resolution?.decision !== "keep_several" || !group.resolution.kept.includes(g.id)) continue;
@@ -54,7 +58,8 @@ export function exportableScopeNote(state: ProfileState, g: Generation): string 
     for (const id of group.resolution.kept) {
       const other = state.generations[id];
       const member = group.members.find((m) => m.generationId === id);
-      if (!other || other.lifecycle !== "live" || other.review === "rejected" || other.superseded || !member || currentIdentityKey(other) !== member.identityKey) return null;
+      if (!other || !member || currentIdentityKey(other) !== member.identityKey) return null;
+      if (id !== g.id && exclusionReason(state, other, options, openMembers) !== null) return null;
     }
   }
   return g.scopeNote;
@@ -105,7 +110,7 @@ export function exportProjection(state: ProfileState, options: ExportOptions): P
   return Object.values(state.generations)
     .filter((g) => exclusionReason(state, g, options, openMembers) === null)
     .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
-    .map((generation) => ({ generation, revision: currentRevision(generation), evidence: validEvidence(state, generation.id), scopeNote: exportableScopeNote(state, generation) }));
+    .map((generation) => ({ generation, revision: currentRevision(generation), evidence: validEvidence(state, generation.id), scopeNote: exportableScopeNote(state, generation, options, openMembers) }));
 }
 
 export function exclusionSummary(state: ProfileState, options: ExportOptions): Record<ExclusionReason, number> {

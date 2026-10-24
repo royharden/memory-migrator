@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { deleteGeneration, deletionDependencies, restoreGeneration, undoImport } from "../../supabase/functions/_shared/mm/lifecycle.ts";
 import { emptyProfile, type ProfileState } from "../../supabase/functions/_shared/mm/model.ts";
-import { exportProjection } from "../../supabase/functions/_shared/mm/exporting.ts";
+import { exportProjection, renderMarkdown } from "../../supabase/functions/_shared/mm/exporting.ts";
 import { buildPortable } from "../../supabase/functions/_shared/mm/portable.ts";
-import { approve, commitPreview, edit, previewCandidateImport, reject, resolveGroup } from "../../supabase/functions/_shared/mm/reducer.ts";
+import { approve, commitPreview, confirmSensitive, edit, markSensitive, previewCandidateImport, reject, resolveGroup, unreject } from "../../supabase/functions/_shared/mm/reducer.ts";
 import { extractCandidates } from "../../supabase/functions/_shared/mm/rules.ts";
 import type { ParsedConversation } from "../../supabase/functions/_shared/mm/source.ts";
 import { conv, testCtx } from "./helpers.ts";
@@ -180,6 +180,37 @@ describe("scope notes after reopen and hide", () => {
     const items = exportProjection(state, { includeSensitive: false });
     expect(items.map((i) => i.generation.id).sort()).toEqual([likes, dislikes].sort());
     expect(items.every((i) => i.scopeNote === null)).toBe(true);
+  });
+
+  // what_bug_this_catches: a held (pending) or excluded-sensitive co-kept value leaking through the note (review #5).
+  it("withholds the shared note while a co-kept fact is pending, including after reject + unreject", () => {
+    const { state } = keepBoth();
+    const boston = idOf(state, "Boston");
+    const quahog = idOf(state, "Quahog");
+    const approvedBoston = ok(approve(state, boston, ctx));
+    const out = (s: ProfileState) => [renderMarkdown(exportProjection(s, { includeSensitive: false }), { includeSensitive: false }), buildPortable(s, { includeSensitive: false }).bytes].join("\n");
+    expect(out(approvedBoston)).toContain("Lives in Boston");
+    expect(out(approvedBoston)).not.toContain("Quahog");
+    const unrejected = ok(unreject(ok(reject(approvedBoston, quahog, ctx)), quahog, ctx));
+    expect(out(unrejected)).not.toContain("Quahog");
+    const both = ok(approve(unrejected, quahog, ctx));
+    expect(out(both)).toContain("Quahog weekdays, Boston weekends");
+  });
+
+  it("withholds the shared note when a co-kept fact is sensitive and not included", () => {
+    let { state } = importConvs(emptyProfile("p"), [conv("c2", [["user", "I work at Mercy Clinic."], ["user", "I work at Acme."]])]);
+    const g2 = Object.values(state.groups).find((g) => g.state === "open");
+    if (!g2) throw new Error("expected a group");
+    const ids = g2.members.map((m) => m.generationId);
+    state = ok(resolveGroup(state, g2.id, { decision: "keep_several", keep: ids, scopeNote: "Mercy Clinic mornings, Acme afternoons", displaced: {} }, ctx));
+    const clinic = idOf(state, "Mercy Clinic");
+    const acme = idOf(state, "Acme");
+    state = ok(markSensitive(state, clinic, "health", ctx)); // rules miss it; marked by hand
+    state = ok(approve(ok(approve(state, acme, ctx)), clinic, ctx));
+    state = ok(confirmSensitive(state, clinic, ctx));
+    const md = (inc: boolean) => renderMarkdown(exportProjection(state, { includeSensitive: inc }), { includeSensitive: inc });
+    expect(md(false)).not.toContain("Mercy");
+    expect(md(true)).toContain("Mercy Clinic mornings, Acme afternoons");
   });
 
   it("hiding one kept fact keeps the shared note out of exports of the other", () => {
