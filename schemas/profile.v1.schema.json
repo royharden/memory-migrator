@@ -22,7 +22,7 @@
   "$defs": {
     "id": { "type": "string", "pattern": "^[A-Za-z0-9_.:-]{1,128}$" },
     "hex64": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
-    "time": { "type": "string", "pattern": "^\[0-9]{4}-\[0-9]{2}-\[0-9]{2}T\[0-9]{2}:\[0-9]{2}:\[0-9]{2}Z$" },
+    "time": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$" },
     "timeOrNull": { "oneOf": [{ "$ref": "#/$defs/time" }, { "type": "null" }] },
     "slot": { "enum": ["identity.name", "location.home", "work.role", "work.employer", "preference.likes", "preference.dislikes", "health.note", "financial.note"] },
     "sensitivity": { "enum": ["health", "finance", "intimate", "belief", "minors", "precise_location"] },
