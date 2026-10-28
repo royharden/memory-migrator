@@ -7,3 +7,17 @@ dist/
 *.log
 coverage/
 .supabase/
+
+# Local credentials, key material and generated archives
+.creds/
+ArchiveManager-creds.txt
+*.pem
+*.key
+*.p12
+*.pfx
+*.zip
+*.tar
+*.tar.gz
+*.7z
+__pycache__/
+.venv/
