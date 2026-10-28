@@ -1,12 +1,12 @@
 import { useState } from "react";
 import dev from "../../fixtures/synthetic/eval/dev.json";
-import heldout from "../../fixtures/synthetic/eval/heldout.json";
+import heldout from "../../fixtures/synthetic/eval/heldout-v2.json";
 import manifest from "../../fixtures/synthetic/eval/manifest.json";
 import { evaluate, type Counts, type EvalDataset, type EvalReport } from "../../supabase/functions/_shared/mm/evaluation.ts";
 import { makeCtx } from "../state/actions.ts";
 
-const DATASETS: Record<"heldout" | "dev", { data: EvalDataset; file: "heldout.json" | "dev.json" }> = {
-  heldout: { data: heldout as unknown as EvalDataset, file: "heldout.json" },
+const DATASETS: Record<"heldout" | "dev", { data: EvalDataset; file: "heldout-v2.json" | "dev.json" }> = {
+  heldout: { data: heldout as unknown as EvalDataset, file: "heldout-v2.json" },
   dev: { data: dev as unknown as EvalDataset, file: "dev.json" },
 };
 
@@ -38,6 +38,7 @@ export function EvaluationPanel() {
   const [report, setReport] = useState<EvalReport | null>(null);
   const [error, setError] = useState<string | null>(null);
   const expectedSha = manifest.files[DATASETS[split].file].labelSha256;
+  const frozenRules = manifest.files[DATASETS[split].file].rulesAtFreeze;
 
   function run() {
     setError(null);
@@ -52,7 +53,7 @@ export function EvaluationPanel() {
     <section className="panel stack">
       <h2>Evaluation (synthetic)</h2>
       <p className="muted">
-        A small, wholly synthetic, hand-labelled fixture ({manifest.files["heldout.json"].labels} held-out labels in {manifest.files["heldout.json"].conversations} conversations, {manifest.files["heldout.json"].eligibilitySentences} eligibility sentences). It is a smoke check, not a quality benchmark. Labels were written by the same agent that wrote the rules; an independent audit is still pending.
+        A small, wholly synthetic, hand-labelled fixture ({manifest.files["heldout-v2.json"].labels} held-out labels in {manifest.files["heldout-v2.json"].conversations} conversations, {manifest.files["heldout-v2.json"].eligibilitySentences} eligibility sentences). It is a smoke check, not a quality benchmark. The replacement split was authored after freezing the current rules, without running or tuning them. The old contaminated split is retained as regression material. An independent label audit is still pending.
       </p>
       <div className="row-actions">
         <label><input type="radio" name="split" checked={split === "heldout"} onChange={() => { setSplit("heldout"); setReport(null); }} /> Held-out split</label>
@@ -64,10 +65,10 @@ export function EvaluationPanel() {
         <div className="report">
           <p>
             Dataset {report.datasetId} · parser {report.parserVersion} · rules {report.extractorVersion}{" "}
-            {report.extractorVersion === manifest.rulesAtFreeze ? (
+            {report.extractorVersion === frozenRules ? (
               "(same rules as at freeze)"
             ) : (
-              <strong className="error">(fixture froze with {manifest.rulesAtFreeze}; rules changed since, held-out split contaminated)</strong>
+              <strong className="error">(fixture froze with {frozenRules}; rules changed since, do not claim held-out quality)</strong>
             )}{" "}
             · label SHA-256 {report.datasetSha256.slice(0, 12)}…{" "}
             {report.datasetSha256 === expectedSha ? "matches the manifest" : <strong className="error">does NOT match the manifest — labels changed since freezing</strong>}

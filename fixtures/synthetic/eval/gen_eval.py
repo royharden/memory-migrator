@@ -231,6 +231,11 @@ ho_elig = [
 
 if __name__ == "__main__":
     out = sys.argv[1]
+    # V1 is historical regression material. Never overwrite the active V2 manifest.
+    from pathlib import Path
+    existing = Path(out) / "manifest.json"
+    if existing.exists() and json.loads(existing.read_text(encoding="utf-8")).get("fixtureVersion", 1) >= 2:
+        raise SystemExit("Refusing to replace a newer frozen edition with contaminated V1.")
     dev = dataset("dev", [d1, d2, d3, d4, d5], dev_groups, dev_elig)
     ho = dataset("heldout", [h1, h2, h3, h4, h5], ho_groups, ho_elig)
     assert not ({c["id"] for c in dev["export"]} & {c["id"] for c in ho["export"]}), "splits must be conversation-disjoint"
