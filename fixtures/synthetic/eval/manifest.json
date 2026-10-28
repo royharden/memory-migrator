@@ -61,7 +61,7 @@
    "labels": 30,
    "supportedLabels": 25,
    "eligibilitySentences": 40,
-   "status": "frozen-v3-independent-audit-pending",
+   "status": "frozen-v3-independent-audit-return",
    "frozen": "2026-10-28",
    "rulesAtFreeze": "rules/2",
    "parserAtFreeze": "chatgpt-json/1",
@@ -92,8 +92,15 @@
     "labelSha256": "9b0b7567876751b59ec6be578eb3ff31a37cd61591cac334ca32138742418e27"
    },
    "labelAudit": {
-    "status": "pending",
-    "minimumFraction": 0.2
+    "status": "return",
+    "reviewer": "0094_Codex_GPT-61-Terra_Sub_BinSorter",
+    "fraction": 1.0,
+    "reviewedCommit": "b5553839cc1bd0bacce2694af8d521053cd33412",
+    "labels": "three prior label findings addressed",
+    "openIssues": [
+     "invalid gold pins reduce denominators instead of refusing scoring",
+     "missing v3 source pins fall back to legacy quote lookup"
+    ]
    }
   }
  },

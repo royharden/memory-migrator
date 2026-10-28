@@ -29,3 +29,11 @@ tests and static integrity checks passed. No app install/build, Vitest suite, SQ
 or browser validation was performed. Independent v3 review is pending. The old
 statements above about v2 pending audit are historical; its audit RETURN and v3
 lineage are recorded in the current manifest and fixture README.
+
+Independent v3 audit by reviewer 0094 returned after all 30 labels, five groups,
+eight sensitivity cases and 40 eligibility items were inspected. The three prior
+label findings are addressed, and freeze/lineage checks passed. Overall verdict
+is RETURN for scorer integration: unresolved gold is omitted from denominators
+instead of refusing scoring, and absent v3 source pins take legacy lookup fallback.
+These issues remain open. The frozen v3 JSON is unchanged; only manifest review
+status is updated. No scoring/accuracy or acceptance is claimed.

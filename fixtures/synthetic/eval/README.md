@@ -35,3 +35,11 @@ Run the isolated parser/evidence regressions with Node 24+:
     npm run test:fixture-v3
 These checks are not extraction accuracy measurements, app validation or product
 acceptance. No real-user data or third-party benchmark data is included.
+
+Independent v3 review (0094, pinned b555383) subsequently returned two scorer
+integration issues despite validating all label repairs: failed gold evidence
+must invalidate scoring rather than shrink denominators, and v3 must require
+pins rather than silently use legacy lookup. The manifest records RETURN.
+V3 data bytes remain unchanged. The pending-review statements above describe
+freeze-time state; acceptance remains blocked until those issues are addressed
+and independently reviewed. No extraction quality numbers were produced.
