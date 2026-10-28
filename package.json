@@ -9,7 +9,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "typecheck:tests": "tsc --noEmit -p tsconfig.tests.json",
-    "test:mm": "vitest run tests/mm"
+    "test:mm": "vitest run tests/mm",
+    "test:fixture-v3": "node --experimental-strip-types --test tests/mm/evaluation-fixture-v3.node.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.1",

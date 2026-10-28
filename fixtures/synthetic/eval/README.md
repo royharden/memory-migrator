@@ -1,20 +1,37 @@
 # Synthetic evaluation editions
 
-The active replacement is heldout-v2.json, frozen on 2026-10-28 for rules/2 and
-chatgpt-json/1. Its manifest pins every pure-core TypeScript source hash before
-fixture authorship. The author did not run the extractor or adjust its rules.
-Labels follow the natural-language contract even where a narrow rule may miss
-them. It has 28 labels in six new conversations plus 40 eligibility sentences.
+The active edition is heldout-v3.json, frozen on 2026-10-28 for rules/2 and
+chatgpt-json/1. It revises v2 after independent reviewer 0094 returned three
+findings. It has 30 labels (25 supported, five unsupported) across six synthetic
+conversations, five reasoned groups, eight sensitivity cases covering all six
+categories, and 40 eligibility sentences. It is a revised synthetic smoke split,
+not a fresh unseen benchmark.
 
-heldout.json is retained byte-for-byte as contaminated v1 regression material.
-It must not support held-out quality claims. dev.json remains the original dev
-fixture; its per-file freeze metadata still records rules/1.
+The added unsupported family/minor assertion affects the whole-corpus denominator.
+A separate unsupported married-partner assertion and sensitivity case cover intimate
+relationships. Every label carries its exact assertion, eligible/durable flags,
+conflict membership/rationale and source Evidence: canonical conversation digest,
+conversation/message IDs, role, message/quote hashes, half-open code-point offsets,
+parser version and source time. An emoji before a quote verifies offset units.
 
-Do not tune rules against v2 or overwrite a frozen edition. Rule changes require
-a new independent split before new held-out claims. gen_eval.py refuses to replace
-a v2 manifest; gen_heldout_v2.py refuses to overwrite its frozen output.
+Conversation digests use the parser's documented projection v1. The Node regression
+checks every label against the real parser and evidence validator without invoking
+the extractor. The scorer consumes pinned spans and refuses invalid pins rather
+than searching for another occurrence. Legacy labels lacking pins require unique
+quotes; an ambiguous legacy quote is refused.
 
-Independent review of at least 20% of labels remains pending. Static integrity
-checks are not an extraction run. No measured accuracy or product acceptance is
-claimed. The fixtures ship in the offline demo and are synthetic smoke checks,
-not a private benchmark or real-user data.
+heldout-v2.json is retained byte-for-byte with its original canonical hash and
+recorded independent RETURN. heldout.json is contaminated v1 regression material;
+dev.json retains its original rules/1 freeze. The v3 manifest records the raw v2
+hash, lineage and current pure-core hashes (UTF-8/LF). V3's source author used the
+independent findings, not extractor predictions. No extraction run or rule tuning
+occurred. A separate independent v3 review remains pending.
+
+Do not overwrite frozen data. All three generators refuse to overwrite a newer
+or existing frozen edition. Use a new version for future label changes.
+Run static integrity with:
+    python -I fixtures/synthetic/eval/verify_integrity.py
+Run the isolated parser/evidence regressions with Node 24+:
+    npm run test:fixture-v3
+These checks are not extraction accuracy measurements, app validation or product
+acceptance. No real-user data or third-party benchmark data is included.

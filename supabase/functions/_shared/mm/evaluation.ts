@@ -1,5 +1,5 @@
 import { canonicalSha256 } from "./canonical.ts";
-import { checkEvidence, messageLookupKey } from "./evidence.ts";
+import { checkEvidence, messageLookupKey, type Evidence } from "./evidence.ts";
 import { emptyProfile, isSlot, EXTRACTOR_VERSION, type Ctx, type Polarity, type SensitivityCategory } from "./model.ts";
 import { extractSelected, inventoryShard, mergeInventories, selectConversations } from "./parser.ts";
 import { previewCandidateImport } from "./reducer.ts";
@@ -25,6 +25,13 @@ export interface GoldLabel {
   polarity: Polarity;
   supported: boolean;
   sensitivity: SensitivityCategory[];
+  /** V3 pins the exact source occurrence; older regression editions omit it. */
+  source?: Evidence;
+  assertion?: string;
+  eligible?: boolean;
+  durable?: boolean;
+  groupIds?: string[];
+  groupRationale?: string;
 }
 
 export interface EvalDataset {
@@ -32,9 +39,10 @@ export interface EvalDataset {
   split: string;
   export: unknown[];
   labels: GoldLabel[];
-  groups: Array<{ id: string; slot: string; members: string[] }>;
+  groups: Array<{ id: string; slot: string; members: string[]; reason?: string }>;
   sensitivityCases: Array<{ conversationId: string; messageId: string; categories: SensitivityCategory[] }>;
   eligibility: Array<{ text: string; eligible: boolean }>;
+  provenance?: { rulesAtFreeze: string; parserAtFreeze: string; labelReview: string };
 }
 
 export interface Counts {
@@ -92,6 +100,22 @@ interface GoldSpan {
   end: number;
 }
 
+/** Resolve pinned V3 evidence without running extraction. Never fall back from an
+ * invalid pin to a matching quote elsewhere; legacy quotes must be unambiguous. */
+export function resolveGoldSpan(label: GoldLabel, messages: Map<string, CanonicalMessage>): GoldSpan | null {
+  const message = messages.get(messageLookupKey(label.conversationId, label.messageId));
+  if (!message) return null;
+  if (label.source) {
+    const evidence = label.source;
+    if (evidence.conversationId !== label.conversationId || evidence.messageId !== label.messageId || evidence.quote !== label.quote ||
+        evidence.sourceTime !== message.sourceTime || checkEvidence(evidence, messages) !== "verified") return null;
+    return { label, start: evidence.start, end: evidence.end };
+  }
+  const at = message.text.indexOf(label.quote);
+  if (at < 0 || message.text.indexOf(label.quote, at + 1) >= 0) return null;
+  return { label, start: utf16ToCodePoint(message.text, at), end: utf16ToCodePoint(message.text, at + label.quote.length) };
+}
+
 function parseDataset(ds: EvalDataset): ParsedConversation[] {
   const inv = inventoryShard(ds.export, 0, ds.id, null);
   const selection = { conversationIds: null, from: null, to: null, includeUnknownDate: true, branchChoices: {} };
@@ -109,17 +133,16 @@ export function evaluate(ds: EvalDataset, ctx: Ctx): EvalReport {
   const messages = new Map<string, CanonicalMessage>();
   for (const c of conversations) for (const m of c.messages) messages.set(messageLookupKey(m.conversationId, m.messageId), m);
 
-  // Gold spans in code points (quote located in the canonical message text).
+  // V3 spans are pinned and verified; legacy editions require unique quotes.
   const gold: GoldSpan[] = [];
   const limitations: string[] = [];
   for (const label of ds.labels) {
-    const m = messages.get(messageLookupKey(label.conversationId, label.messageId));
-    const at = m ? m.text.indexOf(label.quote) : -1;
-    if (!m || at < 0) {
+    const span = resolveGoldSpan(label, messages);
+    if (!span) {
       limitations.push(`Gold label ${label.id} could not be located in the parsed source.`);
       continue;
     }
-    gold.push({ label, start: utf16ToCodePoint(m.text, at), end: utf16ToCodePoint(m.text, at + label.quote.length) });
+    gold.push(span);
   }
 
   const { candidates } = extractCandidates(conversations);
@@ -132,6 +155,7 @@ export function evaluate(ds: EvalDataset, ctx: Ctx): EvalReport {
       if (!l.supported || !isSlot(l.slot)) return;
       if (c.slot !== l.slot || c.polarity !== l.polarity || normalizeExact(c.value) !== normalizeExact(l.value)) return;
       if (c.evidence.conversationId !== l.conversationId || c.evidence.messageId !== l.messageId) return;
+      if (l.source && c.evidence.sourceDigest !== l.source.sourceDigest) return;
       const ov = overlap(c.evidence.start, c.evidence.end, g);
       if (ov >= 0.5) pairs.push({ g: gi, p, ov });
     });
@@ -244,9 +268,11 @@ export function evaluate(ds: EvalDataset, ctx: Ctx): EvalReport {
 
   limitations.push(
     `Synthetic fixture with ${ds.labels.length} labels in ${conversations.length} conversations: far too small for confidence intervals; treat numbers as smoke indicators.`,
-    "Labels and rules were written by the same agent, so the split is not independent. A later independent audit of at least 20% of labels is required.",
+    ds.provenance?.labelReview ?? "Legacy labels and rules were written by the same agent; see the manifest for independent-audit status.",
     "Retrieval benchmarks (and LoCoMo) cannot establish this extractor's quality; none are used.",
-    "Held-out split is contaminated: rules changed after the fixture froze at rules/1 (combining-mark support motivated by a held-out case; temporary-location and correction-tail fixes overlapping held-out eligibility items). Treat held-out numbers as dev-like until a fresh, unseen split is written.",
+    ds.provenance && ds.provenance.rulesAtFreeze === EXTRACTOR_VERSION && ds.provenance.parserAtFreeze === PARSER_VERSION
+      ? "This is a revised synthetic smoke split with frozen parser/rule versions. It is not an unseen benchmark; independent label review and quality acceptance are separate."
+      : "Legacy or version-mismatched split: do not claim held-out quality. See the manifest and edition history.",
     "Fact identity is counted corpus-wide (identical facts in different conversations count once); conflict groups are scored per conversation.",
     "Sensitivity misses for labels the extractor did not emit are judged on the gold quote's text classification, not on an extracted fact.",
   );

@@ -16,3 +16,16 @@ Packages P1–P7 of the promoted plan: bounded parser + evidence + canonical cod
 - Real ChatGPT exports, large-file memory/cancel behaviour, accessibility, auth recovery/redirect settings and hosting are unverified.
 
 Static checks used: syntax-only parse of `.ts` files (types stripped with Node's built-in, then `node --check`), plus manual/agent source review. `.tsx` files were source-reviewed only. This file does not claim any check passed beyond that.
+
+## 2026-10-28 — v3 synthetic label revision (owner t98u)
+
+V2 remains unchanged after independent reviewer 0094's RETURN. Active v3 adds
+the missing unsupported family/minor fact and explicit intimate relationship case,
+plus full pinned source evidence, code-point offsets and group reasons per label.
+Scorer resolution verifies those pins and refuses ambiguous legacy quotes. The
+manifest freezes current core bytes with rules/2 and chatgpt-json/1; no rules were
+tuned and no extractor scoring was run. Four isolated parser/evidence regression
+tests and static integrity checks passed. No app install/build, Vitest suite, SQL
+or browser validation was performed. Independent v3 review is pending. The old
+statements above about v2 pending audit are historical; its audit RETURN and v3
+lineage are recorded in the current manifest and fixture README.

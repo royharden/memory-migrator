@@ -1,12 +1,12 @@
 import { useState } from "react";
 import dev from "../../fixtures/synthetic/eval/dev.json";
-import heldout from "../../fixtures/synthetic/eval/heldout-v2.json";
+import heldout from "../../fixtures/synthetic/eval/heldout-v3.json";
 import manifest from "../../fixtures/synthetic/eval/manifest.json";
 import { evaluate, type Counts, type EvalDataset, type EvalReport } from "../../supabase/functions/_shared/mm/evaluation.ts";
 import { makeCtx } from "../state/actions.ts";
 
-const DATASETS: Record<"heldout" | "dev", { data: EvalDataset; file: "heldout-v2.json" | "dev.json" }> = {
-  heldout: { data: heldout as unknown as EvalDataset, file: "heldout-v2.json" },
+const DATASETS: Record<"heldout" | "dev", { data: EvalDataset; file: "heldout-v3.json" | "dev.json" }> = {
+  heldout: { data: heldout as unknown as EvalDataset, file: "heldout-v3.json" },
   dev: { data: dev as unknown as EvalDataset, file: "dev.json" },
 };
 
@@ -53,7 +53,7 @@ export function EvaluationPanel() {
     <section className="panel stack">
       <h2>Evaluation (synthetic)</h2>
       <p className="muted">
-        A small, wholly synthetic, hand-labelled fixture ({manifest.files["heldout-v2.json"].labels} held-out labels in {manifest.files["heldout-v2.json"].conversations} conversations, {manifest.files["heldout-v2.json"].eligibilitySentences} eligibility sentences). It is a smoke check, not a quality benchmark. The replacement split was authored after freezing the current rules, without running or tuning them. The old contaminated split is retained as regression material. An independent label audit is still pending.
+        A small, wholly synthetic, hand-labelled fixture ({manifest.files["heldout-v3.json"].labels} held-out labels in {manifest.files["heldout-v3.json"].conversations} conversations, {manifest.files["heldout-v3.json"].eligibilitySentences} eligibility sentences). It is a smoke check, not a quality benchmark. V3 revises the synthetic labels after an independent v2 audit. It adds the omitted family fact, relationship sensitivity and pinned source spans. Prior editions are retained; rules were not tuned. A separate v3 label audit is pending. This revision is not an unseen benchmark.
       </p>
       <div className="row-actions">
         <label><input type="radio" name="split" checked={split === "heldout"} onChange={() => { setSplit("heldout"); setReport(null); }} /> Held-out split</label>

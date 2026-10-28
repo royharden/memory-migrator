@@ -15,7 +15,7 @@ def sha(value):
 
 
 manifest = json.loads((HERE / "manifest.json").read_text(encoding="utf-8"))
-assert manifest["activeHeldoutFile"] == "heldout-v2.json"
+assert manifest["activeHeldoutFile"] == "heldout-v3.json"
 assert manifest["files"]["heldout.json"]["status"] == "contaminated-v1-regression-only"
 ids, texts = {}, {}
 for filename, meta in manifest["files"].items():
@@ -34,18 +34,32 @@ for filename, meta in manifest["files"].items():
         assert set(group["members"]) <= label_ids
     ids[filename] = {conv["id"] for conv in dataset["export"]}
     texts[filename] = set(messages.values()) | {row["text"] for row in dataset["eligibility"]}
-fresh = manifest["files"]["heldout-v2.json"]
+fresh = manifest["files"]["heldout-v3.json"]
+active = json.loads((HERE / manifest["activeHeldoutFile"]).read_text(encoding="utf-8"))
+assert hashlib.sha256((HERE / "heldout-v2.json").read_bytes()).hexdigest() == fresh["derivedFrom"]["rawSha256"]
+assert manifest["files"]["heldout-v2.json"]["labelAudit"]["status"] == "return"
+for label in active["labels"]:
+    assert label["eligible"] and label["durable"] and label["assertion"] == label["quote"]
+    evidence = label["source"]
+    assert evidence["conversationId"] == label["conversationId"] and evidence["messageId"] == label["messageId"]
+    assert evidence["quote"] == label["quote"] and evidence["role"] == "user"
+    assert evidence["end"] - evidence["start"] == len(label["quote"])
+    assert label["groupRationale"] and isinstance(label["groupIds"], list)
+for group in active["groups"]:
+    assert group["reason"]
+assert set(c for case in active["sensitivityCases"] for c in case["categories"]) == {"health", "finance", "belief", "intimate", "minors", "precise_location"}
+
 for prior in ("dev.json", "heldout.json"):
-    assert not ids[prior] & ids["heldout-v2.json"]
-    assert not texts[prior] & texts["heldout-v2.json"]
+    assert not ids[prior] & ids["heldout-v3.json"]
+    assert not texts[prior] & texts["heldout-v3.json"]
 assert fresh["eligibilitySentences"] >= 40
 assert fresh["labels"] + manifest["files"]["dev.json"]["labels"] >= 40
-sources = {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest() for name in fresh["coreSources"]}
+sources = {name: hashlib.sha256((ROOT / name).read_text(encoding="utf-8").encode("utf-8")).hexdigest() for name in fresh["coreSources"]}
 assert sources == fresh["coreSources"], "core bytes changed since freeze"
 assert sha(sources) == fresh["coreSourceSha256"]
 # what_bug_this_catches: rerunning an old/new generator must not replace a frozen edition.
 before = {p.name: p.read_bytes() for p in HERE.glob("*.json")}
-for script, args in (("gen_eval.py", [str(HERE)]), ("gen_heldout_v2.py", [])):
+for script, args in (("gen_eval.py", [str(HERE)]), ("gen_heldout_v2.py", []), ("gen_heldout_v3.py", [])):
     result = subprocess.run([sys.executable, "-I", str(HERE / script), *args], capture_output=True)
     assert result.returncode != 0 and b"Refusing" in result.stderr, script
 assert before == {p.name: p.read_bytes() for p in HERE.glob("*.json")}
