@@ -188,3 +188,33 @@ input, textarea {
   .banner { flex-direction: column; align-items: flex-start; }
   .top h1 { font-size: 2rem; }
 }
+
+/* --- S18-INT rebuild (2026-10-23): review desk --- */
+.mode-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }
+.mode-card { background: #fffaf3; border: 1px solid #d8c8ae; border-radius: 12px; padding: 1rem; }
+.tabs { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 1rem 0 0.5rem; }
+.tabs.small { margin: 0 0 0.5rem; }
+.tab { border-radius: 8px; }
+.tab.active { background: #243028; color: #f6f0e4; }
+.table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+.table th, .table td { text-align: left; padding: 0.35rem 0.4rem; border-bottom: 1px solid #e2d5bf; vertical-align: top; }
+.report { background: #fffaf3; border: 1px solid #d8c8ae; border-radius: 10px; padding: 0.8rem 1rem; }
+.fact { background: #fffaf3; border: 1px solid #d8c8ae; border-left: 4px solid #243028; border-radius: 10px; padding: 0.8rem 1rem; }
+.fact.sensitive { border-left-color: #8f3d24; }
+.fact.group { border-left-color: #b88a2e; }
+.fact-head { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: baseline; justify-content: space-between; }
+.badges { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.badge { font-size: 0.75rem; border: 1px solid #b9a88c; border-radius: 999px; padding: 0.05rem 0.5rem; background: #f6efe2; }
+.badge.warn { border-color: #8f3d24; color: #8f3d24; }
+.evidence { list-style: none; padding-left: 0; }
+.evidence blockquote, .report blockquote { margin: 0.3rem 0 0.6rem; padding: 0.4rem 0.7rem; border-left: 3px solid #b9a88c; background: #f6efe2; white-space: pre-wrap; overflow-wrap: anywhere; }
+mark { background: #f2d58a; }
+.dialog { border: 1px dashed #8f3d24; border-radius: 10px; padding: 0.7rem; margin: 0.5rem 0; background: #fff4ee; }
+.members { list-style: none; padding-left: 0; display: grid; gap: 0.4rem; }
+.receipt { background: #eef3ea; border: 1px solid #9fb59a; border-radius: 10px; padding: 0.6rem 1rem; margin: 0.5rem 0; }
+button.link { border: none; background: none; text-decoration: underline; padding: 0; }
+a.button { display: inline-block; border: 1px solid #241c14; border-radius: 999px; padding: 0.45rem 0.9rem; color: #241c14; background: #fffaf3; text-decoration: none; }
+textarea { width: 100%; }
+.events { font-family: ui-monospace, Consolas, monospace; font-size: 0.8rem; }
+:focus-visible { outline: 3px solid #b88a2e; outline-offset: 2px; }
+@media (max-width: 640px) { .table { font-size: 0.82rem; } }

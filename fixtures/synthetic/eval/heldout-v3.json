@@ -1,0 +1,1940 @@
+{
+ "id": "synthetic-eval-heldout-v3",
+ "split": "heldout",
+ "notes": "Wholly synthetic v3 revision of audited v2; not an unseen benchmark. Rules unchanged; no extractor run or tuning. Prior editions retained.",
+ "export": [
+  {
+   "id": "fresh-v2-1",
+   "title": "Synthetic replacement conversation 1",
+   "mapping": {
+    "node-1": {
+     "id": "node-1",
+     "parent": null,
+     "children": [
+      "node-2"
+     ],
+     "message": {
+      "id": "message-1",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1735776060,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "🧭 For the introduction: my name is Imani Okafor."
+       ]
+      }
+     }
+    },
+    "node-2": {
+     "id": "node-2",
+     "parent": "node-1",
+     "children": [
+      "node-3"
+     ],
+     "message": {
+      "id": "message-2",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1735776120,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "My home is in Bergen."
+       ]
+      }
+     }
+    },
+    "node-3": {
+     "id": "node-3",
+     "parent": "node-2",
+     "children": [
+      "node-4"
+     ],
+     "message": {
+      "id": "message-3",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1735776180,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I am a ceramic artist."
+       ]
+      }
+     }
+    },
+    "node-4": {
+     "id": "node-4",
+     "parent": "node-3",
+     "children": [
+      "node-5"
+     ],
+     "message": {
+      "id": "message-4",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1735776240,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "My employer is Fjord Workshop."
+       ]
+      }
+     }
+    },
+    "node-5": {
+     "id": "node-5",
+     "parent": "node-4",
+     "children": [
+      "node-6"
+     ],
+     "message": {
+      "id": "message-5",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1735776300,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I enjoy restoring old radios."
+       ]
+      }
+     }
+    },
+    "node-6": {
+     "id": "node-6",
+     "parent": "node-5",
+     "children": [
+      "node-7"
+     ],
+     "message": {
+      "id": "message-6",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1735776360,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I dislike licorice."
+       ]
+      }
+     }
+    },
+    "node-7": {
+     "id": "node-7",
+     "parent": "node-6",
+     "children": [],
+     "message": {
+      "id": "message-7",
+      "author": {
+       "role": "assistant"
+      },
+      "create_time": 1735776420,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "You live in Atlantis and work for Fiction Incorporated."
+       ]
+      }
+     }
+    }
+   },
+   "current_node": "node-7"
+  },
+  {
+   "id": "fresh-v2-2",
+   "title": "Synthetic replacement conversation 2",
+   "mapping": {
+    "node-1": {
+     "id": "node-1",
+     "parent": null,
+     "children": [
+      "node-2"
+     ],
+     "message": {
+      "id": "message-1",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1735862460,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I live in Wellington."
+       ]
+      }
+     }
+    },
+    "node-2": {
+     "id": "node-2",
+     "parent": "node-1",
+     "children": [
+      "node-3"
+     ],
+     "message": {
+      "id": "message-2",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1735862520,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I relocated to Dunedin this winter."
+       ]
+      }
+     }
+    },
+    "node-3": {
+     "id": "node-3",
+     "parent": "node-2",
+     "children": [
+      "node-4"
+     ],
+     "message": {
+      "id": "message-3",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1735862580,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I have a walnut allergy."
+       ]
+      }
+     }
+    },
+    "node-4": {
+     "id": "node-4",
+     "parent": "node-3",
+     "children": [
+      "node-5"
+     ],
+     "message": {
+      "id": "message-4",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1735862640,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "My salary is NZ$73,500."
+       ]
+      }
+     }
+    },
+    "node-5": {
+     "id": "node-5",
+     "parent": "node-4",
+     "children": [],
+     "message": {
+      "id": "message-5",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1735862700,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "If I moved to Reykjavik, I would need a warmer coat."
+       ]
+      }
+     }
+    }
+   },
+   "current_node": "node-5"
+  },
+  {
+   "id": "fresh-v2-3",
+   "title": "Synthetic replacement conversation 3",
+   "mapping": {
+    "node-1": {
+     "id": "node-1",
+     "parent": null,
+     "children": [
+      "node-2"
+     ],
+     "message": {
+      "id": "message-1",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1735948860,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I work at Lantern Books."
+       ]
+      }
+     }
+    },
+    "node-2": {
+     "id": "node-2",
+     "parent": "node-1",
+     "children": [
+      "node-3"
+     ],
+     "message": {
+      "id": "message-2",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1735948920,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I no longer work at Lantern Books."
+       ]
+      }
+     }
+    },
+    "node-3": {
+     "id": "node-3",
+     "parent": "node-2",
+     "children": [
+      "node-4"
+     ],
+     "message": {
+      "id": "message-3",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1735948980,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I work at Copper Finch now."
+       ]
+      }
+     }
+    },
+    "node-4": {
+     "id": "node-4",
+     "parent": "node-3",
+     "children": [
+      "node-5"
+     ],
+     "message": {
+      "id": "message-4",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1735949040,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I play the bassoon."
+       ]
+      }
+     }
+    },
+    "node-5": {
+     "id": "node-5",
+     "parent": "node-4",
+     "children": [],
+     "message": {
+      "id": "message-5",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1735949100,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "My sibling says they live in Tallinn."
+       ]
+      }
+     }
+    }
+   },
+   "current_node": "node-5"
+  },
+  {
+   "id": "fresh-v2-4",
+   "title": "Synthetic replacement conversation 4",
+   "mapping": {
+    "node-1": {
+     "id": "node-1",
+     "parent": null,
+     "children": [
+      "node-2"
+     ],
+     "message": {
+      "id": "message-1",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1736035260,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I like speed chess."
+       ]
+      }
+     }
+    },
+    "node-2": {
+     "id": "node-2",
+     "parent": "node-1",
+     "children": [
+      "node-3"
+     ],
+     "message": {
+      "id": "message-2",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1736035320,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I no longer like speed chess."
+       ]
+      }
+     }
+    },
+    "node-3": {
+     "id": "node-3",
+     "parent": "node-2",
+     "children": [
+      "node-4"
+     ],
+     "message": {
+      "id": "message-3",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1736035380,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I have chronic migraines."
+       ]
+      }
+     }
+    },
+    "node-4": {
+     "id": "node-4",
+     "parent": "node-3",
+     "children": [
+      "node-5"
+     ],
+     "message": {
+      "id": "message-4",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1736035440,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I live at 87 Example Lane."
+       ]
+      }
+     }
+    },
+    "node-5": {
+     "id": "node-5",
+     "parent": "node-4",
+     "children": [
+      "node-6"
+     ],
+     "message": {
+      "id": "message-5",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1736035500,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "My son is eleven years old."
+       ]
+      }
+     }
+    },
+    "node-6": {
+     "id": "node-6",
+     "parent": "node-5",
+     "children": [],
+     "message": {
+      "id": "message-6",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1736035560,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "Could my name be Noel?"
+       ]
+      }
+     }
+    }
+   },
+   "current_node": "node-6"
+  },
+  {
+   "id": "fresh-v2-5",
+   "title": "Synthetic replacement conversation 5",
+   "mapping": {
+    "node-1": {
+     "id": "node-1",
+     "parent": null,
+     "children": [
+      "node-2"
+     ],
+     "message": {
+      "id": "message-1",
+      "author": {
+       "role": "user"
+      },
+      "create_time": null,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I work as a meteorologist."
+       ]
+      }
+     }
+    },
+    "node-2": {
+     "id": "node-2",
+     "parent": "node-1",
+     "children": [
+      "node-3"
+     ],
+     "message": {
+      "id": "message-2",
+      "author": {
+       "role": "user"
+      },
+      "create_time": null,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I work as a cartographer."
+       ]
+      }
+     }
+    },
+    "node-3": {
+     "id": "node-3",
+     "parent": "node-2",
+     "children": [
+      "node-4"
+     ],
+     "message": {
+      "id": "message-3",
+      "author": {
+       "role": "user"
+      },
+      "create_time": null,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I live in Tartu."
+       ]
+      }
+     }
+    },
+    "node-4": {
+     "id": "node-4",
+     "parent": "node-3",
+     "children": [
+      "node-5"
+     ],
+     "message": {
+      "id": "message-4",
+      "author": {
+       "role": "user"
+      },
+      "create_time": null,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I live in Turku."
+       ]
+      }
+     }
+    },
+    "node-5": {
+     "id": "node-5",
+     "parent": "node-4",
+     "children": [
+      "node-6"
+     ],
+     "message": {
+      "id": "message-5",
+      "author": {
+       "role": "user"
+      },
+      "create_time": null,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I follow the Quaker faith."
+       ]
+      }
+     }
+    },
+    "node-6": {
+     "id": "node-6",
+     "parent": "node-5",
+     "children": [],
+     "message": {
+      "id": "message-6",
+      "author": {
+       "role": "user"
+      },
+      "create_time": null,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "Please remove the claim that I like speed chess."
+       ]
+      }
+     }
+    }
+   },
+   "current_node": "node-6"
+  },
+  {
+   "id": "fresh-v2-6",
+   "title": "Synthetic replacement conversation 6",
+   "mapping": {
+    "node-1": {
+     "id": "node-1",
+     "parent": null,
+     "children": [
+      "node-2"
+     ],
+     "message": {
+      "id": "message-1",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1736208060,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "My name is Leila Haddad."
+       ]
+      }
+     }
+    },
+    "node-2": {
+     "id": "node-2",
+     "parent": "node-1",
+     "children": [
+      "node-3"
+     ],
+     "message": {
+      "id": "message-2",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1736208120,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I love cyanotype printing."
+       ]
+      }
+     }
+    },
+    "node-3": {
+     "id": "node-3",
+     "parent": "node-2",
+     "children": [
+      "node-4"
+     ],
+     "message": {
+      "id": "message-3",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1736208180,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I hate traffic noise."
+       ]
+      }
+     }
+    },
+    "node-4": {
+     "id": "node-4",
+     "parent": "node-3",
+     "children": [
+      "node-5"
+     ],
+     "message": {
+      "id": "message-4",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1736208240,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I earn EUR 64,200 annually."
+       ]
+      }
+     }
+    },
+    "node-5": {
+     "id": "node-5",
+     "parent": "node-4",
+     "children": [
+      "node-6"
+     ],
+     "message": {
+      "id": "message-5",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1736208300,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I speak Welsh."
+       ]
+      }
+     }
+    },
+    "node-6": {
+     "id": "node-6",
+     "parent": "node-5",
+     "children": [
+      "node-7"
+     ],
+     "message": {
+      "id": "message-6",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1736208360,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "In my short story, a character says: I live in Fairytale City."
+       ]
+      }
+     }
+    },
+    "node-7": {
+     "id": "node-7",
+     "parent": "node-6",
+     "children": [],
+     "message": {
+      "id": "message-7",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1736208420,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I am married to Morgan Vale."
+       ]
+      }
+     }
+    }
+   },
+   "current_node": "node-7"
+  }
+ ],
+ "labels": [
+  {
+   "id": "fresh-v2-1-label-1",
+   "conversationId": "fresh-v2-1",
+   "messageId": "message-1",
+   "quote": "my name is Imani Okafor",
+   "slot": "identity.name",
+   "value": "Imani Okafor",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": [],
+   "source": {
+    "sourceDigest": "7e887bc683ff87602b5257a97d0576e073a17c433ad7b4a5a7ab0a9c4210594f",
+    "conversationId": "fresh-v2-1",
+    "messageId": "message-1",
+    "role": "user",
+    "textSha256": "df7489d357ab0a612526afd3c4f63282141acb401f8a74667d363e394f2a87f9",
+    "start": 24,
+    "end": 47,
+    "quote": "my name is Imani Okafor",
+    "quoteSha256": "ee276a4b74410aeee15eff07a642d8356f6dbeea36194dbf6a87769c9445a370",
+    "parserVersion": "chatgpt-json/1",
+    "sourceTime": "2025-01-02T00:01:00Z"
+   },
+   "assertion": "my name is Imani Okafor",
+   "eligible": true,
+   "durable": true,
+   "groupIds": [],
+   "groupRationale": "No competing or retracted assertion for this labelled fact within this conversation; no conflict group expected."
+  },
+  {
+   "id": "fresh-v2-1-label-2",
+   "conversationId": "fresh-v2-1",
+   "messageId": "message-2",
+   "quote": "My home is in Bergen",
+   "slot": "location.home",
+   "value": "Bergen",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": [],
+   "source": {
+    "sourceDigest": "7e887bc683ff87602b5257a97d0576e073a17c433ad7b4a5a7ab0a9c4210594f",
+    "conversationId": "fresh-v2-1",
+    "messageId": "message-2",
+    "role": "user",
+    "textSha256": "d443269f7949f78dfb489a2ea9f0991d273d7b8adc5987b5c4e204439fd4e028",
+    "start": 0,
+    "end": 20,
+    "quote": "My home is in Bergen",
+    "quoteSha256": "6e468004644e300e6ebd861bafbaa5286ff69bba05135603d9491f25e9436f75",
+    "parserVersion": "chatgpt-json/1",
+    "sourceTime": "2025-01-02T00:02:00Z"
+   },
+   "assertion": "My home is in Bergen",
+   "eligible": true,
+   "durable": true,
+   "groupIds": [],
+   "groupRationale": "No competing or retracted assertion for this labelled fact within this conversation; no conflict group expected."
+  },
+  {
+   "id": "fresh-v2-1-label-3",
+   "conversationId": "fresh-v2-1",
+   "messageId": "message-3",
+   "quote": "I am a ceramic artist",
+   "slot": "work.role",
+   "value": "ceramic artist",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": [],
+   "source": {
+    "sourceDigest": "7e887bc683ff87602b5257a97d0576e073a17c433ad7b4a5a7ab0a9c4210594f",
+    "conversationId": "fresh-v2-1",
+    "messageId": "message-3",
+    "role": "user",
+    "textSha256": "0dd89394dea7d831d07fe5604c3beb58fc00b0e1582b5ab340e3c3262415f8d0",
+    "start": 0,
+    "end": 21,
+    "quote": "I am a ceramic artist",
+    "quoteSha256": "d78a8dc724cf936b6154eab836d9d3e95912809cbeaf4d11964930adc5a8d539",
+    "parserVersion": "chatgpt-json/1",
+    "sourceTime": "2025-01-02T00:03:00Z"
+   },
+   "assertion": "I am a ceramic artist",
+   "eligible": true,
+   "durable": true,
+   "groupIds": [],
+   "groupRationale": "No competing or retracted assertion for this labelled fact within this conversation; no conflict group expected."
+  },
+  {
+   "id": "fresh-v2-1-label-4",
+   "conversationId": "fresh-v2-1",
+   "messageId": "message-4",
+   "quote": "My employer is Fjord Workshop",
+   "slot": "work.employer",
+   "value": "Fjord Workshop",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": [],
+   "source": {
+    "sourceDigest": "7e887bc683ff87602b5257a97d0576e073a17c433ad7b4a5a7ab0a9c4210594f",
+    "conversationId": "fresh-v2-1",
+    "messageId": "message-4",
+    "role": "user",
+    "textSha256": "ce512e20514fcefab49dc7fcf7aac6ec57a236c8284e02c6b17f4536bae4c416",
+    "start": 0,
+    "end": 29,
+    "quote": "My employer is Fjord Workshop",
+    "quoteSha256": "f578f0950805633abc612cb23c059a2311c2d238e254c1ab6712eb9546b77376",
+    "parserVersion": "chatgpt-json/1",
+    "sourceTime": "2025-01-02T00:04:00Z"
+   },
+   "assertion": "My employer is Fjord Workshop",
+   "eligible": true,
+   "durable": true,
+   "groupIds": [],
+   "groupRationale": "No competing or retracted assertion for this labelled fact within this conversation; no conflict group expected."
+  },
+  {
+   "id": "fresh-v2-1-label-5",
+   "conversationId": "fresh-v2-1",
+   "messageId": "message-5",
+   "quote": "I enjoy restoring old radios",
+   "slot": "preference.likes",
+   "value": "restoring old radios",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": [],
+   "source": {
+    "sourceDigest": "7e887bc683ff87602b5257a97d0576e073a17c433ad7b4a5a7ab0a9c4210594f",
+    "conversationId": "fresh-v2-1",
+    "messageId": "message-5",
+    "role": "user",
+    "textSha256": "80632987c0bcc2cb9a6a29b225eb3ba668b0df6e42ca42c487ad96bdc38de14b",
+    "start": 0,
+    "end": 28,
+    "quote": "I enjoy restoring old radios",
+    "quoteSha256": "2305e784ff822266158462b1967518fd157ddb813ed6344f24b297b5b616a391",
+    "parserVersion": "chatgpt-json/1",
+    "sourceTime": "2025-01-02T00:05:00Z"
+   },
+   "assertion": "I enjoy restoring old radios",
+   "eligible": true,
+   "durable": true,
+   "groupIds": [],
+   "groupRationale": "No competing or retracted assertion for this labelled fact within this conversation; no conflict group expected."
+  },
+  {
+   "id": "fresh-v2-1-label-6",
+   "conversationId": "fresh-v2-1",
+   "messageId": "message-6",
+   "quote": "I dislike licorice",
+   "slot": "preference.dislikes",
+   "value": "licorice",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": [],
+   "source": {
+    "sourceDigest": "7e887bc683ff87602b5257a97d0576e073a17c433ad7b4a5a7ab0a9c4210594f",
+    "conversationId": "fresh-v2-1",
+    "messageId": "message-6",
+    "role": "user",
+    "textSha256": "b820f5c5e11203e2620e24c6cce97ea231ed2175abcf4c044b31245cd59a0526",
+    "start": 0,
+    "end": 18,
+    "quote": "I dislike licorice",
+    "quoteSha256": "136a54d5efb11775da6f9a2bfc931782f5e77aa88e3690c28abeb3d2c06cc061",
+    "parserVersion": "chatgpt-json/1",
+    "sourceTime": "2025-01-02T00:06:00Z"
+   },
+   "assertion": "I dislike licorice",
+   "eligible": true,
+   "durable": true,
+   "groupIds": [],
+   "groupRationale": "No competing or retracted assertion for this labelled fact within this conversation; no conflict group expected."
+  },
+  {
+   "id": "fresh-v2-2-label-7",
+   "conversationId": "fresh-v2-2",
+   "messageId": "message-1",
+   "quote": "I live in Wellington",
+   "slot": "location.home",
+   "value": "Wellington",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": [],
+   "source": {
+    "sourceDigest": "b1acccd4bc8099c3dd7f399b11ffea0e3c92f0f7b0face9e9974c0dbd92db554",
+    "conversationId": "fresh-v2-2",
+    "messageId": "message-1",
+    "role": "user",
+    "textSha256": "aecfce2c6a9a376640e3aa0bfb3af96832355742b92dada135eb063050e107a8",
+    "start": 0,
+    "end": 20,
+    "quote": "I live in Wellington",
+    "quoteSha256": "0e9a0b034f28fff290e1ac4ed19d5d0a71031a8d52c1b4efbca77dc7a88706a4",
+    "parserVersion": "chatgpt-json/1",
+    "sourceTime": "2025-01-03T00:01:00Z"
+   },
+   "assertion": "I live in Wellington",
+   "eligible": true,
+   "durable": true,
+   "groupIds": [
+    "fresh-v2-group-1"
+   ],
+   "groupRationale": "Residence changed from Wellington to Dunedin; the explicit relocation suggests changed circumstances, subject to user confirmation."
+  },
+  {
+   "id": "fresh-v2-2-label-8",
+   "conversationId": "fresh-v2-2",
+   "messageId": "message-2",
+   "quote": "I relocated to Dunedin",
+   "slot": "location.home",
+   "value": "Dunedin",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": [],
+   "source": {
+    "sourceDigest": "b1acccd4bc8099c3dd7f399b11ffea0e3c92f0f7b0face9e9974c0dbd92db554",
+    "conversationId": "fresh-v2-2",
+    "messageId": "message-2",
+    "role": "user",
+    "textSha256": "f5ccb646a0935b022c62a57eda757be58e4c0bbe20882631381c4088388c04b8",
+    "start": 0,
+    "end": 22,
+    "quote": "I relocated to Dunedin",
+    "quoteSha256": "563823a748035b7083a63f912cfe308a5a0eda99dace8b9f5d2cbfbb32b90542",
+    "parserVersion": "chatgpt-json/1",
+    "sourceTime": "2025-01-03T00:02:00Z"
+   },
+   "assertion": "I relocated to Dunedin",
+   "eligible": true,
+   "durable": true,
+   "groupIds": [
+    "fresh-v2-group-1"
+   ],
+   "groupRationale": "Residence changed from Wellington to Dunedin; the explicit relocation suggests changed circumstances, subject to user confirmation."
+  },
+  {
+   "id": "fresh-v2-2-label-9",
+   "conversationId": "fresh-v2-2",
+   "messageId": "message-3",
+   "quote": "I have a walnut allergy",
+   "slot": "health.note",
+   "value": "walnut allergy",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": [
+    "health"
+   ],
+   "source": {
+    "sourceDigest": "b1acccd4bc8099c3dd7f399b11ffea0e3c92f0f7b0face9e9974c0dbd92db554",
+    "conversationId": "fresh-v2-2",
+    "messageId": "message-3",
+    "role": "user",
+    "textSha256": "f218258d245b127d5635815bf6ec9c033ed98ba45c8bf093849024f56882d409",
+    "start": 0,
+    "end": 23,
+    "quote": "I have a walnut allergy",
+    "quoteSha256": "8a14141f94a79beedba9c5dfdd4268f003d2ff85962231f8727f95e4bf8bcb45",
+    "parserVersion": "chatgpt-json/1",
+    "sourceTime": "2025-01-03T00:03:00Z"
+   },
+   "assertion": "I have a walnut allergy",
+   "eligible": true,
+   "durable": true,
+   "groupIds": [],
+   "groupRationale": "No competing or retracted assertion for this labelled fact within this conversation; no conflict group expected."
+  },
+  {
+   "id": "fresh-v2-2-label-10",
+   "conversationId": "fresh-v2-2",
+   "messageId": "message-4",
+   "quote": "My salary is NZ$73,500",
+   "slot": "financial.note",
+   "value": "NZ$73,500",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": [
+    "finance"
+   ],
+   "source": {
+    "sourceDigest": "b1acccd4bc8099c3dd7f399b11ffea0e3c92f0f7b0face9e9974c0dbd92db554",
+    "conversationId": "fresh-v2-2",
+    "messageId": "message-4",
+    "role": "user",
+    "textSha256": "715ebed3873a27a4c2b1126378b3df83b4d84a4ad84f8b24d948e7ec7159556d",
+    "start": 0,
+    "end": 22,
+    "quote": "My salary is NZ$73,500",
+    "quoteSha256": "281350afd65d2a88e39f16eaffbcc53cd147b0dd395182625861143e75c96a8f",
+    "parserVersion": "chatgpt-json/1",
+    "sourceTime": "2025-01-03T00:04:00Z"
+   },
+   "assertion": "My salary is NZ$73,500",
+   "eligible": true,
+   "durable": true,
+   "groupIds": [],
+   "groupRationale": "No competing or retracted assertion for this labelled fact within this conversation; no conflict group expected."
+  },
+  {
+   "id": "fresh-v2-3-label-11",
+   "conversationId": "fresh-v2-3",
+   "messageId": "message-1",
+   "quote": "I work at Lantern Books",
+   "slot": "work.employer",
+   "value": "Lantern Books",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": [],
+   "source": {
+    "sourceDigest": "ba3c1f001e62efa2a4a2c26f32fa24f79d14176bc98c9750ed7123075767ddeb",
+    "conversationId": "fresh-v2-3",
+    "messageId": "message-1",
+    "role": "user",
+    "textSha256": "ea7caedaccac7cfe73c75dd3495d08f96f5dfcd53d4461c054ca74ed831931a7",
+    "start": 0,
+    "end": 23,
+    "quote": "I work at Lantern Books",
+    "quoteSha256": "875e2fc930af490be19433d506facf37f42dacb05da3394c558c9dc42b6fda79",
+    "parserVersion": "chatgpt-json/1",
+    "sourceTime": "2025-01-04T00:01:00Z"
+   },
+   "assertion": "I work at Lantern Books",
+   "eligible": true,
+   "durable": true,
+   "groupIds": [
+    "fresh-v2-group-2"
+   ],
+   "groupRationale": "Lantern Books is asserted then denied and Copper Finch asserted; retain the employment history/retraction relationship for review."
+  },
+  {
+   "id": "fresh-v2-3-label-12",
+   "conversationId": "fresh-v2-3",
+   "messageId": "message-2",
+   "quote": "I no longer work at Lantern Books",
+   "slot": "work.employer",
+   "value": "Lantern Books",
+   "polarity": "deny",
+   "supported": true,
+   "sensitivity": [],
+   "source": {
+    "sourceDigest": "ba3c1f001e62efa2a4a2c26f32fa24f79d14176bc98c9750ed7123075767ddeb",
+    "conversationId": "fresh-v2-3",
+    "messageId": "message-2",
+    "role": "user",
+    "textSha256": "9b5c3464217092e1a7ecfd2684cb55bfab4232134af7b0e44837e9da5556c2dc",
+    "start": 0,
+    "end": 33,
+    "quote": "I no longer work at Lantern Books",
+    "quoteSha256": "1d343a2298c93910f912841db86c09f82832f71eaabe99a38dcb5d6f86150c59",
+    "parserVersion": "chatgpt-json/1",
+    "sourceTime": "2025-01-04T00:02:00Z"
+   },
+   "assertion": "I no longer work at Lantern Books",
+   "eligible": true,
+   "durable": true,
+   "groupIds": [
+    "fresh-v2-group-2"
+   ],
+   "groupRationale": "Lantern Books is asserted then denied and Copper Finch asserted; retain the employment history/retraction relationship for review."
+  },
+  {
+   "id": "fresh-v2-3-label-13",
+   "conversationId": "fresh-v2-3",
+   "messageId": "message-3",
+   "quote": "I work at Copper Finch",
+   "slot": "work.employer",
+   "value": "Copper Finch",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": [],
+   "source": {
+    "sourceDigest": "ba3c1f001e62efa2a4a2c26f32fa24f79d14176bc98c9750ed7123075767ddeb",
+    "conversationId": "fresh-v2-3",
+    "messageId": "message-3",
+    "role": "user",
+    "textSha256": "7f1cfe6636b15e5720b241bb20eb1cd097b988581e6f80560d0c57d551f325dc",
+    "start": 0,
+    "end": 22,
+    "quote": "I work at Copper Finch",
+    "quoteSha256": "0f2a05ce09eb854cc1ec6c48eee2191de7a9b6a047e22f02a42fbe03d95d0534",
+    "parserVersion": "chatgpt-json/1",
+    "sourceTime": "2025-01-04T00:03:00Z"
+   },
+   "assertion": "I work at Copper Finch",
+   "eligible": true,
+   "durable": true,
+   "groupIds": [
+    "fresh-v2-group-2"
+   ],
+   "groupRationale": "Lantern Books is asserted then denied and Copper Finch asserted; retain the employment history/retraction relationship for review."
+  },
+  {
+   "id": "fresh-v2-3-label-14",
+   "conversationId": "fresh-v2-3",
+   "messageId": "message-4",
+   "quote": "I play the bassoon",
+   "slot": "other.hobby",
+   "value": "plays bassoon",
+   "polarity": "assert",
+   "supported": false,
+   "sensitivity": [],
+   "source": {
+    "sourceDigest": "ba3c1f001e62efa2a4a2c26f32fa24f79d14176bc98c9750ed7123075767ddeb",
+    "conversationId": "fresh-v2-3",
+    "messageId": "message-4",
+    "role": "user",
+    "textSha256": "777ea848675ba8e942b99640219b9ff207c309ff29575274b26be7046e241025",
+    "start": 0,
+    "end": 18,
+    "quote": "I play the bassoon",
+    "quoteSha256": "76a3e7e293567c4b9f14a564bb2d36666abdd39fcb9d8f3365520c6250a646ff",
+    "parserVersion": "chatgpt-json/1",
+    "sourceTime": "2025-01-04T00:04:00Z"
+   },
+   "assertion": "I play the bassoon",
+   "eligible": true,
+   "durable": true,
+   "groupIds": [],
+   "groupRationale": "No competing or retracted assertion for this labelled fact within this conversation; no conflict group expected."
+  },
+  {
+   "id": "fresh-v2-4-label-15",
+   "conversationId": "fresh-v2-4",
+   "messageId": "message-1",
+   "quote": "I like speed chess",
+   "slot": "preference.likes",
+   "value": "speed chess",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": [],
+   "source": {
+    "sourceDigest": "78dd54c0b8e838bcade0fbb3f104e26416173d7877599d1f4592ca34246c7c5e",
+    "conversationId": "fresh-v2-4",
+    "messageId": "message-1",
+    "role": "user",
+    "textSha256": "8b78cbb668eba0b332e7fb40846f2d69819b3114f699d6d87746fc7360920616",
+    "start": 0,
+    "end": 18,
+    "quote": "I like speed chess",
+    "quoteSha256": "008b40b6a517b500efd2fcf57227ceec4127c08636e815d49f9df52021962019",
+    "parserVersion": "chatgpt-json/1",
+    "sourceTime": "2025-01-05T00:01:00Z"
+   },
+   "assertion": "I like speed chess",
+   "eligible": true,
+   "durable": true,
+   "groupIds": [
+    "fresh-v2-group-3"
+   ],
+   "groupRationale": "The same speed-chess preference is asserted and then denied; this is a preference retraction requiring review."
+  },
+  {
+   "id": "fresh-v2-4-label-16",
+   "conversationId": "fresh-v2-4",
+   "messageId": "message-2",
+   "quote": "I no longer like speed chess",
+   "slot": "preference.likes",
+   "value": "speed chess",
+   "polarity": "deny",
+   "supported": true,
+   "sensitivity": [],
+   "source": {
+    "sourceDigest": "78dd54c0b8e838bcade0fbb3f104e26416173d7877599d1f4592ca34246c7c5e",
+    "conversationId": "fresh-v2-4",
+    "messageId": "message-2",
+    "role": "user",
+    "textSha256": "d90f02339d47658f6ea174d88ea2268b668dd0898c2d591fce4fd54d0b17d28c",
+    "start": 0,
+    "end": 28,
+    "quote": "I no longer like speed chess",
+    "quoteSha256": "4288c6dcdb4217efc26f17018947118a7c2c4923bea1b516c6c9e017c3eb9e19",
+    "parserVersion": "chatgpt-json/1",
+    "sourceTime": "2025-01-05T00:02:00Z"
+   },
+   "assertion": "I no longer like speed chess",
+   "eligible": true,
+   "durable": true,
+   "groupIds": [
+    "fresh-v2-group-3"
+   ],
+   "groupRationale": "The same speed-chess preference is asserted and then denied; this is a preference retraction requiring review."
+  },
+  {
+   "id": "fresh-v2-4-label-17",
+   "conversationId": "fresh-v2-4",
+   "messageId": "message-3",
+   "quote": "I have chronic migraines",
+   "slot": "health.note",
+   "value": "chronic migraines",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": [
+    "health"
+   ],
+   "source": {
+    "sourceDigest": "78dd54c0b8e838bcade0fbb3f104e26416173d7877599d1f4592ca34246c7c5e",
+    "conversationId": "fresh-v2-4",
+    "messageId": "message-3",
+    "role": "user",
+    "textSha256": "489b9c24cc2464dab9999cf8dca276cdaa47cf4adf6e748564e75c4e9365fd92",
+    "start": 0,
+    "end": 24,
+    "quote": "I have chronic migraines",
+    "quoteSha256": "a9a02e07c3fa1cc8c7897355d5baca877cb7447f3b407348d8c8852710688248",
+    "parserVersion": "chatgpt-json/1",
+    "sourceTime": "2025-01-05T00:03:00Z"
+   },
+   "assertion": "I have chronic migraines",
+   "eligible": true,
+   "durable": true,
+   "groupIds": [],
+   "groupRationale": "No competing or retracted assertion for this labelled fact within this conversation; no conflict group expected."
+  },
+  {
+   "id": "fresh-v2-4-label-18",
+   "conversationId": "fresh-v2-4",
+   "messageId": "message-4",
+   "quote": "I live at 87 Example Lane",
+   "slot": "location.home",
+   "value": "87 Example Lane",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": [
+    "precise_location"
+   ],
+   "source": {
+    "sourceDigest": "78dd54c0b8e838bcade0fbb3f104e26416173d7877599d1f4592ca34246c7c5e",
+    "conversationId": "fresh-v2-4",
+    "messageId": "message-4",
+    "role": "user",
+    "textSha256": "db581db509ed2281984ec589881eefdb9cdcf8131612d5faa86187d3600f64de",
+    "start": 0,
+    "end": 25,
+    "quote": "I live at 87 Example Lane",
+    "quoteSha256": "e8afde4221e8a44e23acdd998805b59793d094f6f544a9deedbb0fd6c655f823",
+    "parserVersion": "chatgpt-json/1",
+    "sourceTime": "2025-01-05T00:04:00Z"
+   },
+   "assertion": "I live at 87 Example Lane",
+   "eligible": true,
+   "durable": true,
+   "groupIds": [],
+   "groupRationale": "No competing or retracted assertion for this labelled fact within this conversation; no conflict group expected."
+  },
+  {
+   "id": "fresh-v2-5-label-19",
+   "conversationId": "fresh-v2-5",
+   "messageId": "message-1",
+   "quote": "I work as a meteorologist",
+   "slot": "work.role",
+   "value": "meteorologist",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": [],
+   "source": {
+    "sourceDigest": "afba05a111519cc24ccce3e8b081c155f590834833f1775874524bffa96c9d82",
+    "conversationId": "fresh-v2-5",
+    "messageId": "message-1",
+    "role": "user",
+    "textSha256": "7ef16704b070c783ef737e5a6f1c8dd48abb85e62fbf317ffce23543f38ff1db",
+    "start": 0,
+    "end": 25,
+    "quote": "I work as a meteorologist",
+    "quoteSha256": "3687c080d24fe45a930fadcbf9211b90be4f85adb8fc9732fde05db46f8aac72",
+    "parserVersion": "chatgpt-json/1",
+    "sourceTime": null
+   },
+   "assertion": "I work as a meteorologist",
+   "eligible": true,
+   "durable": true,
+   "groupIds": [
+    "fresh-v2-group-4"
+   ],
+   "groupRationale": "Two incompatible roles have unknown source times; keep the group unresolved rather than assuming chronology."
+  },
+  {
+   "id": "fresh-v2-5-label-20",
+   "conversationId": "fresh-v2-5",
+   "messageId": "message-2",
+   "quote": "I work as a cartographer",
+   "slot": "work.role",
+   "value": "cartographer",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": [],
+   "source": {
+    "sourceDigest": "afba05a111519cc24ccce3e8b081c155f590834833f1775874524bffa96c9d82",
+    "conversationId": "fresh-v2-5",
+    "messageId": "message-2",
+    "role": "user",
+    "textSha256": "909cc7143c85d17f3833e07ff16d15cd4856bdb507b241e2266b3b93462c0f7a",
+    "start": 0,
+    "end": 24,
+    "quote": "I work as a cartographer",
+    "quoteSha256": "091ce1671ad7409c11f19a8a26e352e65136560821c63907894636a7623215d2",
+    "parserVersion": "chatgpt-json/1",
+    "sourceTime": null
+   },
+   "assertion": "I work as a cartographer",
+   "eligible": true,
+   "durable": true,
+   "groupIds": [
+    "fresh-v2-group-4"
+   ],
+   "groupRationale": "Two incompatible roles have unknown source times; keep the group unresolved rather than assuming chronology."
+  },
+  {
+   "id": "fresh-v2-5-label-21",
+   "conversationId": "fresh-v2-5",
+   "messageId": "message-3",
+   "quote": "I live in Tartu",
+   "slot": "location.home",
+   "value": "Tartu",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": [],
+   "source": {
+    "sourceDigest": "afba05a111519cc24ccce3e8b081c155f590834833f1775874524bffa96c9d82",
+    "conversationId": "fresh-v2-5",
+    "messageId": "message-3",
+    "role": "user",
+    "textSha256": "3ac7d4a808e98216abe776f41a79438fb15a07f12fa72dad9cbf634323d38312",
+    "start": 0,
+    "end": 15,
+    "quote": "I live in Tartu",
+    "quoteSha256": "a8b579636749d65fac7cc5a8d1ea813b3090fec06cbf185483f23eb7d8407c13",
+    "parserVersion": "chatgpt-json/1",
+    "sourceTime": null
+   },
+   "assertion": "I live in Tartu",
+   "eligible": true,
+   "durable": true,
+   "groupIds": [
+    "fresh-v2-group-5"
+   ],
+   "groupRationale": "Two incompatible home locations have unknown source times; keep the group unresolved rather than assuming chronology."
+  },
+  {
+   "id": "fresh-v2-5-label-22",
+   "conversationId": "fresh-v2-5",
+   "messageId": "message-4",
+   "quote": "I live in Turku",
+   "slot": "location.home",
+   "value": "Turku",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": [],
+   "source": {
+    "sourceDigest": "afba05a111519cc24ccce3e8b081c155f590834833f1775874524bffa96c9d82",
+    "conversationId": "fresh-v2-5",
+    "messageId": "message-4",
+    "role": "user",
+    "textSha256": "a0ae6770bb22e17dd07b81fe5c28d0597c017971786c25b3d3e03ff029300edf",
+    "start": 0,
+    "end": 15,
+    "quote": "I live in Turku",
+    "quoteSha256": "73f2d2897e70061b0a19045d5ddf43c491bc1b5d6e3edb7ef1cd89ed3d0fc4a2",
+    "parserVersion": "chatgpt-json/1",
+    "sourceTime": null
+   },
+   "assertion": "I live in Turku",
+   "eligible": true,
+   "durable": true,
+   "groupIds": [
+    "fresh-v2-group-5"
+   ],
+   "groupRationale": "Two incompatible home locations have unknown source times; keep the group unresolved rather than assuming chronology."
+  },
+  {
+   "id": "fresh-v2-5-label-23",
+   "conversationId": "fresh-v2-5",
+   "messageId": "message-5",
+   "quote": "I follow the Quaker faith",
+   "slot": "other.belief",
+   "value": "Quaker",
+   "polarity": "assert",
+   "supported": false,
+   "sensitivity": [
+    "belief"
+   ],
+   "source": {
+    "sourceDigest": "afba05a111519cc24ccce3e8b081c155f590834833f1775874524bffa96c9d82",
+    "conversationId": "fresh-v2-5",
+    "messageId": "message-5",
+    "role": "user",
+    "textSha256": "2aaee1bcf6533bc7f1719e4f41f739fee56dacdd60f2d2a3815cf40e32bd4a45",
+    "start": 0,
+    "end": 25,
+    "quote": "I follow the Quaker faith",
+    "quoteSha256": "72fcf3c40e8c835bdbe7728496ef89ee01b7bb1cb3eeece125d2eb1d652807ed",
+    "parserVersion": "chatgpt-json/1",
+    "sourceTime": null
+   },
+   "assertion": "I follow the Quaker faith",
+   "eligible": true,
+   "durable": true,
+   "groupIds": [],
+   "groupRationale": "No competing or retracted assertion for this labelled fact within this conversation; no conflict group expected."
+  },
+  {
+   "id": "fresh-v2-6-label-24",
+   "conversationId": "fresh-v2-6",
+   "messageId": "message-1",
+   "quote": "My name is Leila Haddad",
+   "slot": "identity.name",
+   "value": "Leila Haddad",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": [],
+   "source": {
+    "sourceDigest": "76d6409a9694e9668a8a0bf78d4c1fdc3e27239c7374dc9cd4a25d7d038469c0",
+    "conversationId": "fresh-v2-6",
+    "messageId": "message-1",
+    "role": "user",
+    "textSha256": "c9db82ee32d570afa4a04c0a5dc85f096a0c7db46b5cd752cac2d5d8176cb67b",
+    "start": 0,
+    "end": 23,
+    "quote": "My name is Leila Haddad",
+    "quoteSha256": "e0b096de3c0514a1d467502c3086a4331c7f9dba287ffdebafe0a88990b7097a",
+    "parserVersion": "chatgpt-json/1",
+    "sourceTime": "2025-01-07T00:01:00Z"
+   },
+   "assertion": "My name is Leila Haddad",
+   "eligible": true,
+   "durable": true,
+   "groupIds": [],
+   "groupRationale": "No competing or retracted assertion for this labelled fact within this conversation; no conflict group expected."
+  },
+  {
+   "id": "fresh-v2-6-label-25",
+   "conversationId": "fresh-v2-6",
+   "messageId": "message-2",
+   "quote": "I love cyanotype printing",
+   "slot": "preference.likes",
+   "value": "cyanotype printing",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": [],
+   "source": {
+    "sourceDigest": "76d6409a9694e9668a8a0bf78d4c1fdc3e27239c7374dc9cd4a25d7d038469c0",
+    "conversationId": "fresh-v2-6",
+    "messageId": "message-2",
+    "role": "user",
+    "textSha256": "3005325da5d3d2999a77808f7c1bcd18932a9a4ed9941b40da6775a2149652a4",
+    "start": 0,
+    "end": 25,
+    "quote": "I love cyanotype printing",
+    "quoteSha256": "d99cefb8bac24095086001d486aee9f19ce5c865751556786dde83e9a1b3a9fa",
+    "parserVersion": "chatgpt-json/1",
+    "sourceTime": "2025-01-07T00:02:00Z"
+   },
+   "assertion": "I love cyanotype printing",
+   "eligible": true,
+   "durable": true,
+   "groupIds": [],
+   "groupRationale": "No competing or retracted assertion for this labelled fact within this conversation; no conflict group expected."
+  },
+  {
+   "id": "fresh-v2-6-label-26",
+   "conversationId": "fresh-v2-6",
+   "messageId": "message-3",
+   "quote": "I hate traffic noise",
+   "slot": "preference.dislikes",
+   "value": "traffic noise",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": [],
+   "source": {
+    "sourceDigest": "76d6409a9694e9668a8a0bf78d4c1fdc3e27239c7374dc9cd4a25d7d038469c0",
+    "conversationId": "fresh-v2-6",
+    "messageId": "message-3",
+    "role": "user",
+    "textSha256": "151736ade50e97acb7249961459e921bc58bac0a53adabaa848c08251486f694",
+    "start": 0,
+    "end": 20,
+    "quote": "I hate traffic noise",
+    "quoteSha256": "a7eb0380f8567bf430dd103696e7db48eb7a6955216c03c3894c581304a107e9",
+    "parserVersion": "chatgpt-json/1",
+    "sourceTime": "2025-01-07T00:03:00Z"
+   },
+   "assertion": "I hate traffic noise",
+   "eligible": true,
+   "durable": true,
+   "groupIds": [],
+   "groupRationale": "No competing or retracted assertion for this labelled fact within this conversation; no conflict group expected."
+  },
+  {
+   "id": "fresh-v2-6-label-27",
+   "conversationId": "fresh-v2-6",
+   "messageId": "message-4",
+   "quote": "I earn EUR 64,200 annually",
+   "slot": "financial.note",
+   "value": "EUR 64,200 annually",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": [
+    "finance"
+   ],
+   "source": {
+    "sourceDigest": "76d6409a9694e9668a8a0bf78d4c1fdc3e27239c7374dc9cd4a25d7d038469c0",
+    "conversationId": "fresh-v2-6",
+    "messageId": "message-4",
+    "role": "user",
+    "textSha256": "d0ad766761fe5b65dde4dc478e124ad5f700c44b53a5498c922f1c7ba0a681e3",
+    "start": 0,
+    "end": 26,
+    "quote": "I earn EUR 64,200 annually",
+    "quoteSha256": "25cafa084093e5dbd72f0958cd4b930007fb8bbf168ce500e8826225c606078a",
+    "parserVersion": "chatgpt-json/1",
+    "sourceTime": "2025-01-07T00:04:00Z"
+   },
+   "assertion": "I earn EUR 64,200 annually",
+   "eligible": true,
+   "durable": true,
+   "groupIds": [],
+   "groupRationale": "No competing or retracted assertion for this labelled fact within this conversation; no conflict group expected."
+  },
+  {
+   "id": "fresh-v2-6-label-28",
+   "conversationId": "fresh-v2-6",
+   "messageId": "message-5",
+   "quote": "I speak Welsh",
+   "slot": "other.language",
+   "value": "Welsh",
+   "polarity": "assert",
+   "supported": false,
+   "sensitivity": [],
+   "source": {
+    "sourceDigest": "76d6409a9694e9668a8a0bf78d4c1fdc3e27239c7374dc9cd4a25d7d038469c0",
+    "conversationId": "fresh-v2-6",
+    "messageId": "message-5",
+    "role": "user",
+    "textSha256": "32ad3de9bae2e97a4fe7624bc832a51525d522c29e473b928073aa52bbb2751f",
+    "start": 0,
+    "end": 13,
+    "quote": "I speak Welsh",
+    "quoteSha256": "b300254b7bd34740c1f7f3c0e1db594d6d986c6c7abaf3c82287a7d604b14a88",
+    "parserVersion": "chatgpt-json/1",
+    "sourceTime": "2025-01-07T00:05:00Z"
+   },
+   "assertion": "I speak Welsh",
+   "eligible": true,
+   "durable": true,
+   "groupIds": [],
+   "groupRationale": "No competing or retracted assertion for this labelled fact within this conversation; no conflict group expected."
+  },
+  {
+   "id": "fresh-v3-family-label-29",
+   "conversationId": "fresh-v2-4",
+   "messageId": "message-5",
+   "quote": "My son is eleven years old",
+   "slot": "other.family",
+   "value": "son aged eleven",
+   "polarity": "assert",
+   "supported": false,
+   "sensitivity": [
+    "minors"
+   ],
+   "source": {
+    "sourceDigest": "78dd54c0b8e838bcade0fbb3f104e26416173d7877599d1f4592ca34246c7c5e",
+    "conversationId": "fresh-v2-4",
+    "messageId": "message-5",
+    "role": "user",
+    "textSha256": "09978bdee719bf39b59d5bf307488a7c15d92b7e7372db87a4559ac447354f43",
+    "start": 0,
+    "end": 26,
+    "quote": "My son is eleven years old",
+    "quoteSha256": "638daa4acadd91b4df8bc495e1f5d3b3090d0e9095b8accbcd0e3666396eda9c",
+    "parserVersion": "chatgpt-json/1",
+    "sourceTime": "2025-01-05T00:05:00Z"
+   },
+   "assertion": "My son is eleven years old",
+   "eligible": true,
+   "durable": true,
+   "groupIds": [],
+   "groupRationale": "No competing or retracted assertion for this labelled fact within this conversation; no conflict group expected."
+  },
+  {
+   "id": "fresh-v3-relationship-label-30",
+   "conversationId": "fresh-v2-6",
+   "messageId": "message-7",
+   "quote": "I am married to Morgan Vale",
+   "slot": "other.relationship",
+   "value": "married to Morgan Vale",
+   "polarity": "assert",
+   "supported": false,
+   "sensitivity": [
+    "intimate"
+   ],
+   "source": {
+    "sourceDigest": "76d6409a9694e9668a8a0bf78d4c1fdc3e27239c7374dc9cd4a25d7d038469c0",
+    "conversationId": "fresh-v2-6",
+    "messageId": "message-7",
+    "role": "user",
+    "textSha256": "5190240146b523ada48423e4d340190598c5d083b8b90b497ac720f4de262ec8",
+    "start": 0,
+    "end": 27,
+    "quote": "I am married to Morgan Vale",
+    "quoteSha256": "102b94f61434f02d4029a1d1c368866b22e0cfc2523510d795c7c6d12e0462e6",
+    "parserVersion": "chatgpt-json/1",
+    "sourceTime": "2025-01-07T00:07:00Z"
+   },
+   "assertion": "I am married to Morgan Vale",
+   "eligible": true,
+   "durable": true,
+   "groupIds": [],
+   "groupRationale": "No competing or retracted assertion for this labelled fact within this conversation; no conflict group expected."
+  }
+ ],
+ "groups": [
+  {
+   "id": "fresh-v2-group-1",
+   "slot": "location.home",
+   "members": [
+    "fresh-v2-2-label-7",
+    "fresh-v2-2-label-8"
+   ],
+   "reason": "Residence changed from Wellington to Dunedin; the explicit relocation suggests changed circumstances, subject to user confirmation."
+  },
+  {
+   "id": "fresh-v2-group-2",
+   "slot": "work.employer",
+   "members": [
+    "fresh-v2-3-label-11",
+    "fresh-v2-3-label-12",
+    "fresh-v2-3-label-13"
+   ],
+   "reason": "Lantern Books is asserted then denied and Copper Finch asserted; retain the employment history/retraction relationship for review."
+  },
+  {
+   "id": "fresh-v2-group-3",
+   "slot": "preference.likes",
+   "members": [
+    "fresh-v2-4-label-15",
+    "fresh-v2-4-label-16"
+   ],
+   "reason": "The same speed-chess preference is asserted and then denied; this is a preference retraction requiring review."
+  },
+  {
+   "id": "fresh-v2-group-4",
+   "slot": "work.role",
+   "members": [
+    "fresh-v2-5-label-19",
+    "fresh-v2-5-label-20"
+   ],
+   "reason": "Two incompatible roles have unknown source times; keep the group unresolved rather than assuming chronology."
+  },
+  {
+   "id": "fresh-v2-group-5",
+   "slot": "location.home",
+   "members": [
+    "fresh-v2-5-label-21",
+    "fresh-v2-5-label-22"
+   ],
+   "reason": "Two incompatible home locations have unknown source times; keep the group unresolved rather than assuming chronology."
+  }
+ ],
+ "sensitivityCases": [
+  {
+   "conversationId": "fresh-v2-2",
+   "messageId": "message-3",
+   "categories": [
+    "health"
+   ]
+  },
+  {
+   "conversationId": "fresh-v2-2",
+   "messageId": "message-4",
+   "categories": [
+    "finance"
+   ]
+  },
+  {
+   "conversationId": "fresh-v2-4",
+   "messageId": "message-3",
+   "categories": [
+    "health"
+   ]
+  },
+  {
+   "conversationId": "fresh-v2-4",
+   "messageId": "message-4",
+   "categories": [
+    "precise_location"
+   ]
+  },
+  {
+   "conversationId": "fresh-v2-4",
+   "messageId": "message-5",
+   "categories": [
+    "minors"
+   ]
+  },
+  {
+   "conversationId": "fresh-v2-5",
+   "messageId": "message-5",
+   "categories": [
+    "belief"
+   ]
+  },
+  {
+   "conversationId": "fresh-v2-6",
+   "messageId": "message-4",
+   "categories": [
+    "finance"
+   ]
+  },
+  {
+   "conversationId": "fresh-v2-6",
+   "messageId": "message-7",
+   "categories": [
+    "intimate"
+   ]
+  }
+ ],
+ "eligibility": [
+  {
+   "text": "I live in Uppsala.",
+   "eligible": true
+  },
+  {
+   "text": "My home is in Gdansk.",
+   "eligible": true
+  },
+  {
+   "text": "I relocated to Hobart.",
+   "eligible": true
+  },
+  {
+   "text": "My name is Soren.",
+   "eligible": true
+  },
+  {
+   "text": "I am a locksmith.",
+   "eligible": true
+  },
+  {
+   "text": "My employer is Paper Kite Labs.",
+   "eligible": true
+  },
+  {
+   "text": "I enjoy astronomy.",
+   "eligible": true
+  },
+  {
+   "text": "I dislike pickles.",
+   "eligible": true
+  },
+  {
+   "text": "I have a nickel allergy.",
+   "eligible": true
+  },
+  {
+   "text": "My income is CAD 48,000.",
+   "eligible": true
+  },
+  {
+   "text": "I no longer live in Split.",
+   "eligible": true
+  },
+  {
+   "text": "I used to work at Kite Works.",
+   "eligible": true
+  },
+  {
+   "text": "I do not like drum solos.",
+   "eligible": true
+  },
+  {
+   "text": "I work as a botanist.",
+   "eligible": true
+  },
+  {
+   "text": "I love making kites.",
+   "eligible": true
+  },
+  {
+   "text": "I have asthma.",
+   "eligible": true
+  },
+  {
+   "text": "I play badminton.",
+   "eligible": true
+  },
+  {
+   "text": "I speak Tagalog.",
+   "eligible": true
+  },
+  {
+   "text": "I keep a tortoise.",
+   "eligible": true
+  },
+  {
+   "text": "I am left handed.",
+   "eligible": true
+  },
+  {
+   "text": "If I lived in Busan I would learn Korean.",
+   "eligible": false
+  },
+  {
+   "text": "Do I live in Busan?",
+   "eligible": false
+  },
+  {
+   "text": "What if I were a carpenter?",
+   "eligible": false
+  },
+  {
+   "text": "My cousin lives in Quito.",
+   "eligible": false
+  },
+  {
+   "text": "She thinks I enjoy astronomy.",
+   "eligible": false
+  },
+  {
+   "text": "My colleague said I am a locksmith.",
+   "eligible": false
+  },
+  {
+   "text": "The sample sentence is \"I live in Siena\".",
+   "eligible": false
+  },
+  {
+   "text": "I am in Ljubljana for a conference.",
+   "eligible": false
+  },
+  {
+   "text": "I live in Bruges just for this holiday.",
+   "eligible": false
+  },
+  {
+   "text": "Pretend my name is Captain Comet.",
+   "eligible": false
+  },
+  {
+   "text": "For this roleplay, I work at Cloud Castle.",
+   "eligible": false
+  },
+  {
+   "text": "Please forget that I love making kites.",
+   "eligible": false
+  },
+  {
+   "text": "    I live in Indented Code City",
+   "eligible": false
+  },
+  {
+   "text": "Would I enjoy fencing?",
+   "eligible": false
+  },
+  {
+   "text": "Imagine that I hate mustard.",
+   "eligible": false
+  },
+  {
+   "text": "Maybe I will live in Riga.",
+   "eligible": false
+  },
+  {
+   "text": "They claimed I work as a pilot.",
+   "eligible": false
+  },
+  {
+   "text": "I might become a baker someday.",
+   "eligible": false
+  },
+  {
+   "text": "Suppose my employer were Moon Station.",
+   "eligible": false
+  },
+  {
+   "text": "The meeting starts at noon.",
+   "eligible": false
+  }
+ ],
+ "provenance": {
+  "rulesAtFreeze": "rules/2",
+  "parserAtFreeze": "chatgpt-json/1",
+  "labelReview": "V3 addresses independent v2 audit findings; a separate independent v3 audit is required. No extraction quality claim."
+ }
+}

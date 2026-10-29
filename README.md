@@ -1,51 +1,46 @@
 # Portable memory migrator
 
-A review desk that turns a ChatGPT export into a portable profile. Each fact keeps the conversation id, message id, and the exact quote it came from. You confirm, edit, or delete before anything is exported.
+Turn selected ChatGPT conversations into a profile **you reviewed yourself**: every exported statement carries your approval and an exact quote (code-point offsets + hashes) from one of your own messages. Quotes prove the words occurred — not that they are true.
 
-This repository was built in Dirty Mode. The parser, extractor, conflict rules, and labelled score have been traced by hand. They have not been executed. `npm install` has not been run, and there is no lockfile yet.
+> **Status: Dirty Mode construction, 2026-10-23/24. Nothing in this repository has been installed, built, run or tested.** Source was written and statically reviewed only. See `DEVELOPMENT-STATUS.md` for exactly what is built and what has not run.
 
-## What you can do
+## What it does (as built in source)
 
-1. Load `conversations.json` or sharded `conversations-NNN.json` (unzip the ChatGPT export first). Or load the built-in synthetic sample.
-2. Extract explicit self-statements: name, residence, move, job, employer, likes, dislikes, an allergy note, and a salary note. Assistant, system, tool, hidden, and inactive-branch messages are not mined.
-3. Review old-versus-new conflicts. An explicit move supersedes the older row and keeps it. Any other clash waits for keep newer, keep older, or keep both.
-4. Health, intimate, and financial hits stay out of the export until you confirm them.
-5. Edit or delete. Delete writes a tombstone. A later extract does not bring that fact back.
-6. Download Markdown, a pasteable prompt of confirmed facts, and a JSON bundle. Tombstones win over a fact with the same id. The bundle is not a MacPaw `.mem` file.
-7. Read the hand-labelled precision, recall, and provenance invariant for the synthetic fixture.
+- **Local mode** (default): everything stays in the tab's memory; no sign-in, no network. Load `conversations.json` (or up to 10 JSON shards, 10 MiB each / 100 MiB total) or the built-in synthetic demo. ZIP is not supported — unzip first.
+- Bounded parsing in a Web Worker: active branch only (`current_node` → parents; never guessed), skipped/unsupported counts, saved-context "carriers" counted but **never imported**, cancel, Clear source.
+- Conservative rules over eight slots (name, home, role, employer, likes, dislikes, health note, financial note) with eligibility filters (questions, hypotheticals, quotes, third parties, code, temporary places, personas, forget requests).
+- Review: pending queue, full-state conflict groups (keep one / keep several with scope note / reject all), edits as user-authored revisions, sensitivity confirmation, erase (purges text) / hide, monotonic suppression, explicit restore, bounded Undo import, receipts.
+- One export rule drives Markdown, a budgeted paste prompt, `profile.v1.json` (canonical bytes + SHA-256 checksum, strict re-import with preview/apply) and named versions with diff/redaction.
+- **Account mode** (opt-in, after explicit consent): private persistence in a Supabase-compatible Postgres (Bolt Database) through SECURITY DEFINER RPCs only; uploads contain candidates, quote spans, IDs, hashes and decisions — never raw files, full messages, assistant text or custom instructions.
+- Evaluation tab: runs a small synthetic held-out fixture in the browser and shows raw counts. **No quality figures are claimed.**
 
-The source kind is always mined history. ChatGPT's saved-memory field is not read, because that blob is not reliably present in the export.
+Large-file performance is unverified. Retrieval benchmarks are not used to claim quality.
 
-## Local demo and saved profile
-
-Without `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`, choose **Use local demo**. The desk runs in the tab and is discarded on refresh. It does not pretend a database is connected.
-
-With those public values, sign in. Extraction calls the `propose-facts` function, which re-derives facts from the stored messages. The function rejects a missing user session. It does not accept a list of facts from the browser.
-
-LLM mode is optional and off the demo path. It runs only when both `MEMORY_EXTRACT_API_KEY` and `MEMORY_EXTRACT_URL` are set as function secrets. If either is missing, the function returns an error and does not invent facts. Those names must not use a `VITE_` prefix.
-
-## Scripts
-
-From this directory, after a later install:
+## Develop (not yet executed)
 
 ```bash
-npm install
-npm test
-npm run typecheck
+npm install        # no lockfile yet; keep the generated one
+npm run typecheck && npm run typecheck:tests
+npm run test:mm    # authoritative: the new pipeline tests (constructed, never run)
+npm test           # also runs the legacy Grok-era tests in tests/*.test.ts (kept, not maintained)
 npm run dev
-npm run build
 ```
 
-None of those commands were run for this build.
+Public env for account mode only: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`. No server or provider secrets are needed. Never put a service-role key in a `VITE_` variable.
 
 ## Layout
 
-- `supabase/functions/_shared/` is the pure pipeline shared by the app and the tests.
-- `supabase/functions/propose-facts/index.ts` is the HTTP shell.
-- `supabase/migrations/20261023180000_init.sql` is the Bolt Database migration.
-- `src/fixtures/labelled-set.json` is the hand-labelled synthetic chat.
-- `BOLT-HANDOFF.md` is the provisioning inventory.
+| Path | Role |
+|---|---|
+| `supabase/functions/_shared/mm/` | Pure pipeline: limits, unicode, sha256, canonical codec, parser, evidence, rules, sensitivity, groups, reducer, lifecycle, exporting, portable, versions, evaluation |
+| `src/` | App, Workspace and panels, import worker, account adapter (`src/lib/account.ts`) |
+| `supabase/migrations/20261023230000_profile_v1.sql` | Forward-only schema, owner-read RLS, RPCs (not applied) |
+| `schemas/profile.v1.schema.json` | Portable file schema |
+| `fixtures/synthetic/` | Demo export and the frozen dev/held-out evaluation fixtures (+ generators) |
+| `tests/mm/` | Focused behavioural tests (not run) |
 
-## Limits
+Legacy files from the first (Grok) pass — `supabase/functions/_shared/*.ts` outside `mm/`, `src/lib/remote.ts`, `src/components/{Desk,EvalPanel,AuthGate}.tsx`, `tests/*.test.ts`, `supabase/migrations/20261023180000_init.sql` and the disconnected `supabase/functions/propose-facts/` — are kept unchanged and are **not used** by the app. Do not deploy `propose-facts`.
 
-The rules engine only sees the patterns listed above. It will miss paraphrases. One export is capped at 2000 messages and 20,000 characters each. LLM mode, if configured later, caps a call at 30 messages and one request. Zip uploads, Claude exports, account erasure, and `.mem` conformance are not in this version.
+## License
+
+MIT (see `LICENSE`). Prior-art projects were used for ideas only; no code was copied.

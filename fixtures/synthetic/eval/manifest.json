@@ -1,0 +1,109 @@
+{
+ "fixtureVersion": 3,
+ "frozen": "2026-10-28",
+ "rulesAtFreeze": "rules/2",
+ "parserAtFreeze": "chatgpt-json/1",
+ "files": {
+  "dev.json": {
+   "labelSha256": "423fd849ff87b8133b5c99290424567f1fd40db23a2d214f9d377ac34afbfa4b",
+   "conversations": 5,
+   "labels": 24,
+   "supportedLabels": 22,
+   "eligibilitySentences": 10,
+   "rulesAtFreeze": "rules/1"
+  },
+  "heldout.json": {
+   "labelSha256": "406e07bde47ca82d81af166cc413bcb3a72f514a1ec45ad0420db6eba1efc01d",
+   "conversations": 5,
+   "labels": 22,
+   "supportedLabels": 21,
+   "eligibilitySentences": 40,
+   "status": "contaminated-v1-regression-only",
+   "rulesAtFreeze": "rules/1"
+  },
+  "heldout-v2.json": {
+   "labelSha256": "9b0b7567876751b59ec6be578eb3ff31a37cd61591cac334ca32138742418e27",
+   "conversations": 6,
+   "labels": 28,
+   "supportedLabels": 25,
+   "eligibilitySentences": 40,
+   "status": "retained-v2-independent-audit-return",
+   "rulesAtFreeze": "rules/2",
+   "coreSourceSha256": "56972ce20e8245f83ccb5c8c1773f59b9f9114b6f180c3df57c933bf300364ff",
+   "coreSources": {
+    "supabase/functions/_shared/mm/canonical.ts": "b935ac2389f9637b7062182e285c5d80a9b584a1cd12ea3a5c8e703ff4f7fe0e",
+    "supabase/functions/_shared/mm/evaluation.ts": "4b61e704f0f8eb2a4b49df53e22d3c4f3639ec10ef36630d09c4c6e97df4800a",
+    "supabase/functions/_shared/mm/evidence.ts": "b43103b8373e2036e3bdad4a4ca5bc65f29f1b32d8aafe26a12f9da68589a92f",
+    "supabase/functions/_shared/mm/exporting.ts": "359f072f9f62e831e80699656a02d343c0dada0e233ea81639fbaf1dfa19d3b8",
+    "supabase/functions/_shared/mm/groups.ts": "78206357c3c9030882a4fed2277d7889660fc047b8bcbbdf4b26ce95f43ee594",
+    "supabase/functions/_shared/mm/lifecycle.ts": "09e928e444c8f04f925579f71b4f321aba424dd928758aa73f72dde07ca4cef3",
+    "supabase/functions/_shared/mm/limits.ts": "f18bfeacf12c8151b28bdc4e4bdb61dbe6afdc58e9c58e54fa553af783952349",
+    "supabase/functions/_shared/mm/model.ts": "39221a997755c6a816104fc2d72fa0c2ae22d4b77f15230e3156c37675d79972",
+    "supabase/functions/_shared/mm/parser.ts": "e78cfe8c58036ca2bc88eac19acdf37601de59166ba17004a12c712477cb163b",
+    "supabase/functions/_shared/mm/portable.ts": "3172881d7671d802dbecb57a851d8739e7d8d76ac06e1f6d22aede5bde7c5cef",
+    "supabase/functions/_shared/mm/reducer.ts": "65ba47296ed9109733e2e698769605a9e1fe1bc3d2506945b69065771fa3e653",
+    "supabase/functions/_shared/mm/rules.ts": "550979ab8be90ae5d2c23b03c7e70c915234bd703247d681772ac97be5a72c1b",
+    "supabase/functions/_shared/mm/sensitivity.ts": "1dbe043190b06b3f5dc73af942ef62e6ec371bad684e64701fec736359984c24",
+    "supabase/functions/_shared/mm/sha256.ts": "85f198e2d5717bad040137ffaa16284658b418ea2fef8be00a8a39333791794b",
+    "supabase/functions/_shared/mm/source.ts": "d35cee090d9b183fdf17243fbe163e2d9f41ee0c6b6aa7f7b9efb84272bc54d9",
+    "supabase/functions/_shared/mm/unicode.ts": "697a0eacf96f43a3a30eb8439145a1be992b729fb9836d39f358ad3e582f920f",
+    "supabase/functions/_shared/mm/versions.ts": "73f60630ab8fb371061819fc9a2e2616c3326289229e401aba7fe61a3c4c7303"
+   },
+   "labelAudit": {
+    "status": "return",
+    "reviewer": "0094_Codex_GPT-61-Terra_Sub_BinSorter",
+    "fraction": 1.0
+   }
+  },
+  "heldout-v3.json": {
+   "labelSha256": "7560eb92a57c5ca3781ae22af5ba8021651aa243d341301a49902e8784479314",
+   "conversations": 6,
+   "labels": 30,
+   "supportedLabels": 25,
+   "eligibilitySentences": 40,
+   "status": "frozen-v3-independent-audit-return",
+   "frozen": "2026-10-28",
+   "rulesAtFreeze": "rules/2",
+   "parserAtFreeze": "chatgpt-json/1",
+   "coreSourceHashEncoding": "UTF-8 text normalized to LF",
+   "coreSourceSha256": "7e946c497b097ff56898ae445ad350c805065ebf8be0a50068ca8bd83b404afd",
+   "coreSources": {
+    "supabase/functions/_shared/mm/canonical.ts": "b935ac2389f9637b7062182e285c5d80a9b584a1cd12ea3a5c8e703ff4f7fe0e",
+    "supabase/functions/_shared/mm/evaluation.ts": "a938272fd7c59889d489c9c7a3cadfb619f59c7b3954a1678e71d92573af523c",
+    "supabase/functions/_shared/mm/evidence.ts": "b43103b8373e2036e3bdad4a4ca5bc65f29f1b32d8aafe26a12f9da68589a92f",
+    "supabase/functions/_shared/mm/exporting.ts": "359f072f9f62e831e80699656a02d343c0dada0e233ea81639fbaf1dfa19d3b8",
+    "supabase/functions/_shared/mm/groups.ts": "78206357c3c9030882a4fed2277d7889660fc047b8bcbbdf4b26ce95f43ee594",
+    "supabase/functions/_shared/mm/lifecycle.ts": "09e928e444c8f04f925579f71b4f321aba424dd928758aa73f72dde07ca4cef3",
+    "supabase/functions/_shared/mm/limits.ts": "f18bfeacf12c8151b28bdc4e4bdb61dbe6afdc58e9c58e54fa553af783952349",
+    "supabase/functions/_shared/mm/model.ts": "39221a997755c6a816104fc2d72fa0c2ae22d4b77f15230e3156c37675d79972",
+    "supabase/functions/_shared/mm/parser.ts": "e78cfe8c58036ca2bc88eac19acdf37601de59166ba17004a12c712477cb163b",
+    "supabase/functions/_shared/mm/portable.ts": "3172881d7671d802dbecb57a851d8739e7d8d76ac06e1f6d22aede5bde7c5cef",
+    "supabase/functions/_shared/mm/reducer.ts": "65ba47296ed9109733e2e698769605a9e1fe1bc3d2506945b69065771fa3e653",
+    "supabase/functions/_shared/mm/rules.ts": "550979ab8be90ae5d2c23b03c7e70c915234bd703247d681772ac97be5a72c1b",
+    "supabase/functions/_shared/mm/sensitivity.ts": "1dbe043190b06b3f5dc73af942ef62e6ec371bad684e64701fec736359984c24",
+    "supabase/functions/_shared/mm/sha256.ts": "85f198e2d5717bad040137ffaa16284658b418ea2fef8be00a8a39333791794b",
+    "supabase/functions/_shared/mm/source.ts": "d35cee090d9b183fdf17243fbe163e2d9f41ee0c6b6aa7f7b9efb84272bc54d9",
+    "supabase/functions/_shared/mm/unicode.ts": "697a0eacf96f43a3a30eb8439145a1be992b729fb9836d39f358ad3e582f920f",
+    "supabase/functions/_shared/mm/versions.ts": "73f60630ab8fb371061819fc9a2e2616c3326289229e401aba7fe61a3c4c7303"
+   },
+   "derivedFrom": {
+    "file": "heldout-v2.json",
+    "rawSha256": "9bf97ed1da27f82f5132d5d44a5628ae58cbf5dc4de9b75089e1e673a499a378",
+    "labelSha256": "9b0b7567876751b59ec6be578eb3ff31a37cd61591cac334ca32138742418e27"
+   },
+   "labelAudit": {
+    "status": "return",
+    "reviewer": "0094_Codex_GPT-61-Terra_Sub_BinSorter",
+    "fraction": 1.0,
+    "reviewedCommit": "b5553839cc1bd0bacce2694af8d521053cd33412",
+    "labels": "three prior label findings addressed",
+    "openIssues": [
+     "invalid gold pins reduce denominators instead of refusing scoring",
+     "missing v3 source pins fall back to legacy quote lookup"
+    ]
+   }
+  }
+ },
+ "notes": "labelSha256 = SHA-256 of the canonical JSON (sorted keys, no whitespace, UTF-8) of each dataset object.",
+ "activeHeldoutFile": "heldout-v3.json"
+}

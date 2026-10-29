@@ -1,0 +1,1315 @@
+{
+ "id": "synthetic-eval-heldout-v2",
+ "split": "heldout",
+ "notes": "Wholly synthetic replacement authored after core freeze, without running or tuning the extractor. Independent label audit pending. Not a quality benchmark.",
+ "export": [
+  {
+   "id": "fresh-v2-1",
+   "title": "Synthetic replacement conversation 1",
+   "mapping": {
+    "node-1": {
+     "id": "node-1",
+     "parent": null,
+     "children": [
+      "node-2"
+     ],
+     "message": {
+      "id": "message-1",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1735776060,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "For the introduction: my name is Imani Okafor."
+       ]
+      }
+     }
+    },
+    "node-2": {
+     "id": "node-2",
+     "parent": "node-1",
+     "children": [
+      "node-3"
+     ],
+     "message": {
+      "id": "message-2",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1735776120,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "My home is in Bergen."
+       ]
+      }
+     }
+    },
+    "node-3": {
+     "id": "node-3",
+     "parent": "node-2",
+     "children": [
+      "node-4"
+     ],
+     "message": {
+      "id": "message-3",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1735776180,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I am a ceramic artist."
+       ]
+      }
+     }
+    },
+    "node-4": {
+     "id": "node-4",
+     "parent": "node-3",
+     "children": [
+      "node-5"
+     ],
+     "message": {
+      "id": "message-4",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1735776240,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "My employer is Fjord Workshop."
+       ]
+      }
+     }
+    },
+    "node-5": {
+     "id": "node-5",
+     "parent": "node-4",
+     "children": [
+      "node-6"
+     ],
+     "message": {
+      "id": "message-5",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1735776300,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I enjoy restoring old radios."
+       ]
+      }
+     }
+    },
+    "node-6": {
+     "id": "node-6",
+     "parent": "node-5",
+     "children": [
+      "node-7"
+     ],
+     "message": {
+      "id": "message-6",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1735776360,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I dislike licorice."
+       ]
+      }
+     }
+    },
+    "node-7": {
+     "id": "node-7",
+     "parent": "node-6",
+     "children": [],
+     "message": {
+      "id": "message-7",
+      "author": {
+       "role": "assistant"
+      },
+      "create_time": 1735776420,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "You live in Atlantis and work for Fiction Incorporated."
+       ]
+      }
+     }
+    }
+   },
+   "current_node": "node-7"
+  },
+  {
+   "id": "fresh-v2-2",
+   "title": "Synthetic replacement conversation 2",
+   "mapping": {
+    "node-1": {
+     "id": "node-1",
+     "parent": null,
+     "children": [
+      "node-2"
+     ],
+     "message": {
+      "id": "message-1",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1735862460,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I live in Wellington."
+       ]
+      }
+     }
+    },
+    "node-2": {
+     "id": "node-2",
+     "parent": "node-1",
+     "children": [
+      "node-3"
+     ],
+     "message": {
+      "id": "message-2",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1735862520,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I relocated to Dunedin this winter."
+       ]
+      }
+     }
+    },
+    "node-3": {
+     "id": "node-3",
+     "parent": "node-2",
+     "children": [
+      "node-4"
+     ],
+     "message": {
+      "id": "message-3",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1735862580,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I have a walnut allergy."
+       ]
+      }
+     }
+    },
+    "node-4": {
+     "id": "node-4",
+     "parent": "node-3",
+     "children": [
+      "node-5"
+     ],
+     "message": {
+      "id": "message-4",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1735862640,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "My salary is NZ$73,500."
+       ]
+      }
+     }
+    },
+    "node-5": {
+     "id": "node-5",
+     "parent": "node-4",
+     "children": [],
+     "message": {
+      "id": "message-5",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1735862700,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "If I moved to Reykjavik, I would need a warmer coat."
+       ]
+      }
+     }
+    }
+   },
+   "current_node": "node-5"
+  },
+  {
+   "id": "fresh-v2-3",
+   "title": "Synthetic replacement conversation 3",
+   "mapping": {
+    "node-1": {
+     "id": "node-1",
+     "parent": null,
+     "children": [
+      "node-2"
+     ],
+     "message": {
+      "id": "message-1",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1735948860,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I work at Lantern Books."
+       ]
+      }
+     }
+    },
+    "node-2": {
+     "id": "node-2",
+     "parent": "node-1",
+     "children": [
+      "node-3"
+     ],
+     "message": {
+      "id": "message-2",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1735948920,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I no longer work at Lantern Books."
+       ]
+      }
+     }
+    },
+    "node-3": {
+     "id": "node-3",
+     "parent": "node-2",
+     "children": [
+      "node-4"
+     ],
+     "message": {
+      "id": "message-3",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1735948980,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I work at Copper Finch now."
+       ]
+      }
+     }
+    },
+    "node-4": {
+     "id": "node-4",
+     "parent": "node-3",
+     "children": [
+      "node-5"
+     ],
+     "message": {
+      "id": "message-4",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1735949040,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I play the bassoon."
+       ]
+      }
+     }
+    },
+    "node-5": {
+     "id": "node-5",
+     "parent": "node-4",
+     "children": [],
+     "message": {
+      "id": "message-5",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1735949100,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "My sibling says they live in Tallinn."
+       ]
+      }
+     }
+    }
+   },
+   "current_node": "node-5"
+  },
+  {
+   "id": "fresh-v2-4",
+   "title": "Synthetic replacement conversation 4",
+   "mapping": {
+    "node-1": {
+     "id": "node-1",
+     "parent": null,
+     "children": [
+      "node-2"
+     ],
+     "message": {
+      "id": "message-1",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1736035260,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I like speed chess."
+       ]
+      }
+     }
+    },
+    "node-2": {
+     "id": "node-2",
+     "parent": "node-1",
+     "children": [
+      "node-3"
+     ],
+     "message": {
+      "id": "message-2",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1736035320,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I no longer like speed chess."
+       ]
+      }
+     }
+    },
+    "node-3": {
+     "id": "node-3",
+     "parent": "node-2",
+     "children": [
+      "node-4"
+     ],
+     "message": {
+      "id": "message-3",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1736035380,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I have chronic migraines."
+       ]
+      }
+     }
+    },
+    "node-4": {
+     "id": "node-4",
+     "parent": "node-3",
+     "children": [
+      "node-5"
+     ],
+     "message": {
+      "id": "message-4",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1736035440,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I live at 87 Example Lane."
+       ]
+      }
+     }
+    },
+    "node-5": {
+     "id": "node-5",
+     "parent": "node-4",
+     "children": [
+      "node-6"
+     ],
+     "message": {
+      "id": "message-5",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1736035500,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "My son is eleven years old."
+       ]
+      }
+     }
+    },
+    "node-6": {
+     "id": "node-6",
+     "parent": "node-5",
+     "children": [],
+     "message": {
+      "id": "message-6",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1736035560,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "Could my name be Noel?"
+       ]
+      }
+     }
+    }
+   },
+   "current_node": "node-6"
+  },
+  {
+   "id": "fresh-v2-5",
+   "title": "Synthetic replacement conversation 5",
+   "mapping": {
+    "node-1": {
+     "id": "node-1",
+     "parent": null,
+     "children": [
+      "node-2"
+     ],
+     "message": {
+      "id": "message-1",
+      "author": {
+       "role": "user"
+      },
+      "create_time": null,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I work as a meteorologist."
+       ]
+      }
+     }
+    },
+    "node-2": {
+     "id": "node-2",
+     "parent": "node-1",
+     "children": [
+      "node-3"
+     ],
+     "message": {
+      "id": "message-2",
+      "author": {
+       "role": "user"
+      },
+      "create_time": null,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I work as a cartographer."
+       ]
+      }
+     }
+    },
+    "node-3": {
+     "id": "node-3",
+     "parent": "node-2",
+     "children": [
+      "node-4"
+     ],
+     "message": {
+      "id": "message-3",
+      "author": {
+       "role": "user"
+      },
+      "create_time": null,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I live in Tartu."
+       ]
+      }
+     }
+    },
+    "node-4": {
+     "id": "node-4",
+     "parent": "node-3",
+     "children": [
+      "node-5"
+     ],
+     "message": {
+      "id": "message-4",
+      "author": {
+       "role": "user"
+      },
+      "create_time": null,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I live in Turku."
+       ]
+      }
+     }
+    },
+    "node-5": {
+     "id": "node-5",
+     "parent": "node-4",
+     "children": [
+      "node-6"
+     ],
+     "message": {
+      "id": "message-5",
+      "author": {
+       "role": "user"
+      },
+      "create_time": null,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I follow the Quaker faith."
+       ]
+      }
+     }
+    },
+    "node-6": {
+     "id": "node-6",
+     "parent": "node-5",
+     "children": [],
+     "message": {
+      "id": "message-6",
+      "author": {
+       "role": "user"
+      },
+      "create_time": null,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "Please remove the claim that I like speed chess."
+       ]
+      }
+     }
+    }
+   },
+   "current_node": "node-6"
+  },
+  {
+   "id": "fresh-v2-6",
+   "title": "Synthetic replacement conversation 6",
+   "mapping": {
+    "node-1": {
+     "id": "node-1",
+     "parent": null,
+     "children": [
+      "node-2"
+     ],
+     "message": {
+      "id": "message-1",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1736208060,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "My name is Leila Haddad."
+       ]
+      }
+     }
+    },
+    "node-2": {
+     "id": "node-2",
+     "parent": "node-1",
+     "children": [
+      "node-3"
+     ],
+     "message": {
+      "id": "message-2",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1736208120,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I love cyanotype printing."
+       ]
+      }
+     }
+    },
+    "node-3": {
+     "id": "node-3",
+     "parent": "node-2",
+     "children": [
+      "node-4"
+     ],
+     "message": {
+      "id": "message-3",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1736208180,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I hate traffic noise."
+       ]
+      }
+     }
+    },
+    "node-4": {
+     "id": "node-4",
+     "parent": "node-3",
+     "children": [
+      "node-5"
+     ],
+     "message": {
+      "id": "message-4",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1736208240,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I earn EUR 64,200 annually."
+       ]
+      }
+     }
+    },
+    "node-5": {
+     "id": "node-5",
+     "parent": "node-4",
+     "children": [
+      "node-6"
+     ],
+     "message": {
+      "id": "message-5",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1736208300,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I speak Welsh."
+       ]
+      }
+     }
+    },
+    "node-6": {
+     "id": "node-6",
+     "parent": "node-5",
+     "children": [],
+     "message": {
+      "id": "message-6",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1736208360,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "In my short story, a character says: I live in Fairytale City."
+       ]
+      }
+     }
+    }
+   },
+   "current_node": "node-6"
+  }
+ ],
+ "labels": [
+  {
+   "id": "fresh-v2-1-label-1",
+   "conversationId": "fresh-v2-1",
+   "messageId": "message-1",
+   "quote": "my name is Imani Okafor",
+   "slot": "identity.name",
+   "value": "Imani Okafor",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "fresh-v2-1-label-2",
+   "conversationId": "fresh-v2-1",
+   "messageId": "message-2",
+   "quote": "My home is in Bergen",
+   "slot": "location.home",
+   "value": "Bergen",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "fresh-v2-1-label-3",
+   "conversationId": "fresh-v2-1",
+   "messageId": "message-3",
+   "quote": "I am a ceramic artist",
+   "slot": "work.role",
+   "value": "ceramic artist",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "fresh-v2-1-label-4",
+   "conversationId": "fresh-v2-1",
+   "messageId": "message-4",
+   "quote": "My employer is Fjord Workshop",
+   "slot": "work.employer",
+   "value": "Fjord Workshop",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "fresh-v2-1-label-5",
+   "conversationId": "fresh-v2-1",
+   "messageId": "message-5",
+   "quote": "I enjoy restoring old radios",
+   "slot": "preference.likes",
+   "value": "restoring old radios",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "fresh-v2-1-label-6",
+   "conversationId": "fresh-v2-1",
+   "messageId": "message-6",
+   "quote": "I dislike licorice",
+   "slot": "preference.dislikes",
+   "value": "licorice",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "fresh-v2-2-label-7",
+   "conversationId": "fresh-v2-2",
+   "messageId": "message-1",
+   "quote": "I live in Wellington",
+   "slot": "location.home",
+   "value": "Wellington",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "fresh-v2-2-label-8",
+   "conversationId": "fresh-v2-2",
+   "messageId": "message-2",
+   "quote": "I relocated to Dunedin",
+   "slot": "location.home",
+   "value": "Dunedin",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "fresh-v2-2-label-9",
+   "conversationId": "fresh-v2-2",
+   "messageId": "message-3",
+   "quote": "I have a walnut allergy",
+   "slot": "health.note",
+   "value": "walnut allergy",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": [
+    "health"
+   ]
+  },
+  {
+   "id": "fresh-v2-2-label-10",
+   "conversationId": "fresh-v2-2",
+   "messageId": "message-4",
+   "quote": "My salary is NZ$73,500",
+   "slot": "financial.note",
+   "value": "NZ$73,500",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": [
+    "finance"
+   ]
+  },
+  {
+   "id": "fresh-v2-3-label-11",
+   "conversationId": "fresh-v2-3",
+   "messageId": "message-1",
+   "quote": "I work at Lantern Books",
+   "slot": "work.employer",
+   "value": "Lantern Books",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "fresh-v2-3-label-12",
+   "conversationId": "fresh-v2-3",
+   "messageId": "message-2",
+   "quote": "I no longer work at Lantern Books",
+   "slot": "work.employer",
+   "value": "Lantern Books",
+   "polarity": "deny",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "fresh-v2-3-label-13",
+   "conversationId": "fresh-v2-3",
+   "messageId": "message-3",
+   "quote": "I work at Copper Finch",
+   "slot": "work.employer",
+   "value": "Copper Finch",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "fresh-v2-3-label-14",
+   "conversationId": "fresh-v2-3",
+   "messageId": "message-4",
+   "quote": "I play the bassoon",
+   "slot": "other.hobby",
+   "value": "plays bassoon",
+   "polarity": "assert",
+   "supported": false,
+   "sensitivity": []
+  },
+  {
+   "id": "fresh-v2-4-label-15",
+   "conversationId": "fresh-v2-4",
+   "messageId": "message-1",
+   "quote": "I like speed chess",
+   "slot": "preference.likes",
+   "value": "speed chess",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "fresh-v2-4-label-16",
+   "conversationId": "fresh-v2-4",
+   "messageId": "message-2",
+   "quote": "I no longer like speed chess",
+   "slot": "preference.likes",
+   "value": "speed chess",
+   "polarity": "deny",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "fresh-v2-4-label-17",
+   "conversationId": "fresh-v2-4",
+   "messageId": "message-3",
+   "quote": "I have chronic migraines",
+   "slot": "health.note",
+   "value": "chronic migraines",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": [
+    "health"
+   ]
+  },
+  {
+   "id": "fresh-v2-4-label-18",
+   "conversationId": "fresh-v2-4",
+   "messageId": "message-4",
+   "quote": "I live at 87 Example Lane",
+   "slot": "location.home",
+   "value": "87 Example Lane",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": [
+    "precise_location"
+   ]
+  },
+  {
+   "id": "fresh-v2-5-label-19",
+   "conversationId": "fresh-v2-5",
+   "messageId": "message-1",
+   "quote": "I work as a meteorologist",
+   "slot": "work.role",
+   "value": "meteorologist",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "fresh-v2-5-label-20",
+   "conversationId": "fresh-v2-5",
+   "messageId": "message-2",
+   "quote": "I work as a cartographer",
+   "slot": "work.role",
+   "value": "cartographer",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "fresh-v2-5-label-21",
+   "conversationId": "fresh-v2-5",
+   "messageId": "message-3",
+   "quote": "I live in Tartu",
+   "slot": "location.home",
+   "value": "Tartu",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "fresh-v2-5-label-22",
+   "conversationId": "fresh-v2-5",
+   "messageId": "message-4",
+   "quote": "I live in Turku",
+   "slot": "location.home",
+   "value": "Turku",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "fresh-v2-5-label-23",
+   "conversationId": "fresh-v2-5",
+   "messageId": "message-5",
+   "quote": "I follow the Quaker faith",
+   "slot": "other.belief",
+   "value": "Quaker",
+   "polarity": "assert",
+   "supported": false,
+   "sensitivity": [
+    "belief"
+   ]
+  },
+  {
+   "id": "fresh-v2-6-label-24",
+   "conversationId": "fresh-v2-6",
+   "messageId": "message-1",
+   "quote": "My name is Leila Haddad",
+   "slot": "identity.name",
+   "value": "Leila Haddad",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "fresh-v2-6-label-25",
+   "conversationId": "fresh-v2-6",
+   "messageId": "message-2",
+   "quote": "I love cyanotype printing",
+   "slot": "preference.likes",
+   "value": "cyanotype printing",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "fresh-v2-6-label-26",
+   "conversationId": "fresh-v2-6",
+   "messageId": "message-3",
+   "quote": "I hate traffic noise",
+   "slot": "preference.dislikes",
+   "value": "traffic noise",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": []
+  },
+  {
+   "id": "fresh-v2-6-label-27",
+   "conversationId": "fresh-v2-6",
+   "messageId": "message-4",
+   "quote": "I earn EUR 64,200 annually",
+   "slot": "financial.note",
+   "value": "EUR 64,200 annually",
+   "polarity": "assert",
+   "supported": true,
+   "sensitivity": [
+    "finance"
+   ]
+  },
+  {
+   "id": "fresh-v2-6-label-28",
+   "conversationId": "fresh-v2-6",
+   "messageId": "message-5",
+   "quote": "I speak Welsh",
+   "slot": "other.language",
+   "value": "Welsh",
+   "polarity": "assert",
+   "supported": false,
+   "sensitivity": []
+  }
+ ],
+ "groups": [
+  {
+   "id": "fresh-v2-group-1",
+   "slot": "location.home",
+   "members": [
+    "fresh-v2-2-label-7",
+    "fresh-v2-2-label-8"
+   ]
+  },
+  {
+   "id": "fresh-v2-group-2",
+   "slot": "work.employer",
+   "members": [
+    "fresh-v2-3-label-11",
+    "fresh-v2-3-label-12",
+    "fresh-v2-3-label-13"
+   ]
+  },
+  {
+   "id": "fresh-v2-group-3",
+   "slot": "preference.likes",
+   "members": [
+    "fresh-v2-4-label-15",
+    "fresh-v2-4-label-16"
+   ]
+  },
+  {
+   "id": "fresh-v2-group-4",
+   "slot": "work.role",
+   "members": [
+    "fresh-v2-5-label-19",
+    "fresh-v2-5-label-20"
+   ]
+  },
+  {
+   "id": "fresh-v2-group-5",
+   "slot": "location.home",
+   "members": [
+    "fresh-v2-5-label-21",
+    "fresh-v2-5-label-22"
+   ]
+  }
+ ],
+ "sensitivityCases": [
+  {
+   "conversationId": "fresh-v2-2",
+   "messageId": "message-3",
+   "categories": [
+    "health"
+   ]
+  },
+  {
+   "conversationId": "fresh-v2-2",
+   "messageId": "message-4",
+   "categories": [
+    "finance"
+   ]
+  },
+  {
+   "conversationId": "fresh-v2-4",
+   "messageId": "message-3",
+   "categories": [
+    "health"
+   ]
+  },
+  {
+   "conversationId": "fresh-v2-4",
+   "messageId": "message-4",
+   "categories": [
+    "precise_location"
+   ]
+  },
+  {
+   "conversationId": "fresh-v2-4",
+   "messageId": "message-5",
+   "categories": [
+    "minors"
+   ]
+  },
+  {
+   "conversationId": "fresh-v2-5",
+   "messageId": "message-5",
+   "categories": [
+    "belief"
+   ]
+  },
+  {
+   "conversationId": "fresh-v2-6",
+   "messageId": "message-4",
+   "categories": [
+    "finance"
+   ]
+  }
+ ],
+ "eligibility": [
+  {
+   "text": "I live in Uppsala.",
+   "eligible": true
+  },
+  {
+   "text": "My home is in Gdansk.",
+   "eligible": true
+  },
+  {
+   "text": "I relocated to Hobart.",
+   "eligible": true
+  },
+  {
+   "text": "My name is Soren.",
+   "eligible": true
+  },
+  {
+   "text": "I am a locksmith.",
+   "eligible": true
+  },
+  {
+   "text": "My employer is Paper Kite Labs.",
+   "eligible": true
+  },
+  {
+   "text": "I enjoy astronomy.",
+   "eligible": true
+  },
+  {
+   "text": "I dislike pickles.",
+   "eligible": true
+  },
+  {
+   "text": "I have a nickel allergy.",
+   "eligible": true
+  },
+  {
+   "text": "My income is CAD 48,000.",
+   "eligible": true
+  },
+  {
+   "text": "I no longer live in Split.",
+   "eligible": true
+  },
+  {
+   "text": "I used to work at Kite Works.",
+   "eligible": true
+  },
+  {
+   "text": "I do not like drum solos.",
+   "eligible": true
+  },
+  {
+   "text": "I work as a botanist.",
+   "eligible": true
+  },
+  {
+   "text": "I love making kites.",
+   "eligible": true
+  },
+  {
+   "text": "I have asthma.",
+   "eligible": true
+  },
+  {
+   "text": "I play badminton.",
+   "eligible": true
+  },
+  {
+   "text": "I speak Tagalog.",
+   "eligible": true
+  },
+  {
+   "text": "I keep a tortoise.",
+   "eligible": true
+  },
+  {
+   "text": "I am left handed.",
+   "eligible": true
+  },
+  {
+   "text": "If I lived in Busan I would learn Korean.",
+   "eligible": false
+  },
+  {
+   "text": "Do I live in Busan?",
+   "eligible": false
+  },
+  {
+   "text": "What if I were a carpenter?",
+   "eligible": false
+  },
+  {
+   "text": "My cousin lives in Quito.",
+   "eligible": false
+  },
+  {
+   "text": "She thinks I enjoy astronomy.",
+   "eligible": false
+  },
+  {
+   "text": "My colleague said I am a locksmith.",
+   "eligible": false
+  },
+  {
+   "text": "The sample sentence is \"I live in Siena\".",
+   "eligible": false
+  },
+  {
+   "text": "I am in Ljubljana for a conference.",
+   "eligible": false
+  },
+  {
+   "text": "I live in Bruges just for this holiday.",
+   "eligible": false
+  },
+  {
+   "text": "Pretend my name is Captain Comet.",
+   "eligible": false
+  },
+  {
+   "text": "For this roleplay, I work at Cloud Castle.",
+   "eligible": false
+  },
+  {
+   "text": "Please forget that I love making kites.",
+   "eligible": false
+  },
+  {
+   "text": "    I live in Indented Code City",
+   "eligible": false
+  },
+  {
+   "text": "Would I enjoy fencing?",
+   "eligible": false
+  },
+  {
+   "text": "Imagine that I hate mustard.",
+   "eligible": false
+  },
+  {
+   "text": "Maybe I will live in Riga.",
+   "eligible": false
+  },
+  {
+   "text": "They claimed I work as a pilot.",
+   "eligible": false
+  },
+  {
+   "text": "I might become a baker someday.",
+   "eligible": false
+  },
+  {
+   "text": "Suppose my employer were Moon Station.",
+   "eligible": false
+  },
+  {
+   "text": "The meeting starts at noon.",
+   "eligible": false
+  }
+ ]
+}

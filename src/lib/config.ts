@@ -11,4 +11,4 @@ export function publicConfig(): PublicConfig | null {
 }
 
 export const SETUP_MESSAGE =
-  "Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to save a profile. MEMORY_EXTRACT_API_KEY and MEMORY_EXTRACT_URL are server secrets and must not use a VITE_ prefix. Until the public values are set, use the local demo. It is not saved.";
+  "Account mode needs the public VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY values (they identify the project; they are not secret keys). Never put a service-role or provider key in a VITE_ variable. Until they are set, use local mode: it keeps everything in this tab and is not saved.";

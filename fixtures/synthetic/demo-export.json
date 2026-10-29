@@ -1,0 +1,464 @@
+{
+ "id": "synthetic-demo-v1",
+ "notes": "Wholly synthetic ChatGPT-shaped export for the built-in local demo. Not a real person's data. Carrier text is marked SYNTHETIC CARRIER and must never appear in candidates or outputs.",
+ "export": [
+  {
+   "id": "demo-intro",
+   "title": "Getting started",
+   "mapping": {
+    "sys": {
+     "id": "sys",
+     "parent": null,
+     "children": [
+      "ctx"
+     ],
+     "message": {
+      "id": "sys",
+      "author": {
+       "role": "system"
+      },
+      "create_time": 1704880800,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "You are ChatGPT."
+       ]
+      },
+      "metadata": {
+       "is_visually_hidden_from_conversation": true
+      }
+     }
+    },
+    "ctx": {
+     "id": "ctx",
+     "parent": "sys",
+     "children": [
+      "u1"
+     ],
+     "message": {
+      "id": "ctx",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1704880800,
+      "content": {
+       "content_type": "user_editable_context",
+       "user_profile": "SYNTHETIC CARRIER: about-me text (never imported)",
+       "user_instructions": "SYNTHETIC CARRIER: custom instructions (never imported)"
+      }
+     }
+    },
+    "u1": {
+     "id": "u1",
+     "parent": "ctx",
+     "children": [
+      "a1"
+     ],
+     "message": {
+      "id": "u1",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1704880860,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "Hi! My name is Ada Quin. I live in Austin and I work as a librarian at the city library."
+       ]
+      }
+     }
+    },
+    "a1": {
+     "id": "a1",
+     "parent": "u1",
+     "children": [
+      "u2",
+      "u2-old"
+     ],
+     "message": {
+      "id": "a1",
+      "author": {
+       "role": "assistant"
+      },
+      "create_time": 1704880870,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "Nice to meet you, Ada. You live in Paris, right?"
+       ]
+      }
+     }
+    },
+    "u2": {
+     "id": "u2",
+     "parent": "a1",
+     "children": [
+      "a2"
+     ],
+     "message": {
+      "id": "u2",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1704880920,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "No. I like hiking. I have a peanut allergy."
+       ]
+      }
+     }
+    },
+    "a2": {
+     "id": "a2",
+     "parent": "u2",
+     "children": [],
+     "message": {
+      "id": "a2",
+      "author": {
+       "role": "assistant"
+      },
+      "create_time": 1704880930,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "Noted."
+       ]
+      }
+     }
+    },
+    "u2-old": {
+     "id": "u2-old",
+     "parent": "a1",
+     "children": [],
+     "message": {
+      "id": "u2-old",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1704880900,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I live in Atlantis."
+       ]
+      }
+     }
+    }
+   },
+   "create_time": 1704880800,
+   "update_time": 1704881400,
+   "current_node": "a2"
+  },
+  {
+   "id": "demo-move",
+   "title": "Moving update",
+   "mapping": {
+    "u1": {
+     "id": "u1",
+     "parent": null,
+     "children": [
+      "a1"
+     ],
+     "message": {
+      "id": "u1",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1717322460,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "Actually, my name is Ada Quinn, not Ada Quin."
+       ]
+      }
+     }
+    },
+    "a1": {
+     "id": "a1",
+     "parent": "u1",
+     "children": [
+      "u2"
+     ],
+     "message": {
+      "id": "a1",
+      "author": {
+       "role": "assistant"
+      },
+      "create_time": 1717322470,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "Thanks for the correction."
+       ]
+      }
+     }
+    },
+    "u2": {
+     "id": "u2",
+     "parent": "a1",
+     "children": [
+      "t1"
+     ],
+     "message": {
+      "id": "u2",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1717322520,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I moved to Denver.\r\nMy salary is $64,000."
+       ]
+      }
+     }
+    },
+    "t1": {
+     "id": "t1",
+     "parent": "u2",
+     "children": [
+      "a2"
+     ],
+     "message": {
+      "id": "t1",
+      "author": {
+       "role": "tool"
+      },
+      "create_time": 1717322525,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "search results: I live in Secretville"
+       ]
+      }
+     }
+    },
+    "a2": {
+     "id": "a2",
+     "parent": "t1",
+     "children": [],
+     "message": {
+      "id": "a2",
+      "author": {
+       "role": "assistant"
+      },
+      "create_time": 1717322530,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "Congratulations on the move."
+       ]
+      }
+     }
+    }
+   },
+   "create_time": 1717322400,
+   "update_time": 1717323000,
+   "current_node": "a2"
+  },
+  {
+   "id": "demo-work-a",
+   "title": "Work notes",
+   "mapping": {
+    "u1": {
+     "id": "u1",
+     "parent": null,
+     "children": [
+      "a1"
+     ],
+     "message": {
+      "id": "u1",
+      "author": {
+       "role": "user"
+      },
+      "create_time": null,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I work at Globex."
+       ]
+      }
+     }
+    },
+    "a1": {
+     "id": "a1",
+     "parent": "u1",
+     "children": [],
+     "message": {
+      "id": "a1",
+      "author": {
+       "role": "assistant"
+      },
+      "create_time": null,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "Got it."
+       ]
+      }
+     }
+    }
+   },
+   "current_node": "a1"
+  },
+  {
+   "id": "demo-work-b",
+   "title": "More work notes",
+   "mapping": {
+    "u1": {
+     "id": "u1",
+     "parent": null,
+     "children": [],
+     "message": {
+      "id": "u1",
+      "author": {
+       "role": "user"
+      },
+      "create_time": null,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I work at Initech."
+       ]
+      }
+     }
+    }
+   },
+   "current_node": "u1"
+  },
+  {
+   "id": "demo-prefs",
+   "title": "Weekend plans",
+   "mapping": {
+    "u1": {
+     "id": "u1",
+     "parent": null,
+     "children": [
+      "u2"
+     ],
+     "message": {
+      "id": "u1",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1719828060,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I like jazz. I no longer like hiking."
+       ]
+      }
+     }
+    },
+    "u2": {
+     "id": "u2",
+     "parent": "u1",
+     "children": [
+      "u3"
+     ],
+     "message": {
+      "id": "u2",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1719828120,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "My friend says I live in Paris. If I live in Rome, I would be happy. Do I work at NASA?"
+       ]
+      }
+     }
+    },
+    "u3": {
+     "id": "u3",
+     "parent": "u2",
+     "children": [
+      "u4"
+     ],
+     "message": {
+      "id": "u3",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1719828180,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "```\nI live in Tooltown\n```"
+       ]
+      }
+     }
+    },
+    "u4": {
+     "id": "u4",
+     "parent": "u3",
+     "children": [
+      "u5"
+     ],
+     "message": {
+      "id": "u4",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1719828240,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "🎉 I love dark chocolate."
+       ]
+      }
+     }
+    },
+    "u5": {
+     "id": "u5",
+     "parent": "u4",
+     "children": [],
+     "message": {
+      "id": "u5",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1719828300,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "Please forget that I like jazz."
+       ]
+      }
+     }
+    }
+   },
+   "create_time": 1719828000,
+   "update_time": 1719828600,
+   "current_node": "u5"
+  },
+  {
+   "id": "demo-branchless",
+   "title": "Missing current node",
+   "mapping": {
+    "u1": {
+     "id": "u1",
+     "parent": null,
+     "children": [],
+     "message": {
+      "id": "u1",
+      "author": {
+       "role": "user"
+      },
+      "create_time": 1719828400,
+      "content": {
+       "content_type": "text",
+       "parts": [
+        "I like tea."
+       ]
+      }
+     }
+    }
+   },
+   "create_time": 1719828000,
+   "update_time": 1719828600
+  }
+ ]
+}
